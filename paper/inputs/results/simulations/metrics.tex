@@ -1,0 +1,154 @@
+\begin{table*}[htbp]
+    \centering
+    \begin{tabular}{ccccccc}
+        \toprule
+
+        \multicolumn{7}{c}{\textbf{Mean Absolute Error (MAE)}}                                                                      \\
+        \midrule
+
+        \textbf{Scenario} & \textbf{Var.} & PA     & GLM                & MLP-3/2         & MLP-16/8           & MLP-32/16          \\
+        \midrule
+
+        Epi-1             & \( R_t \)     & 0.11   & \underline{0.052}  & \textbf{0.032}  & 0.058              & 0.065              \\[6pt]
+
+        Epi-2             & \( R_t \)     & 0.048  & \textbf{0.0064}    & 0.038           & \underline{0.0075} & 0.017              \\[6pt]
+
+        Epi-3             & \( R_t \)     & 0.055  & 0.12               & 0.084           & \underline{0.054}  & \textbf{0.036}     \\[6pt]
+
+        Epi-4             & \( M \)       & 0.011  & 0.0085             & 0.0068          & \textbf{0.0031}    & \underline{0.0045} \\[6pt]
+
+        \multirow{3}{*}{FBD-1}
+                          & \( \lambda \) & 0.12   & 0.032              & \textbf{0.018}  & 0.025              & \underline{0.023}  \\
+                          & \( \mu \)     & 0.077  & \underline{0.0051} & \textbf{0.0039} & 0.017              & 0.027              \\
+                          & Avg.          & 0.098  & \underline{0.019}  & \textbf{0.011}  & 0.021              & 0.025              \\[6pt]
+
+        \multirow{3}{*}{FBD-2}
+                          & \( \lambda \) & 0.075  & 0.030              & 0.026           & \underline{0.021}  & \textbf{0.020}     \\
+                          & \( \mu \)     & 0.057  & 0.0088             & 0.022           & \textbf{0.0031}    & \underline{0.0072} \\
+                          & Avg.          & 0.066  & 0.020              & 0.024           & \textbf{0.012}     & \underline{0.013}  \\[6pt]
+
+        \multirow{3}{*}{FBD-3}
+                          & \( \lambda \) & 0.061  & 0.16               & \textbf{0.011}  & \underline{0.015}  & 0.025              \\
+                          & \( \mu \)     & 0.097  & 0.053              & \textbf{0.020}  & 0.025              & \underline{0.024}  \\
+                          & Avg.          & 0.079  & 0.11               & \textbf{0.015}  & \underline{0.020}  & 0.025              \\[6pt]
+
+        \multirow{3}{*}{FBD-4}
+                          & \( \lambda \) & 0.13   & 0.025              & 0.021           & \underline{0.013}  & \textbf{0.011}     \\
+                          & \( \mu \)     & 0.1754 & 0.0160             & 0.0261          & \underline{0.012}  & \textbf{0.0070}    \\
+                          & Avg.          & 0.153  & 0.021              & 0.023           & \underline{0.013}  & \textbf{0.0090}    \\
+
+        \bottomrule
+    \end{tabular}
+    \caption{Mean absolute error (MAE) across all scenarios for all inference frameworks considered (PA is the predictor-agnostic model). Bold indicates the best, underlined indicates the second-best.}%
+    \label{tab:mae}
+\end{table*}
+
+\begin{table*}[htbp]
+    \centering
+    \begin{tabular}{ccccccc}
+        \toprule
+
+        \multicolumn{7}{c}{\textbf{Coverage}}                                            \\
+        \midrule
+
+        \textbf{Scenario} & \textbf{Var.} & PA   & GLM  & MLP-3/2 & MLP-16/8 & MLP-32/16 \\
+        \midrule
+
+        Epi-1             & \( R_t \)     & 0.93 & 0.96 & 0.98    & 0.99     & 0.98      \\[6pt]
+
+        Epi-2             & \( R_t \)     & 0.95 & 0.98 & 0.98    & 0.99     & 0.98      \\[6pt]
+
+        Epi-3             & \( R_t \)     & 0.96 & 0.75 & 0.91    & 0.98     & 0.98      \\[6pt]
+
+        Epi-4             & \( M \)       & 0.91 & 0.35 & 0.79    & 0.97     & 0.90      \\[6pt]
+
+        \multirow{3}{*}{FBD-1}
+                          & \( \lambda \) & 0.90 & 0.90 & 0.97    & 0.98     & 0.98      \\
+                          & \( \mu \)     & 0.97 & 0.96 & 0.97    & 0.97     & 0.93      \\
+                          & Avg.          & 0.94 & 0.93 & 0.97    & 0.97     & 0.95      \\[6pt]
+
+        \multirow{3}{*}{FBD-2}
+                          & \( \lambda \) & 0.93 & 0.87 & 0.95    & 0.96     & 0.97      \\
+                          & \( \mu \)     & 0.96 & 0.96 & 0.95    & 0.98     & 0.98      \\
+                          & Avg.          & 0.94 & 0.91 & 0.95    & 0.97     & 0.97      \\[6pt]
+
+        \multirow{3}{*}{FBD-3}
+                          & \( \lambda \) & 0.96 & 0.23 & 0.85    & 0.87     & 0.92      \\
+                          & \( \mu \)     & 0.97 & 0.32 & 0.73    & 0.73     & 0.78      \\
+                          & Avg.          & 0.96 & 0.28 & 0.79    & 0.80     & 0.85      \\[6pt]
+
+        \multirow{3}{*}{FBD-4}
+                          & \( \lambda \) & 0.95 & 0.91 & 0.96    & 0.98     & 0.98      \\
+                          & \( \mu \)     & 0.89 & 0.90 & 0.92    & 0.98     & 0.97      \\
+                          & Avg.          & 0.92 & 0.91 & 0.94    & 0.98     & 0.97      \\
+
+        \bottomrule
+    \end{tabular}
+    \caption{Coverage across all scenarios for all inference frameworks considered (PA denotes the predictor-agnostic model).}%
+    \label{tab:coverage}
+\end{table*}
+
+\begin{table*}[htbp]
+    \centering
+    \begin{tabular}{ccccccc}
+        \toprule
+
+        \multicolumn{7}{c}{\textbf{Average 95\% CI Width}}                                 \\
+        \midrule
+
+        \textbf{Scenario} & \textbf{Var.} & PA    & GLM   & MLP-3/2 & MLP-16/8 & MLP-32/16 \\
+        \midrule
+
+        Epi-1             & \( R_t \)     & 0.96  & 0.35  & 0.29    & 0.51     & 0.67      \\[6pt]
+
+        Epi-2             & \( R_t \)     & 0.89  & 0.34  & 0.36    & 0.50     & 0.63      \\[6pt]
+
+        Epi-3             & \( R_t \)     & 1.1   & 0.42  & 0.44    & 0.62     & 0.76      \\[6pt]
+
+        Epi-4             & \( M \)       & 0.041 & 0.014 & 0.021   & 0.022    & 0.020     \\[6pt]
+
+        \multirow{3}{*}{FBD-1}
+                          & \( \lambda \) & 0.44  & 0.14  & 0.11    & 0.17     & 0.22      \\
+                          & \( \mu \)     & 0.45  & 0.11  & 0.093   & 0.13     & 0.15      \\
+                          & Avg.          & 0.44  & 0.12  & 0.10    & 0.15     & 0.18      \\[6pt]
+
+        \multirow{3}{*}{FBD-2}
+                          & \( \lambda \) & 0.35  & 0.13  & 0.14    & 0.18     & 0.21      \\
+                          & \( \mu \)     & 0.39  & 0.10  & 0.10    & 0.14     & 0.17      \\
+                          & Avg.          & 0.37  & 0.12  & 0.12    & 0.16     & 0.19      \\[6pt]
+
+        \multirow{3}{*}{FBD-3}
+                          & \( \lambda \) & 0.40  & 0.17  & 0.16    & 0.20     & 0.22      \\
+                          & \( \mu \)     & 0.39  & 0.071 & 0.074   & 0.088    & 0.095     \\
+                          & Avg.          & 0.40  & 0.12  & 0.12    & 0.14     & 0.16      \\[6pt]
+
+        \multirow{3}{*}{FBD-4}
+                          & \( \lambda \) & 0.68  & 0.17  & 0.20    & 0.25     & 0.30      \\
+                          & \( \mu \)     & 0.79  & 0.14  & 0.1775  & 0.24     & 0.28      \\
+                          & Avg.          & 0.73  & 0.16  & 0.19    & 0.24     & 0.29      \\
+
+        \bottomrule
+    \end{tabular}
+    \caption{Average 95\% credible interval width across all scenarios for all inference frameworks considered (PA denotes the predictor-agnostic model).}%
+    \label{tab:avg_ci_width}
+\end{table*}
+
+\begin{table}[htbp]
+    \centering
+    \begin{tabular}{cccccc}
+        \toprule
+        \textbf{Scenario} & \textbf{PA} & \textbf{GLM} & \textbf{MLP-3/2} & \textbf{MLP-16/8} & \textbf{MLP-32/16} \\
+        \midrule
+        Epi-1             & 39878.25    & 30543.81     & 12750.74         & 6630.82           & 4586.71            \\
+        Epi-2             & 58356.51    & 49470.21     & 13622.51         & 11485.42          & 8598.30            \\
+        Epi-3             & 54439.66    & 43323.65     & 10997.51         & 11408.65          & 7643.71            \\
+        Epi-4             & 162.19      & 175.93       & 137.84           & 106.11            & 79.70              \\
+        FBD-1             & 57313.24    & 41452.32     & 12060.29         & 11601.46          & 7513.56            \\
+        FBD-2             & 36272.02    & 23972.37     & 5120.69          & 5309.66           & 3614.67            \\
+        FBD-3             & 29514.58    & 20281.02     & 1919.92          & 1770.44           & 1835.22            \\
+        FBD-4             & 71.49       & 61.05        & 8.96             & 10.92             & 11.32              \\
+        \bottomrule
+    \end{tabular}
+    \caption{Mean effective sample size (ESS) per hour across all scenarios and inference frameworks considered (PA denotes the predictor-agnostic model), averaged over all inference targets and all replicate trees for each scenario.}%
+    \label{tab:mean_ess_per_hour}
+\end{table}

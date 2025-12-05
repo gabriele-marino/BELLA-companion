@@ -1,0 +1,35 @@
+\subsection{Evaluation metrics}
+
+To compare the performance of the different inference approaches (predictor-agnostic, GLM, and MLP), we computed the posterior median of each target parameter from every MCMC run, along with the corresponding 95\% credible intervals (CIs). Model performance within each scenario was evaluated based on three complementary metrics: the mean absolute error (MAE) between the posterior median estimates and the true parameter values across the 100 simulated trees, the average width of the 95\% CIs, and the empirical coverage of these intervals.
+
+Formally, let \( \boldsymbol{\theta}_p = (\theta_{p_1}, \ldots, \theta_{p_K}) \) denote the vector of true values for parameter \( p \), where \( K \) is the number of elements in the vector (e.g., time bins or population pairs), and let \( \hat{\boldsymbol{\theta}}_{p}^i = (\hat{\theta}_{p_1}^i, \ldots, \hat{\theta}_{p_K}^i) \) be the corresponding posterior median estimates obtained from tree \( i \), with \( i = 1, \ldots, N \) and \( N = 100 \) simulated trees per scenario. The mean absolute error (MAE) for each parameter and each tree was computed as
+\[
+    \mathrm{MAE}_p^i = \frac{1}{K} \sum_{k=1}^{K}
+    \left| \hat{\theta}_{p_k}^i - \theta_{p_k} \right|,
+\]
+and the overall MAE for a given parameter in a given scenario was then obtained by averaging across all trees:
+\[
+    \mathrm{MAE}_p = \frac{1}{N} \sum_{i=1}^{N} \mathrm{MAE}_p^i.
+\]
+
+The width of the 95\% credible interval (CI) for element \( k \) of parameter \( p \) in tree \( i \) was defined as
+\[
+    \mathrm{CI}_{p_k}^i = \hat{\theta}_{p_k}^{i,97.5\%} - \hat{\theta}_{p_k}^{i,2.5\%}.
+\]
+The overall CI width for parameter \( p \) in a given scenario was then obtained by first averaging over all elements of the parameter vector for each tree and then across all trees:
+\[
+    \mathrm{CI}_p = \frac{1}{N} \sum_{i=1}^{N} \left( \frac{1}{K} \sum_{k=1}^{K} \mathrm{CI}_{p_k}^i \right).
+\]
+
+Coverage was defined as the proportion of true parameter values contained within their respective 95\% credible intervals. For each element \( k \) of parameter \( p \) in tree \( i \), let
+\[
+    C_{p_k}^i = \mathbb{I}\!\left( \hat{\theta}_{p_k}^{i,2.5\%} \leq \theta_{p_k} \leq \hat{\theta}_{p_k}^{i,97.5\%} \right),
+\]
+where \( \mathbb{I}(\cdot) \) denotes the indicator function. The overall coverage for parameter \( p \) was then obtained by averaging over all elements and all trees:
+\[
+    \mathrm{Coverage}_p = \frac{1}{N} \sum_{i=1}^{N} \left( \frac{1}{K} \sum_{k=1}^{K} C_{p_k}^i \right).
+\]
+
+MAE quantifies overall estimation accuracy, \( \mathrm{CI}_{\text{width}} \) reflects the precision of posterior uncertainty, and coverage measures the calibration of the credible intervals. Together, these three criteria provide a comprehensive assessment of both point estimates and uncertainty quantification across models and scenarios.
+
+To assess the computational efficiency and sampling performance of each inference framework, we computed the mean effective sample size per hour. For each model and scenario, we first estimated the effective sample size (ESS) of all inference targets obtained from the posterior samples. The mean ESS across all parameters was then divided by the total wall-clock time (in hours) required for the corresponding inference run. This procedure was repeated across all replicate phylogenetic trees, yielding the mean ESS/hour averaged over all replicates for each scenario and model combination. This measure allows for direct comparison of sampling efficiency between models, independently of absolute runtime or dimensionality of the parameter space.

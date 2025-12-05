@@ -1,0 +1,551 @@
+
+R version 4.4.1 (2024-06-14) -- "Race for Your Life"
+Copyright (C) 2024 The R Foundation for Statistical Computing
+Platform: aarch64-apple-darwin20
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[R.app GUI 1.80 (8416) aarch64-apple-darwin20]
+
+[History restored from /Users/gmarino/.Rapp.history]
+
+> library(ape)
+> 
+> set.seed(1)
+> 
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree2 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> cp <- cophylo(tree1, tree2)
+Error in cophylo(tree1, tree2) : could not find function "cophylo"
+> 
+> library(phytools)
+Error in library(phytools) : there is no package called ‘phytools’
+> 
+> install.packages("phytools")
+--- Please select a CRAN mirror for use in this session ---
+Error in if (res > nrow(m)) { : argument is of length zero
+> install.packages("phytools")
+--- Please select a CRAN mirror for use in this session ---
+also installing the dependencies ‘iterators’, ‘maps’, ‘clusterGeneration’, ‘coda’, ‘combinat’, ‘DEoptim’, ‘doParallel’, ‘foreach’, ‘mnormt’, ‘numDeriv’, ‘optimParallel’, ‘scatterplot3d’
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/iterators_1.0.14.tgz'
+Content type 'application/x-gzip' length 346993 bytes (338 KB)
+==================================================
+downloaded 338 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/maps_3.4.3.tgz'
+Content type 'application/x-gzip' length 3118709 bytes (3.0 MB)
+==================================================
+downloaded 3.0 MB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/clusterGeneration_1.3.8.tgz'
+Content type 'application/x-gzip' length 266707 bytes (260 KB)
+==================================================
+downloaded 260 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/coda_0.19-4.1.tgz'
+Content type 'application/x-gzip' length 325329 bytes (317 KB)
+==================================================
+downloaded 317 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/combinat_0.0-8.tgz'
+Content type 'application/x-gzip' length 41219 bytes (40 KB)
+==================================================
+downloaded 40 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/DEoptim_2.2-8.tgz'
+Content type 'application/x-gzip' length 133667 bytes (130 KB)
+==================================================
+downloaded 130 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/doParallel_1.0.17.tgz'
+Content type 'application/x-gzip' length 187881 bytes (183 KB)
+==================================================
+downloaded 183 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/foreach_1.5.2.tgz'
+Content type 'application/x-gzip' length 140048 bytes (136 KB)
+==================================================
+downloaded 136 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/mnormt_2.1.1.tgz'
+Content type 'application/x-gzip' length 217069 bytes (211 KB)
+==================================================
+downloaded 211 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/numDeriv_2016.8-1.1.tgz'
+Content type 'application/x-gzip' length 113635 bytes (110 KB)
+==================================================
+downloaded 110 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/optimParallel_1.0-2.tgz'
+Content type 'application/x-gzip' length 199608 bytes (194 KB)
+==================================================
+downloaded 194 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/scatterplot3d_0.3-44.tgz'
+Content type 'application/x-gzip' length 348854 bytes (340 KB)
+==================================================
+downloaded 340 KB
+
+trying URL 'https://stat.ethz.ch/CRAN/bin/macosx/big-sur-arm64/contrib/4.4/phytools_2.5-2.tgz'
+Content type 'application/x-gzip' length 2878223 bytes (2.7 MB)
+==================================================
+downloaded 2.7 MB
+
+
+The downloaded binary packages are in
+	/var/folders/yr/9gsy0yld4zz42n_vc2mn5hkr0000gr/T//RtmpfMbo5a/downloaded_packages
+> library(phytools)
+Loading required package: maps
+> cp <- cophylo(tree1, tree2)
+Rotating nodes to optimize matching...
+Done.
+> plot(cp, 
++      link.type="curved",     # line style
++      link.lwd=2,             # line width
++      link.col="darkgray",    # line color
++      fsize=0.8)              # tip label size
+> title("Comparison of Two Phylogenetic Trees")
+> 
+> plot(cp)
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> cp <- cophylo(tree1, tree2)
+Rotating nodes to optimize matching...
+Done.
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> plot(cp)
+> plot(cp, assoc=NULL)
+> plot(cp)
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE, ...)
+Error: '...' used in an incorrect context
+> 
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> plot(cp)
+> ## load data from Lopez-Vaamonde et al. (2001)
+> data(wasp.trees)
+> data(wasp.data)
+> 
+> ## create co-phylogenetic object
+> wasp.cophylo<-cophylo(wasp.trees[[1]],wasp.trees[[2]],
++     assoc=wasp.data)
+Rotating nodes to optimize matching...
+Done.
+> 
+> ## plot co-phylogenies
+> plot(wasp.cophylo,link.type="curved",link.lwd=4,
++     link.lty="solid",link.col=make.transparent("red",
++         0.25))
+> 
+> ## reset par to default
+> par(mar=c(5.1,4.1,4.1,2.1))
+> 
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> plot(cp)
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> plot(cp, fsize=0.00001)
+> plot(cp)
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> plot(cp, link.type="curved")
+> 
+> library(phytools)
+> 
+> # Load trees
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree2 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> 
+> # Match and optimize layouts
+> cp <- cophylo(tree1, tree2, rotate = TRUE)
+Rotating nodes to optimize matching...
+Done.
+> 
+> # Output to PDF
+> pdf("cophylo_comparison.pdf", width = 10, height = 7)
+> 
+> # Plot – publication-ready style
+> plot(cp,
++      fsize = 0,            # hide tip labels
++      lwd = 1.2,            # branch thickness
++      edge.width = 1.2,
++      link.lwd = 2,         # thickness of linking lines
++      link.col = "gray40",  # link color
++      link.type = "curved", # smooth curves for better readability
++      mar = c(1,1,1,1))     # nice compact margins
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> 
+> title("Comparison of Phylogenetic Trees (BELLA vs GLM)", cex.main = 1.2)
+> 
+> dev.off()
+quartz 
+     2 
+> 
+> cat("Saved: cophylo_comparison.pdf\n")
+Saved: cophylo_comparison.pdf
+> 
+> ###############################################
+> # Cophylogenetic comparison (publication-ready)
+> ###############################################
+> 
+> library(phytools)
+> 
+> # Load NEXUS trees (multiPhylo)
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree2 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> 
+> # Extract one tree from each (use first for now)
+> T1 <- tree1[[1]]
+> T2 <- tree2[[1]]
+> 
+> # Prepare cophylo layout
+> cp <- cophylo(T1, T2, rotate = TRUE)
+Error in cophylo(T1, T2, rotate = TRUE) : 
+  tr1 & tr2 should be objects of class "phylo".
+> 
+> # Save to PDF
+> pdf("cophylo_comparison.pdf", width = 10, height = 7)
+> 
+> plot(cp,
++      fsize = 0,            # hide tip labels
++      lwd = 1.2,
++      edge.width = 1.2,
++      link.lwd = 2,
++      link.col = "gray40",
++      link.type = "curved",
++      mar = c(1,1,1,1))
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> 
+> title("Comparison of Phylogenetic Trees (BELLA vs GLM)", cex.main = 1.2)
+> 
+> dev.off()
+quartz 
+     2 
+> 
+> cat("Saved: cophylo_comparison.pdf\n")
+Saved: cophylo_comparison.pdf
+> 
+> cp = cophylo(tree1, tree2, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> plot(cp)
+> plot(cp)
+>  dev.off() 
+null device 
+          1 
+> ###############################################
+> # Cophylogenetic comparison (publication-ready)
+> ###############################################
+> 
+> library(phytools)
+> 
+> # Load NEXUS trees (multiPhylo)
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree2 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> 
+> # Extract one tree from each (use first for now)
+> T1 <- tree1[[1]]
+> T2 <- tree2[[1]]
+> 
+> # Prepare cophylo layout
+> cp <- cophylo(T1, T2, rotate = TRUE)
+Error in cophylo(T1, T2, rotate = TRUE) : 
+  tr1 & tr2 should be objects of class "phylo".
+> 
+> # Save to PDF
+> pdf("cophylo_comparison.pdf", width = 10, height = 7)
+> 
+> plot(cp,
++      fsize = 0,            # hide tip labels
++      lwd = 1.2,
++      edge.width = 1.2,
++      link.lwd = 2,
++      link.col = "gray40",
++      link.type = "curved",
++      mar = c(1,1,1,1))
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> 
+> title("Comparison of Phylogenetic Trees (BELLA vs GLM)", cex.main = 1.2)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> cat("Saved: cophylo_comparison.pdf\n")
+Saved: cophylo_comparison.pdf
+> 
+> ###############################################
+> # Cophylogenetic comparison (publication-ready)
+> ###############################################
+> 
+> library(phytools)
+> 
+> # Load NEXUS trees (multiPhylo)
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree2 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> 
+> # Extract one tree from each (use first for now)
+> T1 <- tree1[[1]]
+> T2 <- tree2[[1]]
+> 
+> # Prepare cophylo layout
+> cp <- cophylo(T1, T2, rotate = TRUE)
+Error in cophylo(T1, T2, rotate = TRUE) : 
+  tr1 & tr2 should be objects of class "phylo".
+> 
+> # Save to PDF
+> pdf("cophylo_comparison.pdf", width = 10, height = 7)
+> 
+> plot(cp,
++      fsize = 0,            # hide tip labels
++      lwd = 1.2,
++      edge.width = 1.2,
++      link.lwd = 2,
++      link.col = "gray40",
++      link.type = "curved",
++      mar = c(1,1,1,1))
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> 
+> title("Comparison of Phylogenetic Trees (BELLA vs GLM)", cex.main = 1.2)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> cat("Saved: cophylo_comparison.pdf\n")
+Saved: cophylo_comparison.pdf
+> ###############################################
+> # Cophylogenetic comparison (publication-ready)
+> ###############################################
+> 
+> library(phytools)
+> 
+> # Load NEXUS trees (multiPhylo)
+> tree1 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/BELLA/AnnotatedTypedNodeTree.trees")
+> tree2 <- read.nexus("/Users/gmarino/bella_companion/outputs/beast/runs/eucovid/flights_over_population/GLM/AnnotatedTypedNodeTree.trees")
+> 
+> # Prepare cophylo layout
+> cp <- cophylo(T1, T2, rotate = TRUE)
+Error in cophylo(T1, T2, rotate = TRUE) : 
+  tr1 & tr2 should be objects of class "phylo".
+> 
+> # Save to PDF
+> pdf("cophylo_comparison.pdf", width = 10, height = 7)
+> 
+> plot(cp,
++      fsize = 0,            # hide tip labels
++      lwd = 1.2,
++      edge.width = 1.2,
++      link.lwd = 2,
++      link.col = "gray40",
++      link.type = "curved",
++      mar = c(1,1,1,1))
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> 
+> title("Comparison of Phylogenetic Trees (BELLA vs GLM)", cex.main = 1.2)
+> 
+> dev.off()
+null device 
+          1 
+> 
+> cat("Saved: cophylo_comparison.pdf\n")
+Saved: cophylo_comparison.pdf
+> 
+> ## load data from Lopez-Vaamonde et al. (2001)
+> data(wasp.trees)
+> data(wasp.data)
+> 
+> ## create co-phylogenetic object
+> wasp.cophylo<-cophylo(wasp.trees[[1]],wasp.trees[[2]],
++     assoc=wasp.data)
+Rotating nodes to optimize matching...
+Done.
+> 
+> ## plot co-phylogenies
+> plot(wasp.cophylo,link.type="curved",link.lwd=4,
++     link.lty="solid",link.col=make.transparent("red",
++         0.25))
+> 
+> ## reset par to default
+> par(mar=c(5.1,4.1,4.1,2.1))
+> 
+> cophylo(tree1, tree2, assoc=NULL, rotate=TRUE, ...)
+Error: '...' used in an incorrect context
+> 
+> cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+Object of class "cophylo" containing:
+
+(1) 2 (possibly rotated) phylogenetic trees in an object of class "multiPhylo".
+
+(2) A table of associations between the tips of both trees.
+
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> cotangleplot(tree1, tree2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"), ...)
+Error: '...' used in an incorrect context
+> 
+> cotangleplot(tree1, tree2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+> cotangleplot(tree1, tree2, type=c("cladogram","phylogram"),
++    tangle=c("both","tree1","tree2"))
+> cotangleplot(tree1, tree2, type=c("phylogram"),
++    tangle=c("both","tree1","tree2"))
+> cotangleplot(tree1, tree2, type=c("phylogram"),
++    tangle=c("both","tree1","tree2"), fsize=0)
+> cotangleplot(tree1, tree2, type=c("phylogram"),
++    tangle=c("both"), fsize=0)
+> 
+> cotangleplot(tree1, tree2, type=c("phylogram"),
++    tangle=c("both"), fsize=0)
+> cophylo(tr1, tr2, assoc=NULL, rotate=TRUE, ...)
+Error: '...' used in an incorrect context
+> 
+> cophylo(tr1, tr2, assoc=NULL, rotate=TRUE)
+Error: object 'tr1' not found
+> cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+Object of class "cophylo" containing:
+
+(1) 2 (possibly rotated) phylogenetic trees in an object of class "multiPhylo".
+
+(2) A table of associations between the tips of both trees.
+
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> plot(x)
+Error: object 'x' not found
+> plot(cp)
+> cotangleplot(tree1, tree2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+
+> 
+> 
+> cotangleplot(tree1, tree2, type=c("phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+> cotangleplot(tree1, tree2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+> cotangleplot(tree1, tree2, type=c("cladogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+>  cotangleplot(tr1, tr2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"), ...)
+Error: '...' used in an incorrect context
+> 
+> cotangleplot(tr1, tr2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"), ...)
+Error: '...' used in an incorrect context
+> 
+> 
+> x = cophylo(tr1, tr2, assoc=NULL, rotate=TRUE, ...)
+Error: '...' used in an incorrect context
+> ## S3 method for class 'cophylo'
+> plot(x, ...)
+Error: '...' used in an incorrect context
+> cotangleplot(tr1, tr2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"), ...)
+Error: '...' used in an incorrect context
+> 
+> x = cophylo(tr1, tr2, assoc=NULL, rotate=TRUE)
+Error: object 'tr1' not found
+> ## S3 method for class 'cophylo'
+> plot(x)
+Error: object 'x' not found
+> cotangleplot(tr1, tr2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+Error: object 'tr1' not found
+> x = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> ## S3 method for class 'cophylo'
+> plot(x)
+> cotangleplot(tree1, tree2, type=c("cladogram","phylogram"),
++    use.edge.length=TRUE, tangle=c("both","tree1","tree2"))
+> 
+> plot(x)
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> cp
+Object of class "cophylo" containing:
+
+(1) 2 (possibly rotated) phylogenetic trees in an object of class "multiPhylo".
+
+(2) A table of associations between the tips of both trees.
+
+> plot(cp)
+> plot(cp)
+> plot(cp, tangle=c("both"_)
+Error: unexpected input in "plot(cp, tangle=c("both"_"
+> plot(cp, tangle=c("both"))
+> pdf("prova.pdf", width=1000, height=1000)
+> plot(cp)
+> dev.off()
+quartz 
+     2 
+> pdf("prova.pdf", width=10, height=10)
+> plot(cp)
+> dev.off()
+quartz 
+     2 
+> pdf("prova.pdf", width=1000, height=1000)
+> plot(cp, fsize=0)
+Error in strheight(label, cex = cex, font = font) : invalid 'cex' value
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE, fsize=0)
+Rotating nodes to optimize matching...
+Done.
+>  pdf("prova.pdf", width=10, height=10) 
+> plot(cp)
+> dev.off
+function (which = dev.cur()) 
+{
+    if (which == 1) 
+        stop("cannot shut down device 1 (the null device)")
+    .External(C_devoff, as.integer(which))
+    dev.cur()
+}
+<bytecode: 0x421256320>
+<environment: namespace:grDevices>
+> dev.off()
+quartz 
+     2 
+> cp = cophylo(tree1, tree2, assoc=NULL, rotate=TRUE)
+Rotating nodes to optimize matching...
+Done.
+> pdf("prova.pdf", width=10, height=10)
+> plot(cp, ftype="off")
+> dev.off()
+quartz 
+     2 
+> 

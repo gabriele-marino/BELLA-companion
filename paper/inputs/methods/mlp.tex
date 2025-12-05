@@ -1,0 +1,30 @@
+\subsection{The phylodynamic-MLP model}
+
+Phylodynamic inference aims to estimate the epidemiological or evolutionary parameters that generate an observed phylogenetic tree \( T \). In birth-death models, these parameters typically include the transmission or birth rate, \( \lambda \), the removal or death rate, \( \mu \), and the sampling rate, \( \psi \)~\cite{stadler2013uncovering}. The posterior distribution over these parameters is given by
+\[
+    P(\theta \mid T)
+    \propto
+    P(T \mid \theta) \,
+    P(\theta),
+\]
+where \( \theta = (\lambda, \mu, \ldots) \) represents the set of phylodynamic parameters. The likelihood \( P(T \mid \theta) \) describes the probability of observing the tree topology and branch lengths under the specified birth-death process. Phylodynamic inference thus seeks to uncover the parameters that most plausibly generated the observed tree, while naturally accounting for uncertainty through the posterior distribution.
+
+A multilayer perceptron (MLP)~\cite{haykin1994neural} is a type of feedforward artificial neural network that models complex, nonlinear relationships between inputs and outputs. An MLP consists of an input layer, one or more hidden layers, and an output layer. Each layer applies a linear transformation followed by a nonlinear activation function. Formally, for a layer \( l \) with input vector \( \mathbf{x} ^ {(l - 1)} \), weights \( \mathbf{W} ^ {(l)} \), and biases \( \mathbf{b} ^ {(l)} \), the output is
+\[
+    \mathbf{x} ^ {(l)} = f \big( \mathbf{W} ^ {(l)} \mathbf{x} ^ {(l-1)} + \mathbf{b} ^ {(l)} \big),
+\]
+where \( f(\cdot) \) is a nonlinear activation function such as ReLU or sigmoid. By stacking multiple layers, the MLP can approximate arbitrary continuous functions, allowing it to model complex mappings from input data to target outputs. Classically, multilayer perceptrons (MLPs) are employed in supervised learning, where the network is trained to map input data to known output targets by minimizing a loss function, such as mean squared error for regression or cross-entropy for classification. In the supervised setting, the network weights and biases are treated as parameters that are optimized during training.
+
+In this work, we adopt an unsupervised use of MLPs to integrate external, non-phylogenetic data into phylodynamic analyses. The MLP maps these input features (hereafter referred to as \textit{predictors} or \textit{covariates}) to a subset of the phylodynamic parameters, denoted \( \theta_{\text{MLP}} \), while priors are placed on the network weights \( \mathbf{W} \) and biases \( \mathbf{b} \). The remaining parameters, \( \theta_{\text{std}} \), are not predicted by the MLP and are instead sampled directly from their standard priors. This separation allows the model to exploit external covariates for parameters that can be informed by additional data, while retaining classical Bayesian sampling for the remaining parameters.
+
+To ensure that the MLP produces parameter values within biologically or mathematically meaningful ranges, the choice of output activation functions can be tailored to the specific parameter being modeled. For instance, parameters that are inherently bounded between zero and one, such as probabilities, can be mapped through a sigmoid or logistic transformation. More generally, sigmoidal-like functions with user-specified upper and lower bounds allow parameters to be constrained to finite intervals, while exponential or softplus activations can enforce strict positivity. By aligning the output activation function with the natural support of each parameter, the model avoids generating implausible values and improves the efficiency of posterior exploration.
+
+As in standard phylodynamic analyses, Markov chain Monte Carlo (MCMC)~\cite{CHIB20013569} is used to jointly sample from the posterior
+\[
+    P(\mathbf{W}, \mathbf{b}, \theta_{\text{std}} \mid T)
+    \propto
+    P(T \mid \theta_{\text{MLP}}(\mathbf{W}, \mathbf{b}), \theta_{\text{std}}) \,
+    P(\mathbf{W}, \mathbf{b}) \,
+    P(\theta_{\text{std}}),
+\]
+with operators acting on both the network parameters and the standard prior-sampled parameters. Each MCMC iteration proposes new values for \( \mathbf{W}, \mathbf{b} \), and \( \theta_{\text{std}} \), which are then combined into the full set of phylodynamic parameters and evaluated under the tree likelihood. This approach propagates uncertainty from both the network and standard parameters, providing a fully Bayesian integration of external data into phylodynamic inference.

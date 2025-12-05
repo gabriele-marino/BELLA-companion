@@ -1,0 +1,31 @@
+\subsubsection{Interpretability analysis}
+
+To better understand and interpret the behavior of multilayer perceptrons (MLPs), which are often considered ``black-box'' models due to their complex and non-linear structure, we employed two explainable AI (xAI) techniques~\cite{BARREDOARRIETA202082}: partial dependence plots (PDPs)~\cite{friedman2001pdps} and Shapley values (SHAP)~\cite{Merrick2020explaination}. These methods allow us to quantify the influence of individual predictors on model outputs and to visualize their effects across the predictor space. In particular, we used them to assess the robustness of MLPs to irrelevant input predictors, as well as to gain general insights into how the models leverage relevant features in the inference task.
+
+PDPs show the average effect of a single predictor \( x_S \) (or a subset of predictors) on the model’s output by marginalizing over the distribution of all other features \( x_C \). For a prediction function \( f(\mathbf{x}) \), the partial dependence of feature subset \( S \) is defined as:
+\[
+    PD_S(x_S) = \mathrm{E}_{\mathbf{x}_C}\big[f(x_S, \mathbf{x}_C)\big],
+\]
+where \( C \) is the complement of \( S \), and \( p(\mathbf{x}_C) \) is the marginal distribution of the remaining features.
+
+PDPs are particularly useful because they provide an interpretable, model-agnostic visualization of how a predictor influences the prediction on average, even in the presence of complex nonlinear interactions captured by models such as MLPs. If the predictor is relevant, the PDP typically exhibits a structured relationship (e.g., monotonic trend, threshold effect, or nonlinear curve). Conversely, if the predictor is irrelevant, the PDP should remain approximately flat, indicating that varying this feature does not systematically alter the model output. This makes PDPs well-suited for diagnosing spurious dependencies and detecting overfitting when irrelevant predictors are included in the input space. However, PDPs also have important limitations, as they implicitly assume independence between features when marginalizing, which may lead to misleading plots if predictors are correlated.
+
+SHAP addresses these issues by offering a game-theoretic framework for feature attribution. For a model \( f \) and input instance \( \mathbf{x} \), the Shapley value for feature \( i \) is:
+\[
+    \phi_i(f, \mathbf{x}) = \sum_{S \subseteq F \setminus \{i\}}
+    \frac{|S|! \, (|F|-|S|-1)!}{|F|!}
+    \Big[ f_{S \cup \{i\}}(\mathbf{x}_{S \cup \{i\}}) - f_S(\mathbf{x}_S) \Big],
+\]
+where \( F \) is the full feature set and \( S \) a subset excluding \( i \), and the term \( f_S(\mathbf{x}_S) \) is defined through a conditional expectation:
+\[
+    f_S(\mathbf{x}_S) = \mathrm{E}_{\mathbf{x}_{F \setminus S}}\!\left[f(\mathbf{x}_S, \mathbf{x}_{F \setminus S}) \mid \mathbf{x}_S \right],
+\]
+that is, the model output averaged over the distribution of the missing features given the known ones.
+
+SHAP values provide local, prediction-level explanations, but in practice, feature importances are often summarized by averaging the absolute Shapley values across all instances in the input dataset:
+\[
+    \Phi_i(f) = \frac{1}{|X|} \sum_{j=1}^{|X|} |\phi_i(f, \mathbf{x}^{(j)})|,
+\]
+where \( |X| \) is the number of samples. This provides a global quantification of each feature’s contribution, complementing the local and marginal insights offered by PDPs, and facilitates a more comprehensive evaluation of how predictors influence MLP outputs across scenarios and simulated trees.
+
+In our study, each MLP has multiple configurations due to the weights sampled during the MCMC process. To compute PDPs and SHAP values, we first subsampled 100 MCMC samples per run, yielding 100 distinct MLP models per tree. For each input feature, we computed the PDP values for each model by discretizing the feature space into a grid of 10 bins, and then aggregated them into a single PDP per tree by taking the median value at each grid point. Similarly, SHAP values were computed for each of the 100 subsampled MLP models, then marginalized so that the feature contributions sum to 1, and finally aggregated by computing the median feature importance per tree.
