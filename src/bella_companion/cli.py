@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 
 from bella_companion.eucovid import (
+    download_data,
     plot_eucovid,
     plot_eucovid_flights_and_populations,
     plot_eucovid_flights_over_population,
@@ -37,10 +38,11 @@ def main():
     load_dotenv(Path(os.getcwd()) / ".env")
     os.environ["BELLA_RUN_BEAST_CMD"] = " ".join(
         [
-            "java",
-            os.getenv("JAVA_OPTIONS", ""),
-            f"-jar {Path(__file__).parent / 'BELLA.jar'}",
-            f"-version_file {Path(__file__).parent / 'version.xml'}",
+            "beast",
+            # "java",
+            # os.getenv("JAVA_OPTIONS", ""),
+            # f"-jar {Path(__file__).parent / 'BELLA.jar'}",
+            # f"-version_file {Path(__file__).parent / 'version.xml'}",
             "-overwrite",
             "-statefile /tmp/state",
         ]
@@ -168,6 +170,10 @@ def main():
         "eucovid", help="Empirical eucovid workflows"
     )
     eucovid_subparsers = eucovid_parser.add_subparsers(dest="subcommand", required=True)
+
+    eucovid_subparsers.add_parser(
+        "download", help="Download data for empirical eucovid datasets."
+    ).set_defaults(func=download_data)
 
     eucovid_subparsers.add_parser(
         "run", help="Run BEAST2 analyses on empirical eucovid datasets."
