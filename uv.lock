@@ -53,7 +53,7 @@ wheels = [
 
 [[package]]
 name = "bella-companion"
-version = "0.1.7"
+version = "0.1.10"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
@@ -63,7 +63,6 @@ dependencies = [
     { name = "kaleido" },
     { name = "phylogenie" },
     { name = "plotly" },
-    { name = "plotly-stubs" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.16.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "seaborn" },
@@ -75,6 +74,7 @@ dependencies = [
 dev = [
     { name = "joblib-stubs" },
     { name = "pandas-stubs" },
+    { name = "plotly-stubs" },
     { name = "pyright" },
     { name = "scipy-stubs", version = "1.15.3.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy-stubs", version = "1.16.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -87,9 +87,8 @@ requires-dist = [
     { name = "dendropy", specifier = ">=5.0.8" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "kaleido", specifier = ">=1.2.0" },
-    { name = "phylogenie", specifier = ">=3.1.4" },
+    { name = "phylogenie", specifier = ">=3.1.10" },
     { name = "plotly", specifier = ">=6.5.0" },
-    { name = "plotly-stubs", specifier = ">=0.0.6" },
     { name = "scipy", specifier = ">=1.15.3" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "shap", specifier = ">=0.49.1" },
@@ -99,6 +98,7 @@ requires-dist = [
 dev = [
     { name = "joblib-stubs", specifier = ">=1.5.2.0.20250831" },
     { name = "pandas-stubs", specifier = ">=2.3.2.250926" },
+    { name = "plotly-stubs", specifier = ">=0.0.6" },
     { name = "pyright", specifier = ">=1.1.407" },
     { name = "scipy-stubs", specifier = ">=1.15.3.0" },
 ]
@@ -1142,7 +1142,7 @@ wheels = [
 
 [[package]]
 name = "phylogenie"
-version = "3.1.4"
+version = "3.1.10"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
@@ -1152,9 +1152,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3a/52/bbbeb19b90a17419da5f0702bd59c6ac2780cf5016831d56fda51a006331/phylogenie-3.1.4.tar.gz", hash = "sha256:6b2a81fab50c990e27d16b27f1fe0e071ce88e32fcdc87575b96d9589c951781", size = 31037, upload-time = "2025-10-27T11:41:25.066Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/97/fe53ee2a610d239839c9dcff2f27890fc10e6ae2482cce8a91a3aacd090b/phylogenie-3.1.10.tar.gz", hash = "sha256:4df31ee7f34d89941a152e2407211e2def267cf91a2d77621cbc01ead28fc174", size = 33576, upload-time = "2025-12-30T00:55:44.196Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ac/6b/54fb4b0b4bd975895b88cde5a47253bfac173b1e2c0bcb4889461959f540/phylogenie-3.1.4-py3-none-any.whl", hash = "sha256:5693df5374856b75f8827708c6f5e8ff4b15911702f44341b25ab2dd41378193", size = 40429, upload-time = "2025-10-27T11:41:24.048Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/2a/8de7f5339333b9c16c9791a6c678645f025e38c58fb26beeafeb70400e4d/phylogenie-3.1.10-py3-none-any.whl", hash = "sha256:65a71386ce2b1e5694d267e6815594329cbda339a6261b7b63deaf7e6193d4aa", size = 42727, upload-time = "2025-12-30T00:55:42.7Z" },
 ]
 
 [[package]]

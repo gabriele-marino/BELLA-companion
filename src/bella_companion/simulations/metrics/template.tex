@@ -1,0 +1,42 @@
+\begin{table*}[h!]
+    \centering
+    \begin{tabular}{ccccccc}
+        \toprule
+
+        \multicolumn{7}{c}{\textbf{{{METRIC_NAME}}}}                                                                                                                                                                                                                                 \\
+        \midrule
+
+        \textbf{Scenario} & \textbf{Var.} & PA                                      & GLM                                      & BELLA-3/2                                      & BELLA-16/8                                      & BELLA-32/16                                      \\
+        \midrule
+
+        \texttt{Epi-1}    & \( R_t \)     & {{epi-skyline_1-PA-reproductionNumber}} & {{epi-skyline_1-GLM-reproductionNumber}} & {{epi-skyline_1-BELLA-3_2-reproductionNumber}} & {{epi-skyline_1-BELLA-16_8-reproductionNumber}} & {{epi-skyline_1-BELLA-32_16-reproductionNumber}} \\[6pt]
+
+        \texttt{Epi-2}    & \( R_t \)     & {{epi-skyline_2-PA-reproductionNumber}} & {{epi-skyline_2-GLM-reproductionNumber}} & {{epi-skyline_2-BELLA-3_2-reproductionNumber}} & {{epi-skyline_2-BELLA-16_8-reproductionNumber}} & {{epi-skyline_2-BELLA-32_16-reproductionNumber}} \\[6pt]
+
+        \texttt{Epi-3}    & \( R_t \)     & {{epi-skyline_3-PA-reproductionNumber}} & {{epi-skyline_3-GLM-reproductionNumber}} & {{epi-skyline_3-BELLA-3_2-reproductionNumber}} & {{epi-skyline_3-BELLA-16_8-reproductionNumber}} & {{epi-skyline_3-BELLA-32_16-reproductionNumber}} \\[6pt]
+        \texttt{Epi-4}    & \( M \)       & {{epi-multitype-PA-migrationRate}}      & {{epi-multitype-GLM-migrationRate}}      & {{epi-multitype-BELLA-3_2-migrationRate}}      & {{epi-multitype-BELLA-16_8-migrationRate}}      & {{epi-multitype-BELLA-32_16-migrationRate}}      \\[6pt]
+
+        \multirow{3}{*}{\texttt{FBD-1}}
+                          & \( \lambda \) & {{fbd-no-traits_1-PA-birthRate}}        & {{fbd-no-traits_1-GLM-birthRate}}        & {{fbd-no-traits_1-BELLA-3_2-birthRate}}        & {{fbd-no-traits_1-BELLA-16_8-birthRate}}        & {{fbd-no-traits_1-BELLA-32_16-birthRate}}        \\
+                          & \( \mu \)     & {{fbd-no-traits_1-PA-deathRate}}        & {{fbd-no-traits_1-GLM-deathRate}}        & {{fbd-no-traits_1-BELLA-3_2-deathRate}}        & {{fbd-no-traits_1-BELLA-16_8-deathRate}}        & {{fbd-no-traits_1-BELLA-32_16-deathRate}}        \\
+                          & Avg.          & {{fbd-no-traits_1-PA-average}}          & {{fbd-no-traits_1-GLM-average}}          & {{fbd-no-traits_1-BELLA-3_2-average}}          & {{fbd-no-traits_1-BELLA-16_8-average}}          & {{fbd-no-traits_1-BELLA-32_16-average}}          \\[6pt]
+
+        \multirow{3}{*}{\texttt{FBD-2}}
+                          & \( \lambda \) & {{fbd-no-traits_2-PA-birthRate}}        & {{fbd-no-traits_2-GLM-birthRate}}        & {{fbd-no-traits_2-BELLA-3_2-birthRate}}        & {{fbd-no-traits_2-BELLA-16_8-birthRate}}        & {{fbd-no-traits_2-BELLA-32_16-birthRate}}        \\
+                          & \( \mu \)     & {{fbd-no-traits_2-PA-deathRate}}        & {{fbd-no-traits_2-GLM-deathRate}}        & {{fbd-no-traits_2-BELLA-3_2-deathRate}}        & {{fbd-no-traits_2-BELLA-16_8-deathRate}}        & {{fbd-no-traits_2-BELLA-32_16-deathRate}}        \\
+                          & Avg.          & {{fbd-no-traits_2-PA-average}}          & {{fbd-no-traits_2-GLM-average}}          & {{fbd-no-traits_2-BELLA-3_2-average}}          & {{fbd-no-traits_2-BELLA-16_8-average}}          & {{fbd-no-traits_2-BELLA-32_16-average}}          \\[6pt]
+
+        \multirow{3}{*}{\texttt{FBD-3}}
+                          & \( \lambda \) & {{fbd-no-traits_3-PA-birthRate}}        & {{fbd-no-traits_3-GLM-birthRate}}        & {{fbd-no-traits_3-BELLA-3_2-birthRate}}        & {{fbd-no-traits_3-BELLA-16_8-birthRate}}        & {{fbd-no-traits_3-BELLA-32_16-birthRate}}        \\
+                          & \( \mu \)     & {{fbd-no-traits_3-PA-deathRate}}        & {{fbd-no-traits_3-GLM-deathRate}}        & {{fbd-no-traits_3-BELLA-3_2-deathRate}}        & {{fbd-no-traits_3-BELLA-16_8-deathRate}}        & {{fbd-no-traits_3-BELLA-32_16-deathRate}}        \\
+                          & Avg.          & {{fbd-no-traits_3-PA-average}}          & {{fbd-no-traits_3-GLM-average}}          & {{fbd-no-traits_3-BELLA-3_2-average}}          & {{fbd-no-traits_3-BELLA-16_8-average}}          & {{fbd-no-traits_3-BELLA-32_16-average}}          \\[6pt]
+
+        \multirow{3}{*}{\texttt{FBD-4}}
+                          & \( \lambda \) & {{fbd-2traits-PA-birthRate}}            & {{fbd-2traits-GLM-birthRate}}            & {{fbd-2traits-BELLA-3_2-birthRate}}            & {{fbd-2traits-BELLA-16_8-birthRate}}            & {{fbd-2traits-BELLA-32_16-birthRate}}            \\
+                          & \( \mu \)     & {{fbd-2traits-PA-deathRate}}            & {{fbd-2traits-GLM-deathRate}}            & {{fbd-2traits-BELLA-3_2-deathRate}}            & {{fbd-2traits-BELLA-16_8-deathRate}}            & {{fbd-2traits-BELLA-32_16-deathRate}}            \\
+                          & Avg.          & {{fbd-2traits-PA-average}}              & {{fbd-2traits-GLM-average}}              & {{fbd-2traits-BELLA-3_2-average}}              & {{fbd-2traits-BELLA-16_8-average}}              & {{fbd-2traits-BELLA-32_16-average}}              \\[6pt]
+        \bottomrule
+    \end{tabular}
+    \caption{{{METRIC_NAME}} across all scenarios for all inference frameworks considered (PA is the predictor-agnostic model). {{CAPTION_EXTRA}}}
+    \label{tab:{{METRIC_LABEL}}}
+\end{table*}

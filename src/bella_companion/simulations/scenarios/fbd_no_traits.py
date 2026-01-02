@@ -60,4 +60,4 @@ RATES = [
         "death": [0.05] * 7 + [0.3] * 1 + [0.01] * 2,
     },
 ]
-SCENARIOS = [_get_scenario(r) for r in RATES]
+FBD_NO_TRAITS_SCENARIOS = [_get_scenario(r) for r in RATES]

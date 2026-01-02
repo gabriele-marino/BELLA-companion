@@ -11,11 +11,10 @@ from bella_companion.backend import (
     read_log_file,
     ribbon_plot,
 )
+from bella_companion.eucovid.settings import DATA_DIR
 
-BASE_DATA_DIR = Path(__file__).parent / "data"
 
-
-def plot_migration_rates_vs_flights_over_population():
+def plot_eucovid_flights_over_population():
     output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
@@ -29,7 +28,7 @@ def plot_migration_rates_vs_flights_over_population():
     log = log.sample(n=100, random_state=42)  # pyright: ignore
     w = np.array(log["migrationRateW"])
     scaler = np.array(log["migrationRateScaler"])
-    data_dir = BASE_DATA_DIR / "flights_over_population"
+    data_dir = DATA_DIR / "flights_over_population"
     data = np.loadtxt(data_dir / "flights_over_population.csv")
     x = np.linspace(np.min(data), np.max(data), 10)
     y = np.exp(np.log(scaler)[:, None] + np.outer(w, x))
@@ -56,7 +55,7 @@ def plot_migration_rates_vs_flights_over_population():
     plt.close()
 
 
-def plot_flights_and_populations_pdps():
+def plot_eucovid_flights_and_populations():
     output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
@@ -74,7 +73,7 @@ def plot_flights_and_populations_pdps():
         burn_in=0.0,
     )
 
-    data_dir = BASE_DATA_DIR / "flights_and_populations"
+    data_dir = DATA_DIR / "flights_and_populations"
     inputs = np.concat(
         [
             np.loadtxt(data_dir / f"{file}.csv").reshape(1, -1)
@@ -90,7 +89,7 @@ def plot_flights_and_populations_pdps():
     ):
         grid = np.linspace(0, 1, 10).tolist()
         pdps = get_partial_dependence_plot_distribution(
-            mlps=mlps,
+            models=mlps,
             inputs=normalize(inputs, axis=0),
             feature_idx=feature_idx,
             grid=grid,
@@ -111,6 +110,6 @@ def plot_flights_and_populations_pdps():
     plt.close()
 
 
-def plot_all():
-    plot_migration_rates_vs_flights_over_population()
-    plot_flights_and_populations_pdps()
+def plot_eucovid():
+    plot_eucovid_flights_over_population()
+    plot_eucovid_flights_and_populations()

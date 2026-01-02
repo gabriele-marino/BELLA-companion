@@ -1,13 +1,13 @@
 from bella_companion.eucovid.plot import (
-    plot_all,
-    plot_flights_and_populations_pdps,
-    plot_migration_rates_vs_flights_over_population,
+    plot_eucovid,
+    plot_eucovid_flights_and_populations,
+    plot_eucovid_flights_over_population,
 )
-from bella_companion.eucovid.run import run
+from bella_companion.eucovid.run import run_eucovid
 
 __all__ = [
-    "plot_all",
-    "plot_flights_and_populations_pdps",
-    "plot_migration_rates_vs_flights_over_population",
-    "run",
+    "plot_eucovid",
+    "plot_eucovid_flights_and_populations",
+    "plot_eucovid_flights_over_population",
+    "run_eucovid",
 ]

@@ -3,14 +3,6 @@ from typing import Any
 import numpy as np
 from numpy.random import Generator
 
-EPI_MAX_TIME = 250
-EPI_SAMPLING_PROPORTION = 0.15
-BECOME_UNINFECTIOUS_RATE = 0.07
-
-FBD_MAX_TIME = 35
-FBD_SAMPLING_RATE = 0.2
-FBD_RATE_UPPER = 2
-
 
 def get_start_type_prior_probabilities(types: list[str], init_type: str):
     start_type_prior_probabilities = ["0"] * len(types)

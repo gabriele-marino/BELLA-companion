@@ -1,25 +1,26 @@
+from collections.abc import Iterable
+
 import numpy as np
 import shap  # pyright: ignore
 from joblib import Parallel, delayed
 from numpy.typing import ArrayLike
 from tqdm import tqdm
 
-from bella_companion.backend.mlp import MLP, MLPEnsemble
-from bella_companion.backend.type_hints import Array
+from bella_companion.backend.type_hints import Array, Model
 
 
 def get_shap_values(
-    mlp: MLP,
+    model: Model,
     inputs: ArrayLike,  # (n_samples, n_features)
     background: ArrayLike | None = None,  # (n_background_samples, n_features)
 ) -> Array:  # (n_samples, n_features)
     """
-    Compute SHAP feature importance values for the given inputs and MLP weights.
+    Compute SHAP feature importance values for the given inputs and model.
 
     Parameters
     ----------
-    mlp : MLP
-        An instance of the MLP class representing the multi-layer perceptron model.
+    model : Model
+        A callable representing the model.
     inputs : ArrayLike
         Input data of shape (n_samples, n_features).
     background : ArrayLike | None, optional
@@ -34,22 +35,22 @@ def get_shap_values(
     inputs = np.asarray(inputs, dtype=np.float64)
     if background is None:
         background = inputs
-    explainer = shap.Explainer(mlp, background)
+    explainer = shap.Explainer(model, background)
     return explainer(inputs).values  # pyright: ignore
 
 
 def get_shap_features_importance(
-    mlp: MLP,
+    model: Model,
     inputs: ArrayLike,  # (n_samples, n_features)
     background: ArrayLike | None = None,  # (n_background_samples, n_features)
 ) -> Array:  # (n_features,)
     """
-    Compute SHAP feature importance values for the given inputs and MLP weights.
+    Compute SHAP feature importance values for the given inputs and model.
 
     Parameters
     ----------
-    mlp : MLP
-        An instance of the MLP class representing the multi-layer perceptron model.
+    model : Model
+        A callable representing the model.
     inputs : ArrayLike
         Input data of shape (n_samples, n_features).
     background : ArrayLike | None, optional
@@ -61,22 +62,22 @@ def get_shap_features_importance(
     Array
         SHAP feature importance values for the inputs, of shape (n_features,).
     """
-    shap_values = get_shap_values(mlp, inputs, background)
+    shap_values = get_shap_values(model, inputs, background)
     return np.mean(np.abs(shap_values), axis=0)
 
 
 def get_shap_feature_importance_distribution(
-    mlps: MLPEnsemble,
+    models: Iterable[Model],
     inputs: ArrayLike,  # (n_samples, n_features)
     background: ArrayLike | None = None,  # (n_background_samples, n_features)
 ) -> Array:  # (n_models, n_features)
     """
-    Compute SHAP feature importance values for an ensemble of MLPs.
+    Compute SHAP feature importance values for an ensemble of models.
 
     Parameters
     ----------
-    mlps : MLPEnsemble
-        An instance of the MLPEnsemble class representing the ensemble of MLP models.
+    models : Iterable[Model]
+        An iterable of callables representing the ensemble of models.
     inputs : ArrayLike
         Input data of shape (n_samples, n_features).
     background : ArrayLike | None, optional
@@ -90,22 +91,22 @@ def get_shap_feature_importance_distribution(
         of shape (n_models, n_features).
     """
     return np.array(
-        [get_shap_features_importance(mlp, inputs, background) for mlp in mlps]
+        [get_shap_features_importance(model, inputs, background) for model in models]
     )
 
 
 def get_median_shap_feature_importance(
-    mlps: MLPEnsemble,
+    models: Iterable[Model],
     inputs: ArrayLike,  # (n_samples, n_features)
     background: ArrayLike | None = None,  # (n_background_samples, n_features)
 ) -> Array:  # (n_features)
     """
-    Compute median SHAP feature importance values for an ensemble of MLPs.
+    Compute median SHAP feature importance values for an ensemble of models.
 
     Parameters
     ----------
-    mlps : MLPEnsemble
-        An instance of the MLPEnsemble class representing the ensemble of MLP models.
+    models : Iterable[Model]
+        An iterable of callables representing the ensemble of models.
     inputs : ArrayLike
         Input data of shape (n_samples, n_features).
     background : ArrayLike | None, optional
@@ -119,23 +120,23 @@ def get_median_shap_feature_importance(
         of shape (n_features,).
     """
     return np.median(
-        get_shap_feature_importance_distribution(mlps, inputs, background), axis=0
+        get_shap_feature_importance_distribution(models, inputs, background), axis=0
     )
 
 
 def get_median_shap_feature_importance_distribution(
-    mlp_ensembles: list[MLPEnsemble],
+    models: Iterable[Iterable[Model]],
     inputs: ArrayLike,  # (n_samples, n_features)
     background: ArrayLike | None = None,  # (n_background_samples, n_features
     n_jobs: int = -1,
 ) -> Array:  # (n_ensembles, n_features)
     """
-    Compute median SHAP feature importance values for multiple ensembles of MLPs.
+    Compute median SHAP feature importance values for multiple ensembles of models.
 
     Parameters
     ----------
-    ensembles : list[MLPEnsemble]
-        A list of MLPEnsemble instances representing multiple ensembles of MLP models.
+    models : Iterable[Iterable[Model]]
+        An iterable of iterables, where each inner iterable represents an ensemble of models.
     inputs : ArrayLike
         Input data of shape (n_samples, n_features).
     background : ArrayLike | None, optional
@@ -153,10 +154,10 @@ def get_median_shap_feature_importance_distribution(
     return np.array(
         Parallel(n_jobs=n_jobs)(
             delayed(get_median_shap_feature_importance)(
-                mlps=mlps, inputs=inputs, background=background
+                models=ensemble, inputs=inputs, background=background
             )
-            for mlps in tqdm(
-                mlp_ensembles,
+            for ensemble in tqdm(
+                models,
                 desc="Computing median SHAP feature importance for ensembles",
             )
         )

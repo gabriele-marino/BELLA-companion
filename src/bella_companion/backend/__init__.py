@@ -11,12 +11,19 @@ from bella_companion.backend.activation_functions import (
 )
 from bella_companion.backend.mlp import MLP, MLPEnsemble, mlp_ensembles_from_logs_dir
 from bella_companion.backend.plots import ribbon_plot, skyline_plot
-from bella_companion.backend.type_hints import Array, Weights
+from bella_companion.backend.type_hints import Array, Model, Weights
 from bella_companion.backend.utils import (
-    avg_CI_width_from_summaries,
+    ESS_POSTFIX,
+    LOWER_POSTFIX,
+    MEDIAN_POSTFIX,
+    UPPER_POSTFIX,
+    avg_ci_width_from_summaries,
     coverage_from_summaries,
     get_job_metadata,
+    load_nexus_with_burnin,
+    mae_distribution_from_summaries,
     mae_from_summaries,
+    mean_ess_per_hour_from_summaries,
     normalize,
     read_log_file,
     read_weights,
@@ -54,11 +61,19 @@ __all__ = [
     "ribbon_plot",
     "skyline_plot",
     "Array",
+    "Model",
     "Weights",
-    "avg_CI_width_from_summaries",
+    "ESS_POSTFIX",
+    "LOWER_POSTFIX",
+    "MEDIAN_POSTFIX",
+    "UPPER_POSTFIX",
+    "avg_ci_width_from_summaries",
     "coverage_from_summaries",
     "get_job_metadata",
+    "load_nexus_with_burnin",
+    "mae_distribution_from_summaries",
     "mae_from_summaries",
+    "mean_ess_per_hour_from_summaries",
     "normalize",
     "read_log_file",
     "read_weights",

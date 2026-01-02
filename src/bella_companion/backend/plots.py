@@ -5,6 +5,13 @@ import numpy as np
 from matplotlib.axes import Axes
 from numpy.typing import ArrayLike
 
+Color = (
+    str
+    | np.typing.NDArray[np.floating]
+    | tuple[float, float, float]
+    | tuple[float, float, float, float]
+)
+
 
 def skyline_plot(
     data: ArrayLike,
@@ -50,7 +57,7 @@ def skyline_plot(
 def ribbon_plot(
     y: ArrayLike,
     x: ArrayLike | None = None,
-    color: str | None = None,
+    color: Color | None = None,
     label: str | None = None,
     ax: Axes | None = None,
     skyline: bool = False,
@@ -85,11 +92,11 @@ def ribbon_plot(
     skyline : bool, optional
         Whether to use a skyline (step) plot, by default False.
     lower_percentile : float, optional
-        The lower percentile for the uncertainty interval, by default 2.5.
+        The lower percentile for the percentile interval, by default 2.5.
     upper_percentile : float, optional
-        The upper percentile for the uncertainty interval, by default 97.5.
+        The upper percentile for the percentile interval, by default 97.5.
     show_fill : bool, optional
-        Whether to show the uncertainty fill, by default True.
+        Whether to show the percentile interval fill, by default True.
     fill_kwargs : dict[str, Any] | None, optional
         Additional keyword arguments for the fill_between call, by default None.
     show_samples : bool, optional
@@ -121,18 +128,15 @@ def ribbon_plot(
         high = np.percentile(y, upper_percentile, axis=0)
         if fill_kwargs is None:
             fill_kwargs = {}
+        if "alpha" not in fill_kwargs:
+            fill_kwargs["alpha"] = 0.25
+        if "color" not in fill_kwargs:
+            fill_kwargs["color"] = color
         if skyline:
             fill_kwargs["step"] = "pre"
             lower = [lower[0], *lower]
             high = [high[0], *high]
-        ax.fill_between(  # pyright: ignore
-            x,
-            lower,
-            high,
-            alpha=fill_kwargs.get("alpha", 0.25),
-            color=color,
-            **fill_kwargs,
-        )
+        ax.fill_between(x, lower, high, **fill_kwargs)  # pyright: ignore
 
     if show_samples:
         if samples_kwargs is None:

@@ -5,14 +5,32 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 
-from bella_companion.eucovid import plot_all
 from bella_companion.eucovid import (
-    run as run_eucovid,
+    plot_eucovid,
+    plot_eucovid_flights_and_populations,
+    plot_eucovid_flights_over_population,
+    run_eucovid,
 )
-from bella_companion.platyrrhine import summarize as summarize_platyrrhine
-from bella_companion.simulations import metrics, sgenerate
-from bella_companion.simulations import run as run_simulations
-from bella_companion.simulations import summarize as summarize_simulations
+from bella_companion.platyrrhine import (
+    plot_platyrrhine,
+    plot_platyrrhine_estimates,
+    plot_platyrrhine_shap,
+    plot_platyrrhine_trees,
+    run_platyrrhine,
+    summarize_platyrrhine,
+)
+from bella_companion.simulations import (
+    generate,
+    plot_epi_multitype,
+    plot_epi_skyline,
+    plot_fbd_2traits,
+    plot_fbd_no_traits,
+    plot_scenarios,
+    plot_simulations,
+    run_metrics,
+    run_simulations,
+    summarize_simulations,
+)
 
 
 def main():
@@ -42,32 +60,59 @@ def main():
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    # ------------------
-    # Simulation dataset
-    # ------------------
+    # -------------------
+    # Simulation datasets
+    # -------------------
 
     sim_parser = subparsers.add_parser("sim", help="Simulation workflows")
     sim_subparsers = sim_parser.add_subparsers(dest="subcommand", required=True)
 
     sim_subparsers.add_parser(
-        "data", help="Generate synthetic simulation datasets."
-    ).set_defaults(func=generate_data)
+        "generate", help="Generate synthetic simulation datasets."
+    ).set_defaults(func=generate)
 
     sim_subparsers.add_parser(
-        "run", help="Run BEAST2 analyses on simulation datasets."
+        "run", help="Run BEAST2 analyses on simulated datasets."
     ).set_defaults(func=run_simulations)
 
     sim_subparsers.add_parser(
-        "summarize", help="Summarize BEAST2 log outputs for simulations."
+        "summarize", help="Summarize BEAST2 log outputs for simulated datasets."
     ).set_defaults(func=summarize_simulations)
 
     sim_subparsers.add_parser(
-        "metrics", help="Compute and print metrics from simulation results."
-    ).set_defaults(func=print_metrics)
+        "metrics", help="Compute and print metrics for simulated datasets."
+    ).set_defaults(func=run_metrics)
 
-    # sim_subparsers.add_parser(
-    #    "figures", help="Generate plots and figures from simulation results."
-    # ).set_defaults(func=generate_figures)
+    sim_plot_parser = sim_subparsers.add_parser(
+        "plot", help="Generate plots and figures for simulated datasets."
+    )
+    sim_plot_subparsers = sim_plot_parser.add_subparsers(
+        dest="subcommand", required=True
+    )
+
+    sim_plot_subparsers.add_parser(
+        "all", help="Generate plots and figures for all simulation scenarios."
+    ).set_defaults(func=plot_simulations)
+
+    sim_plot_subparsers.add_parser(
+        "epi-multitype", help="Generate plots for the epi-multitype scenario."
+    ).set_defaults(func=plot_epi_multitype)
+
+    sim_plot_subparsers.add_parser(
+        "epi-skyline", help="Generate plots for the epi-skyline scenarios."
+    ).set_defaults(func=plot_epi_skyline)
+
+    sim_plot_subparsers.add_parser(
+        "fbd-2traits", help="Generate plots for the fbd-2traits scenario."
+    ).set_defaults(func=plot_fbd_2traits)
+
+    sim_plot_subparsers.add_parser(
+        "fbd-no-traits", help="Generate plots for the fbd-no-traits scenarios."
+    ).set_defaults(func=plot_fbd_no_traits)
+
+    sim_plot_subparsers.add_parser(
+        "scenarios", help="Generate scenario overview plots."
+    ).set_defaults(func=plot_scenarios)
 
     # -------------------
     # Platyrrhine dataset
@@ -80,18 +125,40 @@ def main():
         dest="subcommand", required=True
     )
 
-    # platyrrhine_subparser.add_parser(
-    #    "run", help="Run BEAST2 analyses on empirical platyrrhine datasets."
-    # ).set_defaults(func=run_platyrrhine)
+    platyrrhine_subparser.add_parser(
+        "run", help="Run BEAST2 analyses on empirical platyrrhine datasets."
+    ).set_defaults(func=run_platyrrhine)
 
     platyrrhine_subparser.add_parser(
         "summarize",
         help="Summarize BEAST2 log outputs for empirical platyrrhine datasets.",
     ).set_defaults(func=summarize_platyrrhine)
 
-    # platyrrhine_subparser.add_parser(
-    #    "figures", help="Generate plots and figures from empirical platyrrhine results."
-    # ).set_defaults(func=plot_platyrrhine_results)
+    platyrrhine_plot_parser = platyrrhine_subparser.add_parser(
+        "plot", help="Generate plots and figures for empirical platyrrhine datasets."
+    )
+    platyrrhine_plot_subparsers = platyrrhine_plot_parser.add_subparsers(
+        dest="subcommand", required=True
+    )
+
+    platyrrhine_plot_subparsers.add_parser(
+        "all", help="Generate plots and figures for empirical platyrrhine datasets."
+    ).set_defaults(func=plot_platyrrhine)
+
+    platyrrhine_plot_subparsers.add_parser(
+        "estimates",
+        help="Generate plots for parameter estimates for empirical platyrrhine datasets.",
+    ).set_defaults(func=plot_platyrrhine_estimates)
+
+    platyrrhine_plot_subparsers.add_parser(
+        "trees",
+        help="Generate plots for tree-mapped parameter estimates for empirical platyrrhine datasets.",
+    ).set_defaults(func=plot_platyrrhine_trees)
+
+    platyrrhine_plot_subparsers.add_parser(
+        "shap",
+        help="Generate SHAP plots for empirical platyrrhine datasets.",
+    ).set_defaults(func=plot_platyrrhine_shap)
 
     # ---------------
     # EUCOVID dataset
@@ -106,9 +173,26 @@ def main():
         "run", help="Run BEAST2 analyses on empirical eucovid datasets."
     ).set_defaults(func=run_eucovid)
 
-    eucovid_subparsers.add_parser(
-        "plot", help="Generate plots and figures from empirical eucovid results."
-    ).set_defaults(func=plot_all)
+    eucovid_plot_parser = eucovid_subparsers.add_parser(
+        "plot", help="Generate plots and figures for empirical eucovid datasets."
+    )
+    eucovid_plot_subparsers = eucovid_plot_parser.add_subparsers(
+        dest="subcommand", required=True
+    )
+
+    eucovid_plot_subparsers.add_parser(
+        "all", help="Generate plots and figures for empirical eucovid datasets."
+    ).set_defaults(func=plot_eucovid)
+
+    eucovid_plot_subparsers.add_parser(
+        "flights-and-populations",
+        help="Generate plots for eucovid dataset in the flights and populations scenario.",
+    ).set_defaults(func=plot_eucovid_flights_and_populations)
+
+    eucovid_plot_subparsers.add_parser(
+        "flights-over-population",
+        help="Generate plots for eucovid dataset in the flights over population scenario.",
+    ).set_defaults(func=plot_eucovid_flights_over_population)
 
     args = parser.parse_args()
     args.func()

@@ -47,7 +47,7 @@ _MIGRATION_RATES = (
     np.array([[1, 1, 0], [1, 0, 1], [1, 0, 1], [0, 1, 1]]) * 0.1
 ).tolist()
 
-SCENARIO = Scenario(
+FBD_2TRAITS_SCENARIO = Scenario(
     type=ScenarioType.FBD,
     max_time=FBD_MAX_TIME,
     init_state=_INIT_STATE,

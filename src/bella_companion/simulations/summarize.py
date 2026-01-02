@@ -9,7 +9,7 @@ from bella_companion.simulations.run import JOB_IDS_FILENAME
 from bella_companion.simulations.scenarios import SCENARIOS
 
 
-def summarize():
+def summarize_simulations():
     output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"])
     with open(output_dir / JOB_IDS_FILENAME, "r") as f:
         job_ids: dict[str, dict[str, dict[str, str]]] = json.load(f)

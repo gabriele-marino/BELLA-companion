@@ -6,17 +6,25 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import UnivariateSpline
 
+from bella_companion.backend.utils.beast import (
+    LOWER_POSTFIX,
+    MEDIAN_POSTFIX,
+    UPPER_POSTFIX,
+)
+from bella_companion.simulations.plot.globals import COLORS
 from bella_companion.simulations.scenarios.epi_multitype import (
+    EPI_MULTITYPE_SCENARIO,
     MIGRATION_PREDICTOR,
     MIGRATION_RATES,
-    SCENARIO,
 )
 
 
-def plot_predictions(output_dir: Path):
+def plot_epi_multitype():
     summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "epi-multitype"
+    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "epi-multitype"
+    os.makedirs(output_dir, exist_ok=True)
 
-    log_summaries = {
+    models_summaries = {
         model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
         for model in ["PA", "GLM", "BELLA-32_16"]
     }
@@ -25,16 +33,16 @@ def plot_predictions(output_dir: Path):
     predictors = MIGRATION_PREDICTOR.flatten()[sort_idx]
     true_rates = MIGRATION_RATES.flatten()[sort_idx]
 
-    targets = SCENARIO.targets["migrationRate"]
-    for i, (model, log_summary) in enumerate(log_summaries.items()):
+    targets = EPI_MULTITYPE_SCENARIO.targets["migrationRate"]
+    for model, summaries in models_summaries.items():
         estimates = np.array(
-            [log_summary[f"{target}_median"].median() for target in targets]
+            [summaries[f"{target}{MEDIAN_POSTFIX}"].median() for target in targets]
         )[sort_idx]
         lower = np.array(
-            [log_summary[f"{target}_lower"].median() for target in targets]
+            [summaries[f"{target}{LOWER_POSTFIX}"].median() for target in targets]
         )[sort_idx]
         upper = np.array(
-            [log_summary[f"{target}_upper"].median() for target in targets]
+            [summaries[f"{target}{UPPER_POSTFIX}"].median() for target in targets]
         )[sort_idx]
 
         plt.errorbar(  # pyright: ignore
@@ -42,7 +50,7 @@ def plot_predictions(output_dir: Path):
             estimates,
             yerr=[estimates - lower, upper - estimates],
             fmt="o",
-            color=f"C{i}",
+            color=COLORS[model],
             elinewidth=2,
             capsize=5,
         )
@@ -50,7 +58,7 @@ def plot_predictions(output_dir: Path):
         spline = UnivariateSpline(predictors, estimates)
         x_smooth = np.linspace(np.min(predictors), np.max(predictors), 100)
         y_smooth = spline(x_smooth)
-        plt.plot(x_smooth, y_smooth, color=f"C{i}", linestyle="-", alpha=0.7)  # pyright: ignore
+        plt.plot(x_smooth, y_smooth, color=COLORS[model], linestyle="-", alpha=0.7)  # pyright: ignore
 
         plt.plot(  # pyright: ignore
             predictors, true_rates, linestyle="--", marker="o", color="k"

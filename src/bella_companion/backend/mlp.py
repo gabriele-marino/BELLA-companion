@@ -174,7 +174,7 @@ class MLPEnsemble:
         target_name: str,
         burn_in: int | float = 0.1,
         n_samples: int | None = 100,
-        random_seed: int = 42,
+        random_seed: int | None = 42,
         hidden_activation: ActivationFunctionLike = "relu",
         output_activation: ActivationFunctionLike = "sigmoid",
     ) -> "MLPEnsemble":
@@ -193,7 +193,7 @@ class MLPEnsemble:
         n_samples : int | None, optional
             Number of weight samples to return, by default 100.
             If None, returns all available samples after burn-in.
-        random_seed : int, optional
+        random_seed : int | None, optional
             Random seed for sampling weights when n_samples is specified, by default 42.
         hidden_activation : ActivationFunctionLike, optional
             Activation function to use for hidden layers, by default "relu".
@@ -220,6 +220,9 @@ class MLPEnsemble:
     def __call__(self, inputs: ArrayLike) -> Array:
         return self.forward(inputs)
 
+    def __len__(self) -> int:
+        return self.n_models
+
     def __iter__(self) -> Iterator[MLP]:
         return iter(self._mlps)
 
@@ -232,7 +235,7 @@ def mlp_ensembles_from_logs_dir(
     target_name: str,
     burn_in: int | float = 0.1,
     n_samples: int | None = 100,
-    random_seed: int = 42,
+    random_seed: int | None = 42,
     hidden_activation: ActivationFunctionLike = "relu",
     output_activation: ActivationFunctionLike = "sigmoid",
     n_jobs: int = -1,
@@ -252,7 +255,7 @@ def mlp_ensembles_from_logs_dir(
     n_samples : int | None, optional
         Number of weight samples to return, by default 100.
         If None, returns all available samples after burn-in.
-    random_seed : int, optional
+    random_seed : int | None, optional
         Random seed for sampling weights when n_samples is specified, by default 42.
     hidden_activation : ActivationFunctionLike, optional
         Activation function to use for hidden layers, by default "relu".

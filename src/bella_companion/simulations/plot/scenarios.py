@@ -4,7 +4,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-from bella_companion.simulations.plot.utils import step
+from bella_companion.backend import skyline_plot
 from bella_companion.simulations.scenarios.epi_multitype import (
     MIGRATION_PREDICTOR,
     MIGRATION_RATES,
@@ -27,8 +27,9 @@ def plot_scenarios():
     # epi-skyline
     # -----------
     for i, reproduction_number in enumerate(REPRODUCTION_NUMBERS, start=1):
-        step(reproduction_number, color="k")
-        plt.ylabel(r"$R_0$")  # pyright: ignore
+        skyline_plot(reproduction_number, step_kwargs={"color": "k"})
+        plt.ylabel(r"$R_t$")  # pyright: ignore
+        plt.xlabel("Time")  # pyright: ignore
         plt.savefig(output_dir / f"epi-skyline_{i}.svg")  # pyright: ignore
         plt.close()
 
@@ -51,9 +52,13 @@ def plot_scenarios():
     # fbd-no-traits
     # -------------
     for i, rates in enumerate(RATES, start=1):
-        step(rates["birth"], label=r"$\lambda$", reverse_xticks=True)
-        step(rates["death"], label=r"$\mu$", reverse_xticks=True)
+        skyline_plot(
+            list(reversed(rates["birth"])), step_kwargs={"label": r"$\lambda$"}
+        )
+        skyline_plot(list(reversed(rates["death"])), step_kwargs={"label": r"$\mu$"})
+        plt.gca().invert_xaxis()
         plt.ylabel("Rate")  # pyright: ignore
+        plt.xlabel("Time")  # pyright: ignore
         plt.legend()  # pyright: ignore
         plt.savefig(output_dir / f"fbd-no-traits_{i}.svg")  # pyright: ignore
         plt.close()
@@ -61,33 +66,36 @@ def plot_scenarios():
     # -----------
     # fbd-2traits
     # -----------
-    step(
-        BIRTH_RATE_TRAIT1_UNSET,
-        label=r"$\lambda_{0,0} = \lambda_{0,1}$",
-        color="C0",
-        reverse_xticks=True,
+    skyline_plot(
+        list(reversed(BIRTH_RATE_TRAIT1_UNSET)),
+        step_kwargs={"label": r"$\lambda_{0,0} = \lambda_{0,1}$", "color": "C0"},
     )
-    step(
-        BIRTH_RATE_TRAIT1_SET,
-        label=r"$\lambda_{1,0} = \lambda_{1,1}$",
-        color="C0",
-        linestyle="dashed",
-        reverse_xticks=True,
+    skyline_plot(
+        list(reversed(BIRTH_RATE_TRAIT1_SET)),
+        step_kwargs={
+            "label": r"$\lambda_{1,0} = \lambda_{1,1}$",
+            "color": "C0",
+            "linestyle": "dashed",
+        },
     )
-    step(
-        DEATH_RATE_TRAIT1_UNSET,
-        label=r"$\mu_{0,0} = \mu_{0,1}$",
-        color="C1",
-        reverse_xticks=True,
+    skyline_plot(
+        list(reversed(DEATH_RATE_TRAIT1_UNSET)),
+        step_kwargs={
+            "label": r"$\mu_{0,0} = \mu_{0,1}$",
+            "color": "C1",
+        },
     )
-    step(
-        DEATH_RATE_TRAIT1_SET,
-        label=r"$\mu_{1,0} = \mu_{1,1}$",
-        color="C1",
-        linestyle="dashed",
-        reverse_xticks=True,
+    skyline_plot(
+        list(reversed(DEATH_RATE_TRAIT1_SET)),
+        step_kwargs={
+            "label": r"$\mu_{1,0} = \mu_{1,1}$",
+            "color": "C1",
+            "linestyle": "dashed",
+        },
     )
+    plt.gca().invert_xaxis()
     plt.ylabel("Rate")  # pyright: ignore
+    plt.xlabel("Time")  # pyright: ignore
     plt.legend()  # pyright: ignore
     plt.savefig(output_dir / "fbd-2traits.svg")  # pyright: ignore
     plt.close()

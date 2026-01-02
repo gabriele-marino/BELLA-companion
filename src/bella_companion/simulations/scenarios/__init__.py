@@ -1,15 +1,7 @@
-from bella_companion.simulations.scenarios.epi_multitype import (
-    SCENARIO as EPI_MULTITYPE_SCENARIO,
-)
-from bella_companion.simulations.scenarios.epi_skyline import (
-    SCENARIOS as EPI_SKYLINE_SCENARIOS,
-)
-from bella_companion.simulations.scenarios.fbd_2traits import (
-    SCENARIO as FBD_2TRAITS_SCENARIO,
-)
-from bella_companion.simulations.scenarios.fbd_no_traits import (
-    SCENARIOS as FBD_NO_TRAITS_SCENARIOS,
-)
+from bella_companion.simulations.scenarios.epi_multitype import EPI_MULTITYPE_SCENARIO
+from bella_companion.simulations.scenarios.epi_skyline import EPI_SKYLINE_SCENARIOS
+from bella_companion.simulations.scenarios.fbd_2traits import FBD_2TRAITS_SCENARIO
+from bella_companion.simulations.scenarios.fbd_no_traits import FBD_NO_TRAITS_SCENARIOS
 from bella_companion.simulations.scenarios.scenario import Scenario, ScenarioType
 
 SCENARIOS = {

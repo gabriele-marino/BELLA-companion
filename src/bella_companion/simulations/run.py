@@ -5,7 +5,7 @@ from glob import glob
 from pathlib import Path
 
 from numpy.random import default_rng
-from phylogenie import Tree, get_node_depths, load_newick
+from phylogenie import Tree, load_newick
 from tqdm import tqdm
 
 from bella_companion.backend import submit_job
@@ -14,7 +14,7 @@ from bella_companion.simulations.scenarios import SCENARIOS, ScenarioType
 JOB_IDS_FILENAME = "sim-job-ids.json"
 
 
-def run():
+def run_simulations():
     rng = default_rng(42)
     base_data_dir = Path(os.environ["BELLA_SIMULATIONS_DATA_DIR"])
     base_output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"])
@@ -51,11 +51,9 @@ def run():
                     ]
                 )
                 if scenario.type == ScenarioType.EPI:
-                    tree = load_newick(tree_file)
-                    assert isinstance(tree, Tree)
-                    beast_args.append(
-                        f"-D lastSampleTime={max(get_node_depths(tree).values())}"
-                    )
+                    tree: Tree = load_newick(tree_file)  # pyright: ignore
+                    lastSampleTime = tree.height + tree.branch_length_or_raise()
+                    beast_args.append(f"-D lastSampleTime={lastSampleTime}")
 
                 base_command = [
                     os.environ["BELLA_RUN_BEAST_CMD"],

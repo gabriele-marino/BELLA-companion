@@ -1,210 +1,218 @@
 import os
-from functools import partial
+from collections.abc import Iterable, Sequence
+from itertools import product
 from pathlib import Path
 
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
-from numpy.typing import NDArray
-from phylogenie import draw_tree, get_node_depths, load_newick, load_nexus
+from phylogenie import (
+    draw_colored_tree_categorical,
+    draw_colored_tree_continuous,
+    load_nexus,
+)
 
-from bella_companion.utils.explain import plot_shap_features_importance
+from bella_companion.backend import (
+    MLPEnsemble,
+    Model,
+    Sigmoid,
+    Weights,
+    get_median_shap_feature_importance_distribution,
+    normalize,
+    ribbon_plot,
+    skyline_plot,
+)
+from bella_companion.platyrrhine.settings import CHANGE_TIMES, TYPES
 
-DATA_DIR = Path(__file__).parent / "data"
-# CHANGE_TIMES = (
-#    pl.read_csv(DATA_DIR / "change_times.csv", has_header=False).to_series().to_list()
-# )
+TYPE_LABELS = {0: "0 (Tiny)", 1: "1 (Small)", 2: "2 (Medium)", 3: "3 (Large)"}
 
 
-def _plot_marginal_rates(output_dir: Path, trees_file: str | Path):
-    trees = load_newick(trees_file)
-    all_node_depths = [get_node_depths(tree) for tree in trees]
-    max_time = max(max(node_depths.values()) for node_depths in all_node_depths)
-    time_bins = np.array(list(reversed([0.0, *CHANGE_TIMES, max_time])))
-    for tree in trees:
-        for node in tree:
-            node["diversificationRateSP"] = node["birthRateSP"] - node["deathRateSP"]
+def plot_platyrrhine_estimates():
+    summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "platyrrhine"
+    base_output_dir = (
+        Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine" / "estimates"
+    )
 
-    for i, rate in enumerate(["birthRateSP", "deathRateSP", "diversificationRateSP"]):
-        marginal_rates: list[list[float]] = [[] for _ in range(len(CHANGE_TIMES) + 1)]
-        for tree, node_depths in zip(trees, all_node_depths):
-            root_age = tree.height
-            for node in tree:
-                if node.parent is None:
-                    marginal_rates[0].append(node[rate])
-                    continue
-                parent_age = root_age - node_depths[node.parent]  # pyright: ignore
-                node_age = root_age - node_depths[node]
-                t1 = np.where(time_bins >= parent_age)[0][-1]
-                t2 = np.where(time_bins > node_age)[0][-1]
-                for t in range(t1, t2 + 1):
-                    marginal_rates[t].append(node[rate])
+    log_summary = pd.read_csv(summaries_dir / "BELLA.csv")  # pyright: ignore
+    for t in TYPES:
+        for i in range(len(CHANGE_TIMES) + 1):
+            log_summary[f"diversificationRateSPi{i}_{t}_median"] = (
+                log_summary[f"birthRateSPi{i}_{t}_median"]
+                - log_summary[f"deathRateSPi{i}_{t}_median"]
+            )
 
-        median = [np.median(rates) for rates in marginal_rates]
-        lower = [np.percentile(rates, 2.5) for rates in marginal_rates]
-        upper = [np.percentile(rates, 97.5) for rates in marginal_rates]
-        plt.step(  # pyright: ignore
-            time_bins, [median[0], *median], color=f"C{i}", label=type
-        )
-        plt.fill_between(  # pyright: ignore
-            time_bins,
-            [lower[0], *lower],
-            [upper[0], *upper],
-            color=f"C{i}",
-            alpha=0.2,
-            step="pre",
-        )
+    time_bins = [0.0, *CHANGE_TIMES, 30.0]
 
+    gradient = np.linspace(0.4, 0.9, 4)
+    colors: dict[str, np.typing.NDArray[np.floating]] = {
+        "birth": plt.cm.Blues(gradient),  # pyright: ignore
+        "death": plt.cm.Oranges(gradient),  # pyright: ignore
+        "diversification": plt.cm.Greens(gradient),  # pyright: ignore
+    }
+    labels = {
+        "birth": r"$\lambda$",
+        "death": r"$\mu$",
+        "diversification": r"$d$",
+    }
+    ribbons_ylims = {
+        "birth": (0, 0.8),
+        "death": (0, 0.6),
+        "diversification": (-0.3, 0.5),
+    }
+    for rate in ["birth", "death", "diversification"]:
+        output_dir = base_output_dir / rate
+        os.makedirs(output_dir, exist_ok=True)
+
+        # ----------------
+        # Median estimates
+        # ----------------
+
+        for t, label in TYPE_LABELS.items():
+            skyline_plot(
+                [
+                    log_summary[f"{rate}RateSPi{i}_{t}_median"].median()
+                    for i in range(len(CHANGE_TIMES) + 1)
+                ],
+                list(reversed(time_bins)),
+                step_kwargs={"color": colors[rate][t], "label": label},
+            )
         plt.gca().invert_xaxis()
+        plt.legend(title="Body mass")  # pyright: ignore
         plt.xlabel("Time (mya)")  # pyright: ignore
-        plt.ylabel(  # pyright: ignore
-            r"$\lambda$"
-            if rate == "birthRateSP"
-            else r"$\mu$"
-            if rate == "deathRateSP"
-            else r"$d$"
-        )
-        plt.savefig(output_dir / f"marginal-{rate}.svg")  # pyright: ignore
+        plt.ylabel(labels[rate])  # pyright: ignore
+        if rate in {"birth", "death"}:
+            plt.ylim(0, 0.4)  # pyright: ignore
+        plt.savefig(output_dir / "all.svg")  # pyright: ignore
         plt.close()
 
+        # -------------------------
+        # Ribbon plots by body mass
+        # -------------------------
 
-def _plot_tree(output_dir: Path, tree_file: str | Path):
-    sample_trees = load_nexus(tree_file)
-    trees = [sample_trees[f"STATE_{i * 100_000}"] for i in range(11, 101)]
+        for t in TYPES:
+            ribbon_plot(
+                log_summary[
+                    [
+                        f"{rate}RateSPi{i}_{t}_median"
+                        for i in range(len(CHANGE_TIMES) + 1)
+                    ]
+                ].values,
+                list(reversed(time_bins)),
+                color=colors[rate][t],
+                skyline=True,
+                samples_kwargs={"linewidth": 1},
+            )
+            plt.gca().invert_xaxis()
+            plt.xlabel("Time (mya)")  # pyright: ignore
+            plt.ylabel(labels[rate])  # pyright: ignore
+            plt.ylim(*ribbons_ylims[rate])  # pyright: ignore
+            plt.savefig(output_dir / f"body_mass={t}.svg")  # pyright: ignore
+            plt.close()
 
-    for tree in trees:
-        for node in tree:
-            if node.parent is not None and not node.branch_length:
-                node.parent.remove_child(node)
 
-    avg_tree = trees[0].copy()
-    for node in avg_tree:
-        node.clear()
-    for avg_node, nodes in zip(avg_tree, zip(*trees)):
-        avg_node["birthRateSP"] = np.mean([n["birthRateSP"] for n in nodes])
-        avg_node["deathRateSP"] = np.mean([n["deathRateSP"] for n in nodes])
-        avg_node["diversificationRateSP"] = (
-            avg_node["birthRateSP"] - avg_node["deathRateSP"]
-        )
-        avg_node["type"] = int(np.median([int(n["type"]) for n in nodes]))
+def plot_platyrrhine_trees():
+    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine" / "trees"
+    os.makedirs(output_dir, exist_ok=True)
 
-    avg_tree.ladderize()
+    tree_file = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "platyrrhine" / "mcc.nexus"
+    tree = load_nexus(tree_file)["TREE_MCC_median"]
+    tree.ladderize()
+    for node in tree:
+        node["diversificationRateSP"] = node["birthRateSP"] - node["deathRateSP"]
+
+    plt.figure(figsize=(8, 11))  # pyright: ignore
+    cmap = ListedColormap(plt.cm.Purples(np.linspace(0.3, 1, 4)))  # pyright: ignore
+    ax = draw_colored_tree_categorical(
+        tree=tree,
+        color_by="type",
+        backward_time=True,
+        colormap=cmap,
+        labels=TYPE_LABELS,
+        legend_kwargs={"title": "Body mass", "loc": "upper left"},
+    )
+    ax.set_xlabel("Time (mya)")  # pyright: ignore
+    plt.savefig(output_dir / "type.svg")  # pyright: ignore
+    plt.close()
+
     cmaps: dict[str, LinearSegmentedColormap] = {
         "birthRateSP": plt.cm.Blues,  # pyright: ignore
         "deathRateSP": plt.cm.Oranges,  # pyright: ignore
         "diversificationRateSP": plt.cm.Greens,  # pyright: ignore
-        "type": plt.cm.Purples,  # pyright: ignore
     }
     for color_by, cm in cmaps.items():
+        cmap = LinearSegmentedColormap.from_list(
+            "cmap",
+            cm(np.linspace(0.2, 1, 256)),  # pyright: ignore
+        )
+        plt.figure(figsize=(8, 10))  #  pyright: ignore
         ax = plt.gca()
-        if color_by == "type":
-            cmap = ListedColormap(cm(np.linspace(0.3, 1, 4)))  # pyright: ignore
-            draw_tree(
-                avg_tree,
-                ax,
-                color_by=color_by,
-                legend_kwargs={"title": "Body mass", "loc": "upper left"},
-                colormap=cmap,
-            )
-        else:
-            cmap = LinearSegmentedColormap.from_list(
-                "cmap",
-                cm(np.linspace(0.2, 1, 256)),  # pyright: ignore
-            )
-            draw_tree(
-                avg_tree,
-                ax,
-                color_by=color_by,
-                hist_axes_kwargs={
-                    "loc": "upper left",
-                    "bbox_to_anchor": (0.06, 0, 1, 1),
-                    "bbox_transform": ax.transAxes,
-                },
-                colormap=cmap,
-            )
-        height = avg_tree.height
-        ticks = np.arange(height, 0, -10)
-        ax.set_xticks(ticks, [str(round(height - t)) for t in ticks])  # pyright: ignore
-        ax.set_xlabel("Time (mya)")  # pyright: ignore
-        plt.savefig(output_dir / f"{color_by}-tree.svg")  # pyright: ignore
-        plt.close()
-
-
-def _plot_predictions(output_dir: Path, log_summary_file: str | Path):
-    log_summary = pl.read_csv(log_summary_file)
-
-    max_time = max(
-        max(get_node_depths(tree).values())
-        for tree in load_newick(DATA_DIR / "trees.nwk")
-    )
-    time_bins = list(reversed([0.0, *CHANGE_TIMES, max_time]))
-
-    gradient = np.linspace(0.4, 0.9, 4)
-    colors: dict[str, NDArray[np.floating]] = {
-        "birthRateSP": plt.cm.Blues(gradient),  # pyright: ignore
-        "deathRateSP": plt.cm.Oranges(gradient),  # pyright: ignore
-        "diversificationRateSP": plt.cm.Greens(gradient),  # pyright: ignore
-    }
-    for rate in colors:
-        for type in [0, 1, 2, 3]:
-            if rate == "diversificationRateSP":
-                estimates = log_summary.select(
-                    [
-                        pl.col(f"birthRateSPi{i}_{type}_median")
-                        - pl.col(f"deathRateSPi{i}_{type}_median")
-                        for i in range(len(CHANGE_TIMES) + 1)
-                    ]
-                ).to_numpy()
-            else:
-                estimates = log_summary.select(
-                    [
-                        pl.col(f"{rate}i{i}_{type}_median")
-                        for i in range(len(CHANGE_TIMES) + 1)
-                    ]
-                ).to_numpy()
-            median = np.median(estimates, axis=0)
-            color = colors[rate][type]
-            plt.step(  # pyright: ignore
-                time_bins, [median[0], *median], color=color, label=type
-            )
-
-        plt.gca().invert_xaxis()
-        plt.legend(title="Body mass")  # pyright: ignore
-        plt.xlabel("Time (mya)")  # pyright: ignore
-        plt.ylabel(  # pyright: ignore
-            r"$\lambda$"
-            if rate == "birthRateSP"
-            else r"$\mu$"
-            if rate == "deathRateSP"
-            else r"$d$"
-        )
-        if rate in ["birthRateSP", "deathRateSP"]:
-            plt.ylim(0, 0.4)  # pyright: ignore
-        plt.savefig(output_dir / f"{rate}-predictions.svg")  # pyright: ignore
-        plt.close()
-
-
-def _plot_shap(output_dir: Path, weights_file: str | Path):
-    weights = joblib.load(weights_file)
-    for target, color in [("birthRate", "blue"), ("deathRate", "orange")]:
-        plot_shap_features_importance(
-            weights=[w[target] for w in weights],
-            features={
-                "Time": Feature(is_binary=False, color=color),
-                "Body Mass": Feature(is_binary=False, color=color),
+        ax, _ = draw_colored_tree_continuous(
+            tree=tree,
+            color_by=color_by,
+            ax=ax,
+            backward_time=True,
+            colormap=cmap,
+            hist_axes_kwargs={
+                "loc": "upper left",
+                "bbox_to_anchor": (0.06, 0, 1, 1),
+                "bbox_transform": ax.transAxes,
             },
-            output_file=output_dir / f"shap-{target}.svg",
-            hidden_activation=relu,
-            output_activation=partial(sigmoid, upper=5),
         )
+        ax.set_xlabel("Time (mya)")  # pyright: ignore
+        plt.savefig(output_dir / f"{color_by}.svg")  # pyright: ignore
+        plt.close()
 
 
-def plot_all():
+def plot_platyrrhine_shap():
     summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "platyrrhine"
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine"
+    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine" / "shap"
     os.makedirs(output_dir, exist_ok=True)
-    # _plot_predictions(output_dir, summaries_dir / "MLP.csv")
-    # _plot_tree(output_dir, summaries_dir / "sample-trees.nexus")
-    # _plot_marginal_rates(output_dir, summaries_dir / "trees.nwk")
-    _plot_shap(output_dir, summaries_dir / "MLP.weights.pkl")
+
+    weights: list[dict[str, list[Weights]]] = joblib.load(
+        summaries_dir / "BELLA.weights.pkl"
+    )
+    mlps: dict[str, Sequence[Iterable[Model]]] = {
+        rate: [
+            MLPEnsemble(
+                weights_list=sample_weights[f"{rate}Rate"],
+                output_activation=Sigmoid(upper=5),
+            )
+            for sample_weights in weights
+        ]
+        for rate in ["birth", "death"]
+    }
+    mlps["diversification"] = [
+        [
+            lambda input: mlp_birth(input) - mlp_death(input)
+            for mlp_birth, mlp_death in zip(mlps_birth, mlps_death)
+        ]
+        for mlps_birth, mlps_death in zip(mlps["birth"], mlps["death"])
+    ]
+
+    for rate, color in [("birth", "C0"), ("death", "C1"), ("diversification", "C2")]:
+        inputs = list(product(normalize(CHANGE_TIMES), normalize(TYPES)))
+
+        shap = get_median_shap_feature_importance_distribution(
+            models=mlps[rate], inputs=inputs
+        )
+        shap /= shap.sum(axis=1, keepdims=True)
+        for i, feature in enumerate(["Time", "Body mass"]):
+            sns.violinplot(
+                y=shap[:, i],
+                x=[feature] * len(shap),
+                cut=0,
+                color=color,
+            )
+        plt.xlabel("Predictor")  # pyright: ignore
+        plt.ylabel("Importance")  # pyright: ignore
+        plt.savefig(output_dir / f"{rate}.svg")  # pyright: ignore
+        plt.close()
+
+
+def plot_platyrrhine():
+    plot_platyrrhine_estimates()
+    plot_platyrrhine_shap()
+    plot_platyrrhine_trees()

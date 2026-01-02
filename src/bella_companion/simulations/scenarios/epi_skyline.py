@@ -55,4 +55,4 @@ REPRODUCTION_NUMBERS: list[list[float]] = [
     np.linspace(1.2, 1.5, 5).tolist() + np.linspace(1.5, 1.0, 5).tolist(),
 ]
 REPRODUCTION_NUMBER_UPPER = 5
-SCENARIOS = [_get_scenario(r) for r in REPRODUCTION_NUMBERS]
+EPI_SKYLINE_SCENARIOS = [_get_scenario(r) for r in REPRODUCTION_NUMBERS]

@@ -7,9 +7,10 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
 
 # MacOS files
 .DS_Store
 
+# Project specific ignores
 outputs/

@@ -2,41 +2,40 @@ import os
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
-from phylogenie import Tree, get_node_depths, load_newick
+from phylogenie import Tree, load_newick
 from tqdm import tqdm
 
 from bella_companion.backend import submit_job
+from bella_companion.platyrrhine.settings import (
+    CHANGE_TIMES,
+    CHANGE_TIMES_FILE,
+    TRAITS_FILE,
+    TREE_FILE,
+    TYPES,
+)
 
 
-def run():
+def run_platyrrhine():
     base_output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"])
     output_dir = base_output_dir / "platyrrhine"
     os.makedirs(output_dir, exist_ok=True)
 
-    data_dir = Path(__file__).parent / "data"
-    tree_file = data_dir / "trees.nwk"
-    change_times_file = data_dir / "change_times.csv"
-
-    trees: list[Tree] = load_newick(str(tree_file))  # pyright: ignore
-
-    types = ["0", "1", "2", "3"]
-    change_times = pd.read_csv(change_times_file, header=None).values.flatten()  # pyright: ignore
-    time_bins = [0, *change_times]
+    trees: list[Tree] = load_newick(TREE_FILE)  # pyright: ignore
+    time_bins = [0, *CHANGE_TIMES]
     n_time_bins = len(time_bins)
 
-    time_predictor = " ".join(list(map(str, np.repeat(time_bins, len(types)))))
-    log10BM_predictor = " ".join(types * n_time_bins)
+    time_predictor = " ".join(list(map(str, np.repeat(time_bins, len(TYPES)))))
+    log10BM_predictor = " ".join(map(str, TYPES * n_time_bins))
 
     for i, tree in enumerate(
         tqdm(trees, desc="Submitting BEAST jobs for platyrrhine datasets")
     ):
-        process_length = max(get_node_depths(tree).values())
+        process_length = tree.height + tree.branch_length_or_raise()
         command = " ".join(
             [
                 os.environ["BELLA_RUN_BEAST_CMD"],
                 "-seed 42",
-                f'-D types="{",".join(types)}"',
+                f'-D types="{",".join(map(str, TYPES))}"',
                 '-D startTypePriorProbs="0.25 0.25 0.25 0.25"',
                 "-D birthRateUpper=5",
                 "-D deathRateUpper=5",
@@ -47,10 +46,10 @@ def run():
                 '-D migrationRateInit="2.5 0 0 2.5 2.5 0 0 2.5 2.5 0 0 2.5"',
                 '-D nodes="16 8"',
                 '-D layersRange="0,1,2"',
-                f"-D treeFile={tree_file}",
+                f"-D treeFile={TREE_FILE}",
                 f"-D treeIndex={i}",
-                f"-D changeTimesFile={change_times_file}",
-                f"-D traitsFile={data_dir / 'traits.csv'}",
+                f"-D changeTimesFile={CHANGE_TIMES_FILE}",
+                f"-D traitsFile={TRAITS_FILE}",
                 "-D traitValueCol=3",
                 f"-D processLength={process_length}",
                 f'-D timePredictor="{time_predictor}"',

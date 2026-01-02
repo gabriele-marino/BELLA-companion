@@ -10,7 +10,7 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from bella_companion.backend.type_hints import Weights
-from bella_companion.backend.utils.slurm import TOTAL_HOURS_KEY, get_job_metadata
+from bella_companion.backend.utils.slurm import get_job_metadata
 
 MEDIAN_POSTFIX = "_median"
 LOWER_POSTFIX = "_lower"
@@ -48,7 +48,7 @@ def read_weights(
     log_file: str | Path,
     burn_in: int | float = 0.1,
     n_samples: int | None = 100,
-    random_seed: int = 42,
+    random_seed: int | None = 42,
 ) -> dict[str, list[Weights]]:
     """
     Reads BELLA weights from a BEAST log file.
@@ -68,7 +68,7 @@ def read_weights(
     n_samples : int | None, optional
         Number of weight samples to return, by default 100.
         If None, returns all available samples after burn-in.
-    random_seed : int, optional
+    random_seed : int | None, optional
         Random seed for sampling weights when n_samples is specified, by default 42.
 
     Returns
@@ -82,7 +82,7 @@ def read_weights(
             raise ValueError(
                 "n_samples is greater than the number of available samples"
             )
-        df = df.sample(n_samples, random_state=random_seed)  # pyright: ignore
+        df = df.sample(n_samples, random_state=random_seed)
 
     targets = {
         m.group(1)
@@ -221,7 +221,7 @@ def read_weights_dir(
     logs_dir: str | Path,
     n_samples: int | None = 100,
     burn_in: int | float = 0.1,
-    random_seed: int = 42,
+    random_seed: int | None = 42,
     n_jobs: int = -1,
 ) -> list[dict[str, list[Weights]]]:
     """
@@ -237,7 +237,7 @@ def read_weights_dir(
     burn_in : int | float, optional
         If int, number of initial samples to discard.
         If float, fraction of samples to discard, by default 0.1.
-    random_seed : int, optional
+    random_seed : int | None, optional
         Random seed for sampling weights when n_samples is specified, by default 42.
     n_jobs : int, optional
         Number of parallel jobs to use, by default -1 (use all available cores).
@@ -259,105 +259,3 @@ def read_weights_dir(
         )(log_file)
         for log_file in tqdm(log_files, desc="Reading weights from log files")
     )
-
-
-def mae_from_summaries(summaries: pd.DataFrame, true_values: dict[str, float]) -> float:
-    """
-    Computes the mean absolute error (MAE) from BEAST summaries DataFrame.
-
-    Parameters
-    ----------
-    summaries : pd.DataFrame
-        DataFrame containing BEAST summaries with median estimates.
-    true_values : dict[str, float]
-        Dictionary of true target values.
-
-    Returns
-    -------
-    float
-        The mean absolute error (MAE) between the median estimates and true values.
-    """
-    preds = np.array(
-        [summaries[f"{target}{MEDIAN_POSTFIX}"].median() for target in true_values]
-    )
-    targets = np.array(list(true_values.values()))
-    return np.mean(np.abs(preds - targets), dtype=float)
-
-
-def coverage_from_summaries(
-    summaries: pd.DataFrame, true_values: dict[str, float]
-) -> float:
-    """
-    Computes the coverage of the highest density intervals (HDI) from BEAST summaries DataFrame.
-
-    Parameters
-    ----------
-    summaries : pd.DataFrame
-        DataFrame containing BEAST summaries with lower and upper bounds.
-    true_values : dict[str, float]
-        Dictionary of true target values.
-
-    Returns
-    -------
-    float
-        The coverage proportion of true values within the HDI intervals.
-    """
-    coverages = [
-        (
-            (summaries[f"{target}{LOWER_POSTFIX}"] <= true_values[target])
-            & (true_values[target] <= summaries[f"{target}{UPPER_POSTFIX}"])
-        ).mean()
-        for target in true_values
-    ]
-    return np.mean(coverages, dtype=float)
-
-
-def avg_CI_width_from_summaries(
-    summaries: pd.DataFrame, true_values: dict[str, float]
-) -> float:
-    """
-    Computes the average width of the highest density intervals (HDI) from BEAST summaries DataFrame.
-
-    Parameters
-    ----------
-    summaries : pd.DataFrame
-        DataFrame containing BEAST summaries with lower and upper bounds.
-    true_values : dict[str, float]
-        Dictionary of true target values.
-
-    Returns
-    -------
-    float
-        The average width of the HDI intervals.
-    """
-    widths = [
-        np.mean(
-            summaries[f"{target}{UPPER_POSTFIX}"]
-            - summaries[f"{target}{LOWER_POSTFIX}"]
-        )
-        for target in true_values
-    ]
-    return np.mean(widths, dtype=float)
-
-
-def mean_ess_per_hour_from_summaries(
-    summaries: pd.DataFrame, targets: list[str]
-) -> float:
-    """
-    Computes the mean ESS per hour from BEAST summaries DataFrame.
-
-    Parameters
-    ----------
-    summaries : pd.DataFrame
-        DataFrame containing BEAST summaries with ESS values.
-    targets : list[str]
-        List of target names to consider for ESS calculation.
-
-    Returns
-    -------
-    float
-        The mean ESS per hour across the specified targets.
-    """
-    ess_cols = [f"{t}{ESS_POSTFIX}" for t in targets]
-    mean_ess_per_hour = summaries[ess_cols].mean(axis=1) / summaries[TOTAL_HOURS_KEY]
-    return mean_ess_per_hour.mean()

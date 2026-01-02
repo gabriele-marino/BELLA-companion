@@ -31,7 +31,7 @@ MIGRATION_RATES = _MIGRATION_SIGMOID_AMPLITUDE / (
 )
 MIGRATION_RATE_UPPER = 0.2
 
-SCENARIO = Scenario(
+EPI_MULTITYPE_SCENARIO = Scenario(
     type=ScenarioType.EPI,
     max_time=EPI_MAX_TIME,
     init_state=_INIT_TYPE,

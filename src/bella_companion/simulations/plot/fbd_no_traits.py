@@ -2,56 +2,99 @@ import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
+import seaborn as sns
 
-from bella_companion.simulations.plot.utils import (
-    plot_coverage_per_time_bin,
-    plot_maes_per_time_bin,
-    step,
+from bella_companion.backend import (
+    MEDIAN_POSTFIX,
+    coverage_from_summaries,
+    mae_distribution_from_summaries,
+    skyline_plot,
 )
+from bella_companion.simulations.plot.globals import COLORS
 from bella_companion.simulations.scenarios.fbd_no_traits import RATES
 
 
-def plot_fbd_no_traits_results():
-    base_output = Path(os.environ["BELLA_FIGURES_DIR"]) / "fbd-no-traits"
+def plot_fbd_no_traits():
+    base_output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "fbd-no-traits"
 
     mlp_models = {1: "3_2", 2: "16_8", 3: "3_2"}
     for i, rates in enumerate(RATES, start=1):
         summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / f"fbd-no-traits_{i}"
-        logs_summaries = {
-            "Nonparametric": pd.read_csv(summaries_dir / "Nonparametric.csv"),
-            "GLM": pd.read_csv(summaries_dir / "GLM.csv"),
-            "MLP": pd.read_csv(summaries_dir / f"MLP-{mlp_models[i]}.csv"),
+        models_summaries = {
+            model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
+            for model in [f"BELLA-{mlp_models[i]}", "GLM", "PA"]
         }
-        true_values = {"birthRateSP": rates["birth"], "deathRateSP": rates["death"]}
 
-        output_dir = base_output / str(i)
-        for id, rate in true_values.items():
-            for log_summary in logs_summaries.values():
-                step(
-                    [
-                        float(np.median(log_summary[f"{id}i{i}_median"]))
-                        for i in range(len(rate))
-                    ],
-                    reverse_xticks=True,
+        for rate, values in rates.items():
+            output_dir = base_output_dir / str(i) / rate
+            os.makedirs(output_dir, exist_ok=True)
+
+            for model, summaries in models_summaries.items():
+                medians = [
+                    summaries[f"{rate}RateSPi{i}{MEDIAN_POSTFIX}"].median()
+                    for i in range(len(values))
+                ]
+                skyline_plot(
+                    list(reversed(medians)), step_kwargs={"color": COLORS[model]}
                 )
-            step(rate, color="k", linestyle="--", reverse_xticks=True)
-            plt.ylabel(  # pyright: ignore
-                r"$\lambda$" if id == "birthRateSP" else r"$\mu$"
+            skyline_plot(
+                list(reversed(values)), step_kwargs={"color": "k", "linestyle": "--"}
             )
-            plt.savefig(output_dir / f"{id}-predictions.svg")  # pyright: ignore
+            plt.gca().invert_xaxis()
+            plt.xlabel("Time")  # pyright: ignore
+            plt.ylabel(  # pyright: ignore
+                r"$\lambda$" if rate == "birth" else r"$\mu$"
+            )
+            plt.savefig(output_dir / "predictions.svg")  # pyright: ignore
             plt.close()
 
-        plot_coverage_per_time_bin(
-            logs_summaries,
-            true_values,
-            output_dir / "coverage.svg",
-            reverse_xticks=True,
-        )
-        plot_maes_per_time_bin(
-            logs_summaries,
-            true_values,
-            output_dir / "maes.svg",
-            reverse_xticks=True,
-        )
+            for model, summaries in models_summaries.items():
+                coverage_by_time_bin = [
+                    coverage_from_summaries(
+                        summaries=summaries, true_values={f"{rate}RateSPi{i}": v}
+                    )
+                    for i, v in enumerate(values)
+                ]
+                plt.plot(  # pyright: ignore
+                    list(reversed(coverage_by_time_bin)),
+                    marker="o",
+                    color=COLORS[model],
+                )
+            plt.gca().invert_xaxis()
+            plt.xlabel("Time bin")  # pyright: ignore
+            plt.ylabel("Coverage")  # pyright: ignore
+            plt.ylim((0, 1.05))  # pyright: ignore
+            plt.savefig(output_dir / "coverage.svg")  # pyright: ignore
+            plt.close()
+
+            maes = pd.concat(
+                [
+                    pd.DataFrame(
+                        {
+                            "MAE": mae_distribution_from_summaries(
+                                summaries=summaries,
+                                true_values={f"{rate}RateSPi{i}": v},
+                            )
+                        }
+                    )
+                    .assign(Model=model)
+                    .assign(**{"Time bin": len(values) - i - 1})
+                    for model, summaries in models_summaries.items()
+                    for i, v in enumerate(values)
+                ]
+            )
+            sns.violinplot(
+                x="Time bin",
+                y="MAE",
+                hue="Model",
+                data=maes,
+                inner=None,
+                cut=0,
+                density_norm="width",
+                palette=COLORS,
+                legend=False,
+            )
+            plt.gca().invert_xaxis()
+            plt.savefig(output_dir / "maes.svg")  # pyright: ignore
+            plt.close()
