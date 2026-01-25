@@ -48,11 +48,11 @@
                 <populationModel spec="ConstantPopulation" popSize="0.1"/>
             </stateNode>
             <stateNode id="Re" spec="RealParameter" value="1.0 1.1 1.2 1.3 1.4 1.01 1.1 1.2 1.3 1.4"/>
-            <stateNode id="samplingProportion" spec="RealParameter" value="1.11E-5 1.2E-5 1.3E-5 1.4E-5 1.5E-5 1.1E-5 1.2E-5 1.3E-5 1.4E-5 1.5E-5 0.0 0.0 0.0 0.0 0.0"/>
+            <stateNode id="samplingProportion" spec="RealParameter" value="1.1E-4 1.2E-3 1.3E-2 1.4E-3 1.5E-3 1.1E-4 0 1.3E-2 1.4E-3 1.5E-3 0.0 0.0 0.0 0.0 0.0"/>
             <plate var="n" range="$(layersRange)">
                 <stateNode spec="RealParameter" id="migrationRateW$(n)" value="0"/>
             </plate>
-            <stateNode id="processLength" spec="RealParameter" value="10.0"/>
+            <stateNode id="processLength" spec="RealParameter" value="1"/>
             <stateNode id="gammaShape" spec="RealParameter" value="1.0"/>
             <stateNode id="kappa" spec="RealParameter" value="2.0"/>
         </state>
@@ -72,8 +72,8 @@
             <distribution id="prior" spec="CompoundDistribution">
                 <distribution id="BDMMPrime" spec="BirthDeathMigrationDistribution" tree="@tree" conditionOnSurvival="true" typeTraitSet="@typeTraitSet">
                     <parameterization id="EpiBDMMPrimeParameterization" spec="EpiParameterization" processLength="@processLength" typeSet="@typeSet">
-                        <Re id="ReSP" spec="SkylineVectorParameter" skylineValues="@Re" changeTimes="0.123" timesAreAges="true" processLength="@processLength" typeSet="@typeSet" />
-                        <samplingProportion id="samplingProportionSP" spec="SkylineVectorParameter" skylineValues="@samplingProportion" changeTimes="0.123 0.205" timesAreAges="true" processLength="@processLength" typeSet="@typeSet"/>
+                        <Re id="ReSP" spec="SkylineVectorParameter" skylineValues="@Re" changeTimes="0.123" timesAreAges="true" processLength="@processLength" typeSet="@typeSet"/>
+                        <samplingProportion id="samplingProportionSP" spec="SkylineVectorParameter" skylineValues="@samplingProportion" changeTimes="0.165 0.205" timesAreAges="true" processLength="@processLength" typeSet="@typeSet"/>
                         <becomeUninfectiousRate spec="SkylineVectorParameter" skylineValues="36.5" typeSet="@typeSet"/>
                         <migrationRate id="migrationRateSP" spec="SkylineMatrixParameter" timesAreAges="true" processLength="@processLength" typeSet="@typeSet">
                             <skylineValues id="migrationRate" spec="bella.BayesMLP" nodes="$(nodes)">
@@ -83,7 +83,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="migrationRateW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.SoftPlus"/>
+                                <outputActivation spec="bella.activations.SoftPlus"/>
                             </skylineValues>
                             <changeTimes spec="RealParameterFromXSV" fileName="$(changeTimesFile)"/>
                         </migrationRate> 
@@ -98,21 +98,33 @@
                 <distribution spec="SmartZeroExcludingPrior" x="@Re">
                     <LogNormal name="distr" M="0.8" S="0.5"/>
                 </distribution>
-                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.2E-5 1.3E-5 1.4E-5 1.5E-5">
-                    <Uniform name="distr" lower="0" upper="0.15"/>
+
+                <!-- Sampling proportion in China -->
+                <!-- Sequences from China: 30, total confirmed cases in China before 2020-03-08: 80814 (ECDC). Upper bound: 30/80814, lower bound: 30/808140 -->
+                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.2E-3 1.3E-2 1.4E-3 1.5E-3">
+                    <Uniform name="distr" lower="3.712228079293192E-05" upper="3.712228079293192E-04"/>
                 </distribution>
-                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-5 1.3E-5 1.4E-5 1.5E-5">
-                    <Uniform name="distr" lower="0" upper="0.093"/>
+                <!-- Sampling proportion in France -->
+                <!-- Sequences from France: 3, total confirmed cases in France before 2020-03-08: 716 (ECDC). Upper bound: 3/716, lower bound: 3/7160 -->
+                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-4 1.3E-2 1.4E-3 1.5E-3">
+                    <Uniform name="distr" lower="4.18994413407821E-04" upper="4.18994413407821E-03"/>
                 </distribution>
-                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-5 1.2E-5 1.4E-5 1.5E-5">
-                    <Uniform name="distr" lower="0" upper="0.10"/>
+                <!-- Sampling proportion in Germany -->
+                <!-- Sequences from Germany: 30, total confirmed cases in Germany before 2020-03-08: 847 (ECDC). Upper bound: 30/847, lower bound: 30/8470 -->
+                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-4 1.2E-3 1.4E-3 1.5E-3">
+                    <Uniform name="distr" lower="3.541912632821724E-03" upper="3.541912632821724E-02"/>
                 </distribution>
-                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-5 1.2E-5 1.3E-5 1.5E-5">
-                    <Uniform name="distr" lower="0" upper="0.005"/>
+                <!-- Sampling proportion in Italy -->
+                <!-- Sequences from Italy: 30, total confirmed cases in Italy before 2020-03-08: 5883 (ECDC). Upper bound: 30/5883, lower bound: 30/58830 -->
+                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-4 1.2E-3 1.3E-2 1.5E-3">
+                    <Uniform name="distr" lower="5.099439061703213E-04" upper="5.099439061703213E-03"/>
                 </distribution>
-                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-5 1.2E-5 1.3E-5 1.4E-5">
-                    <Uniform name="distr" lower="0" upper="0.057"/>
+                <!-- Sampling proportion in Other EU -->
+                <!-- Sequences from Other EU: 30, total confirmed cases in Other EU before 2020-03-08: 3054 (ECDC). Upper bound: 30/3054, lower bound: 30/30540 -->
+                <distribution spec="SmartZeroExcludingPrior" x="@samplingProportion" classesToExclude="1.1E-4 1.2E-3 1.3E-2 1.4E-3">
+                    <Uniform name="distr" lower="9.823182711198428E-04" upper="9.823182711198428E-03"/>
                 </distribution>
+
                 <plate var="n" range="$(layersRange)">
                     <prior name="distribution" x="@migrationRateW$(n)">
                         <Normal name="distr" mean="0.0" sigma="1.0"/>
@@ -157,9 +169,6 @@
             <log idref="samplingProportionSP"/>
             <log idref="migrationRateSP"/>
             <log idref="migrationRate"/>
-        </logger>
-        <logger spec="Logger" fileName="typedTrees.trees" logEvery="100000" mode="tree">
-            <log idref="typeMappedTree"/>
         </logger>
         <logger spec="Logger" fileName="TypedNodeTrees.trees" logEvery="100000" mode="tree">
             <log spec="TypedNodeTreeLogger" typedTree="@typeMappedTree"/>

@@ -9,10 +9,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
-from phylogenie import (
+from phylogenie import load_nexus
+from phylogenie.draw import (
     draw_colored_tree_categorical,
     draw_colored_tree_continuous,
-    load_nexus,
 )
 
 from bella_companion.backend import (

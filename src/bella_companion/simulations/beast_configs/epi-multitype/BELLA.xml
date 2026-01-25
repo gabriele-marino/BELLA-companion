@@ -8,7 +8,6 @@
         :bdmmprime.distribution
         :bdmmprime.parameterization
         :feast.fileio
-        :feast.function
         :feast.expressions"
     version="2.5"
 >
@@ -49,7 +48,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="migrationRateW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.Sigmoid" upper="$(migrationRateUpper)"/>
+                                <outputActivation spec="bella.activations.Sigmoid" upper="$(migrationRateUpper)"/>
                             </skylineValues>
 						</migrationRate>
 						<removalProb spec="SkylineVectorParameter" skylineValues="1.0" typeSet="@typeSet"/>

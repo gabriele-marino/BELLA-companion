@@ -8,7 +8,7 @@ from numpy.random import default_rng
 from phylogenie import Tree, load_newick
 from tqdm import tqdm
 
-from bella_companion.backend import submit_job
+from bella_companion.backend import submit_beast_job
 from bella_companion.simulations.scenarios import SCENARIOS, ScenarioType
 
 JOB_IDS_FILENAME = "sim-job-ids.json"
@@ -39,44 +39,30 @@ def run_simulations():
                 output_dir = base_output_dir / scenario_id / model
                 os.makedirs(output_dir, exist_ok=True)
 
-                beast_args = [
-                    f"-D treeFile={tree_file},treeID={tree_id}",
-                    f"-prefix {output_dir}{os.sep}",
-                    f'-D randomPredictor="{" ".join(map(str, scenario.get_random_predictor(rng)))}"',
-                ]
-                beast_args.extend(
-                    [
-                        f'-D {key}="{value}"'
-                        for key, value in scenario.beast_args.items()
-                    ]
-                )
+                data = scenario.beast_args | {
+                    "treeFile": tree_file,
+                    "treeID": tree_id,
+                    "randomPredictor": " ".join(
+                        map(str, scenario.get_random_predictor(rng))
+                    ),
+                }
+
                 if scenario.type == ScenarioType.EPI:
                     tree: Tree = load_newick(tree_file)  # pyright: ignore
                     lastSampleTime = tree.height + tree.branch_length_or_raise()
-                    beast_args.append(f"-D lastSampleTime={lastSampleTime}")
+                    data["lastSampleTime"] = str(lastSampleTime)
 
-                base_command = [
-                    os.environ["BELLA_RUN_BEAST_CMD"],
-                    "-seed 42",
-                    *beast_args,
-                ]
-                if model in ["PA", "GLM"]:
-                    command = " ".join(
-                        [*base_command, str(inference_configs_dir / f"{model}.xml")]
-                    )
-                else:
+                if model.startswith("BELLA"):
                     nodes = model.split("-")[1].split("_")
-                    command = " ".join(
-                        [
-                            *base_command,
-                            f'-D nodes="{" ".join(map(str, nodes))}"',
-                            f'-D layersRange="{",".join(map(str, range(len(nodes) + 1)))}"',
-                            str(inference_configs_dir / "BELLA.xml"),
-                        ]
-                    )
+                    data["nodes"] = " ".join(nodes)
+                    data["layersRange"] = ",".join(map(str, range(len(nodes) + 1)))
 
-                job_ids[scenario_id][model][tree_id] = submit_job(
-                    command, log_dir / model / tree_id
+                config_filename = "BELLA" if model.startswith("BELLA") else model
+                job_ids[scenario_id][model][tree_id] = submit_beast_job(
+                    data=data,
+                    prefix=f"{output_dir}{os.sep}",
+                    config_path=inference_configs_dir / config_filename,
+                    log_dir=log_dir / model / tree_id,
                 )
 
     with open(base_output_dir / JOB_IDS_FILENAME, "w") as f:

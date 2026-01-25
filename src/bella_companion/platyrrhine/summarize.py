@@ -1,17 +1,13 @@
 import os
 import subprocess
 from glob import glob
+from itertools import chain
 from pathlib import Path
 
 import joblib
-from phylogenie import dump_newick
 from tqdm import tqdm
 
-from bella_companion.backend import (
-    load_nexus_with_burnin,
-    read_weights_dir,
-    summarize_logs_dir,
-)
+from bella_companion.backend import read_weights_dir, summarize_logs_dir
 from bella_companion.platyrrhine.settings import CHANGE_TIMES, TYPES
 
 
@@ -34,19 +30,19 @@ def summarize_platyrrhine():
     summaries.to_csv(summaries_dir / "BELLA.csv")
     joblib.dump(weights, summaries_dir / "BELLA.weights.pkl")
 
-    trees = [
-        tree
-        for tree_file in tqdm(glob(str(logs_dir / "*.trees")), "Summarizing trees")
-        for tree in load_nexus_with_burnin(tree_file)
+    options = [
+        ("-log", tree_file) for tree_file in tqdm(glob(str(logs_dir / "*.trees")))
     ]
-    trees_file = summaries_dir / ".trees.tmp.nwk"
-    dump_newick(trees, trees_file)
+    combined_trees_file = summaries_dir / ".trees.combined.tmp.nwk"
+    subprocess.run(
+        ["logcombiner", *list(chain(*options)), "-o", str(combined_trees_file)]
+    )
 
     subprocess.run(
         [
             "treeannotator",
             "-file",
-            str(trees_file),
+            str(combined_trees_file),
             str(summaries_dir / "mcc.nexus"),
             "-burnin",
             "0",
@@ -55,4 +51,4 @@ def summarize_platyrrhine():
         ]
     )
 
-    os.remove(trees_file)
+    os.remove(combined_trees_file)

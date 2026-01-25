@@ -6,6 +6,7 @@ from bella_companion.backend.utils.beast import (
     read_log_file,
     read_weights,
     read_weights_dir,
+    submit_beast_job,
     summarize_log,
     summarize_logs_dir,
 )
@@ -16,7 +17,7 @@ from bella_companion.backend.utils.metrics import (
     mae_from_summaries,
     mean_ess_per_hour_from_summaries,
 )
-from bella_companion.backend.utils.misc import load_nexus_with_burnin, normalize
+from bella_companion.backend.utils.misc import normalize
 from bella_companion.backend.utils.slurm import get_job_metadata, submit_job
 
 __all__ = [
@@ -27,6 +28,7 @@ __all__ = [
     "read_log_file",
     "read_weights",
     "read_weights_dir",
+    "submit_beast_job",
     "summarize_log",
     "summarize_logs_dir",
     "avg_ci_width_from_summaries",
@@ -34,7 +36,6 @@ __all__ = [
     "mae_distribution_from_summaries",
     "mae_from_summaries",
     "mean_ess_per_hour_from_summaries",
-    "load_nexus_with_burnin",
     "normalize",
     "get_job_metadata",
     "submit_job",

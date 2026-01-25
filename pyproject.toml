@@ -1,6 +1,6 @@
 [project]
 name = "bella-companion"
-version = "0.1.10"
+version = "0.1.23"
 description = "Bayesian Evolutionary Layered Learning Architectures (BELLA) companion"
 readme = "README.md"
 authors = [
@@ -8,12 +8,11 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-    "arviz>=0.22.0",
+    "arviz==0.22.0",
     "autoregistry>=1.2.0",
-    "dendropy>=5.0.8",
     "dotenv>=0.9.9",
     "kaleido>=1.2.0",
-    "phylogenie>=3.1.10",
+    "phylogenie>=3.1.14",
     "plotly>=6.5.0",
     "scipy>=1.15.3",
     "seaborn>=0.13.2",

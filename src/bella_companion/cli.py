@@ -6,11 +6,13 @@ import matplotlib.pyplot as plt
 from dotenv import load_dotenv
 
 from bella_companion.eucovid import (
-    download_data,
     plot_eucovid,
     plot_eucovid_flights_and_populations,
-    plot_eucovid_flights_over_population,
+    plot_eucovid_flights_over_populations,
+    plot_eucovid_sankey,
+    plot_eucovid_trees,
     run_eucovid,
+    summarize_eucovid,
 )
 from bella_companion.platyrrhine import (
     plot_platyrrhine,
@@ -36,17 +38,7 @@ from bella_companion.simulations import (
 
 def main():
     load_dotenv(Path(os.getcwd()) / ".env")
-    os.environ["BELLA_RUN_BEAST_CMD"] = " ".join(
-        [
-            "beast",
-            # "java",
-            # os.getenv("JAVA_OPTIONS", ""),
-            # f"-jar {Path(__file__).parent / 'BELLA.jar'}",
-            # f"-version_file {Path(__file__).parent / 'version.xml'}",
-            "-overwrite",
-            "-statefile /tmp/state",
-        ]
-    )
+
     plt.rcParams["font.family"] = "Arial"
     plt.rcParams["pdf.fonttype"] = 42
     plt.rcParams["xtick.labelsize"] = 20
@@ -172,12 +164,13 @@ def main():
     eucovid_subparsers = eucovid_parser.add_subparsers(dest="subcommand", required=True)
 
     eucovid_subparsers.add_parser(
-        "download", help="Download data for empirical eucovid datasets."
-    ).set_defaults(func=download_data)
-
-    eucovid_subparsers.add_parser(
         "run", help="Run BEAST2 analyses on empirical eucovid datasets."
     ).set_defaults(func=run_eucovid)
+
+    eucovid_subparsers.add_parser(
+        "summarize",
+        help="Summarize BEAST2 log outputs for empirical eucovid datasets.",
+    ).set_defaults(func=summarize_eucovid)
 
     eucovid_plot_parser = eucovid_subparsers.add_parser(
         "plot", help="Generate plots and figures for empirical eucovid datasets."
@@ -191,14 +184,22 @@ def main():
     ).set_defaults(func=plot_eucovid)
 
     eucovid_plot_subparsers.add_parser(
+        "sankey", help="Generate sankey plots for eucovid dataset."
+    ).set_defaults(func=plot_eucovid_sankey)
+
+    eucovid_plot_subparsers.add_parser(
+        "trees", help="Generate tree plots for eucovid dataset."
+    ).set_defaults(func=plot_eucovid_trees)
+
+    eucovid_plot_subparsers.add_parser(
         "flights-and-populations",
         help="Generate plots for eucovid dataset in the flights and populations scenario.",
     ).set_defaults(func=plot_eucovid_flights_and_populations)
 
     eucovid_plot_subparsers.add_parser(
-        "flights-over-population",
-        help="Generate plots for eucovid dataset in the flights over population scenario.",
-    ).set_defaults(func=plot_eucovid_flights_over_population)
+        "flights-over-populations",
+        help="Generate plots for eucovid dataset in the flights over populations scenario.",
+    ).set_defaults(func=plot_eucovid_flights_over_populations)
 
     args = parser.parse_args()
     args.func()

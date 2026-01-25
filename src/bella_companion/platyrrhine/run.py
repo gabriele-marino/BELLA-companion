@@ -5,7 +5,7 @@ import numpy as np
 from phylogenie import Tree, load_newick
 from tqdm import tqdm
 
-from bella_companion.backend import submit_job
+from bella_companion.backend import submit_beast_job
 from bella_companion.platyrrhine.settings import (
     CHANGE_TIMES,
     CHANGE_TIMES_FILE,
@@ -31,35 +31,31 @@ def run_platyrrhine():
         tqdm(trees, desc="Submitting BEAST jobs for platyrrhine datasets")
     ):
         process_length = tree.height + tree.branch_length_or_raise()
-        command = " ".join(
-            [
-                os.environ["BELLA_RUN_BEAST_CMD"],
-                "-seed 42",
-                f'-D types="{",".join(map(str, TYPES))}"',
-                '-D startTypePriorProbs="0.25 0.25 0.25 0.25"',
-                "-D birthRateUpper=5",
-                "-D deathRateUpper=5",
-                '-D samplingChangeTimes="2.58 5.333 23.03"',
-                "-D samplingRateUpper=5",
-                '-D samplingRateInit="2.5 2.5 2.5 2.5"',
-                "-D migrationRateUpper=5",
-                '-D migrationRateInit="2.5 0 0 2.5 2.5 0 0 2.5 2.5 0 0 2.5"',
-                '-D nodes="16 8"',
-                '-D layersRange="0,1,2"',
-                f"-D treeFile={TREE_FILE}",
-                f"-D treeIndex={i}",
-                f"-D changeTimesFile={CHANGE_TIMES_FILE}",
-                f"-D traitsFile={TRAITS_FILE}",
-                "-D traitValueCol=3",
-                f"-D processLength={process_length}",
-                f'-D timePredictor="{time_predictor}"',
-                f'-D log10BMPredictor="{log10BM_predictor}"',
-                f"-prefix {output_dir}{os.sep}",
-                str(Path(__file__).parent / "beast_config.xml"),
-            ]
-        )
-        submit_job(
-            command,
-            Path(os.environ["BELLA_SBATCH_LOG_DIR"]) / "platyrrhine" / str(i),
+        data = {
+            "types": ",".join(map(str, TYPES)),
+            "startTypePriorProbs": "0.25 0.25 0.25 0.25",
+            "birthRateUpper": "5",
+            "deathRateUpper": "5",
+            "samplingChangeTimes": "2.58 5.333 23.03",
+            "samplingRateUpper": "5",
+            "samplingRateInit": "2.5 2.5 2.5 2.5",
+            "migrationRateUpper": "5",
+            "migrationRateInit": "2.5 0 0 2.5 2.5 0 0 2.5 2.5 0 0 2.5",
+            "layersRange": "0,1,2",
+            "nodes": "16 8",
+            "treeFile": str(TREE_FILE),
+            "treeIndex": str(i),
+            "changeTimesFile": str(CHANGE_TIMES_FILE),
+            "traitsFile": str(TRAITS_FILE),
+            "traitValueCol": "3",
+            "processLength": str(process_length),
+            "timePredictor": time_predictor,
+            "log10BMPredictor": log10BM_predictor,
+        }
+        submit_beast_job(
+            data=data,
+            prefix=f"{output_dir}{os.sep}",
+            config_path=Path(__file__).parent / "beast_config.xml",
+            log_dir=Path(os.environ["BELLA_SBATCH_LOG_DIR"]) / "platyrrhine" / str(i),
             mem_per_cpu=12000,
         )

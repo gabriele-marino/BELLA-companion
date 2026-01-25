@@ -1,3 +1,5 @@
+import json
+import os
 import re
 from functools import partial
 from pathlib import Path
@@ -10,12 +12,53 @@ from joblib import Parallel, delayed
 from tqdm import tqdm
 
 from bella_companion.backend.type_hints import Weights
-from bella_companion.backend.utils.slurm import get_job_metadata
+from bella_companion.backend.utils.slurm import get_job_metadata, submit_job
 
 MEDIAN_POSTFIX = "_median"
 LOWER_POSTFIX = "_lower"
 UPPER_POSTFIX = "_upper"
 ESS_POSTFIX = "_ess"
+
+
+def submit_beast_job(
+    data: dict[str, str],
+    prefix: str | Path,
+    config_path: str | Path,
+    log_dir: str | Path,
+    time: str = "240:00:00",
+    cpus: int = 1,
+    mem_per_cpu: int = 2000,
+    seed: int = 42,
+) -> str | None:
+    log_dir = Path(log_dir)
+    if log_dir.exists():
+        print(f"Log directory {log_dir} already exists. Skipping.")
+        return None
+    else:
+        os.makedirs(log_dir, exist_ok=True)
+
+    data_file = log_dir / ".data.tmp.json"
+    with open(data_file, "w") as f:
+        json.dump(data, f)
+    submit_job(
+        command=" ".join(
+            [
+                "beast",
+                f"-seed {seed}",
+                f"-prefix {prefix}",
+                f"-DF {data_file}",
+                "-DFout /tmp/output",
+                "-overwrite",
+                "-statefile /tmp/state",
+                str(config_path),
+            ]
+        )
+        + f"; rm {data_file}",
+        log_dir=log_dir,
+        time=time,
+        cpus=cpus,
+        mem_per_cpu=mem_per_cpu,
+    )
 
 
 def read_log_file(log_file: str | Path, burn_in: int | float = 0.1) -> pd.DataFrame:

@@ -9,7 +9,7 @@ TOTAL_HOURS_KEY = "total_hours"
 
 def submit_job(
     command: str,
-    log_dir: Path,
+    log_dir: str | Path,
     time: str = "240:00:00",
     cpus: int = 1,
     mem_per_cpu: int = 2000,
@@ -21,7 +21,7 @@ def submit_job(
     ----------
     command : str
         The command to execute.
-    log_dir : Path
+    log_dir : str | Path
         Directory to store log files.
     time : str, optional
         Maximum runtime for the job in the format 'HH:MM:SS', by default "240:00:00".
@@ -35,9 +35,7 @@ def submit_job(
     str | None
         The job ID if submission is successful, None if the log directory already exists.
     """
-    if log_dir.exists():
-        print(f"Log directory {log_dir} already exists. Skipping.")
-        return
+    log_dir = Path(log_dir)
     cmd = " ".join(
         [
             "sbatch",

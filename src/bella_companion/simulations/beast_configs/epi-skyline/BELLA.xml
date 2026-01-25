@@ -40,7 +40,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="reproductionNumberW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.Sigmoid" upper="$(reproductionNumberUpper)"/>
+                                <outputActivation spec="bella.activations.Sigmoid" upper="$(reproductionNumberUpper)"/>
                             </skylineValues>
                         </Re>
                         <becomeUninfectiousRate spec="SkylineVectorParameter" skylineValues="$(becomeUninfectiousRate)"/>

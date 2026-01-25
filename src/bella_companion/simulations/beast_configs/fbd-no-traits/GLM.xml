@@ -8,9 +8,7 @@
         :beast.base.inference.distribution
         :bdmmprime.distribution
         :bdmmprime.parameterization
-        :feast.fileio
-        :feast.function
-        :feast.expressions"
+        :feast.fileio"
     version="2.5"
 >
     <map name="Normal">beast.base.inference.distribution.Normal</map>

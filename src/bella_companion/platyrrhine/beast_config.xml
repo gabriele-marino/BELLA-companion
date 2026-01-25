@@ -7,10 +7,9 @@
         :beast.base.inference
         :beast.base.inference.distribution
         :bdmmprime.distribution
+        :bdmmprime.mapping
         :bdmmprime.parameterization
-        :feast.fileio
-        :feast.function
-        :feast.expressions"
+        :feast.fileio"
     version="2.5"
 >
     <map name="Uniform">beast.base.inference.distribution.Uniform</map>
@@ -54,7 +53,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="birthRateW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.Sigmoid" upper="$(birthRateUpper)"/>
+                                <outputActivation spec="bella.activations.Sigmoid" upper="$(birthRateUpper)"/>
                             </skylineValues>
                         </birthRate>
                         <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="@changeTimes" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet">
@@ -64,7 +63,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="deathRateW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.Sigmoid" upper="$(deathRateUpper)"/>
+                                <outputActivation spec="bella.activations.Sigmoid" upper="$(deathRateUpper)"/>
                             </skylineValues>
                         </deathRate>
                         <samplingRate id="samplingRateSP" spec="SkylineVectorParameter" skylineValues="@samplingRate" changeTimes="$(samplingChangeTimes)" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet"/>
@@ -106,8 +105,8 @@
         </logger>
 
         <logger fileName="$(treeIndex).trees" logEvery="100000" mode="tree">
-            <log spec="bella.SkylineNodeTreeLogger" parameterization="@BDMMParameterization" precision="4">
-                <typedTree spec="bdmmprime.mapping.TypeMappedTree" parameterization="@BDMMParameterization" startTypePriorProbs="$(startTypePriorProbs)" mapOnInit="false" remapOnLog="true" typeLabel="type" typeTraitSet="@typeTraitSet" untypedTree="@tree"/>
+            <log spec="SkylineNodeTreeLogger" parameterization="@BDMMParameterization" precision="4">
+                <typedTree spec="TypeMappedTree" parameterization="@BDMMParameterization" startTypePriorProbs="$(startTypePriorProbs)" mapOnInit="false" remapOnLog="true" typeLabel="type" typeTraitSet="@typeTraitSet" untypedTree="@tree"/>
                 <skylineParameter idref="birthRateSP"/>
                 <skylineParameter idref="deathRateSP"/>
             </log>

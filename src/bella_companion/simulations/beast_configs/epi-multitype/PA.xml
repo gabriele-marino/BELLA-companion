@@ -8,7 +8,6 @@
         :bdmmprime.distribution
         :bdmmprime.parameterization
         :feast.fileio
-        :feast.function
         :feast.expressions"
     version="2.5"
 >

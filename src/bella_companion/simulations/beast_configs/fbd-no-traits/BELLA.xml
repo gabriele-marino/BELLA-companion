@@ -7,9 +7,7 @@
         :beast.base.inference.distribution
         :bdmmprime.distribution
         :bdmmprime.parameterization
-        :feast.fileio
-        :feast.function
-        :feast.expressions"
+        :feast.fileio"
     version="2.5"
 >
     <map name="Normal">beast.base.inference.distribution.Normal</map>
@@ -39,7 +37,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="birthRateW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.Sigmoid" upper="$(birthRateUpper)"/>
+                                <outputActivation spec="bella.activations.Sigmoid" upper="$(birthRateUpper)"/>
                             </skylineValues>
                         </birthRate>
                         <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="$(changeTimes)">
@@ -49,7 +47,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="deathRateW$(n)"/>
                                 </plate>
-                                <activationFunctionsOutput spec="bella.Sigmoid" upper="$(deathRateUpper)"/>
+                                <outputActivation spec="bella.activations.Sigmoid" upper="$(deathRateUpper)"/>
                             </skylineValues>
                         </deathRate>
                         <samplingRate spec="SkylineVectorParameter" skylineValues="$(samplingRate)"/>
