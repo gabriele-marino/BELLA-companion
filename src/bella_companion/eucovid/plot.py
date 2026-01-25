@@ -203,7 +203,6 @@ def plot_eucovid_sankey():
             n_migrations = int(
                 migrations_per_traj.reindex(trajectories_index, fill_value=0).median()
             )
-            print(f"{source} -> {target} @ time bin {time_bin}: {n_migrations}")
             return n_migrations
 
         migrations = np.array(
@@ -234,7 +233,7 @@ def plot_eucovid_sankey():
         colors = np.array(list(COLORS.values()) * N_LAYERS)
         x = np.repeat([0.1, 0.4, 0.7, 1], N_COUNTRIES)[nodes_mask]
         y = np.repeat([0.1, 0.2, 0.3, 0.4], N_COUNTRIES)[nodes_mask]
-        print(len(colors), len(x), len(y))
+
         fig = go.Figure(
             go.Sankey(  # pyright: ignore
                 arrangement="snap",
