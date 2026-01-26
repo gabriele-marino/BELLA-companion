@@ -53,7 +53,7 @@ wheels = [
 
 [[package]]
 name = "bella-companion"
-version = "0.1.23"
+version = "0.1.24"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
@@ -87,7 +87,7 @@ requires-dist = [
     { name = "autoregistry", specifier = ">=1.2.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "kaleido", specifier = ">=1.2.0" },
-    { name = "phylogenie", specifier = ">=3.1.14" },
+    { name = "phylogenie", specifier = ">=3.2.2" },
     { name = "plotly", specifier = ">=6.5.0" },
     { name = "scipy", specifier = ">=1.15.3" },
     { name = "seaborn", specifier = ">=0.13.2" },
@@ -99,7 +99,7 @@ dev = [
     { name = "joblib-stubs", specifier = ">=1.5.2.0.20250831" },
     { name = "pandas-stubs", specifier = ">=2.3.2.250926" },
     { name = "plotly-stubs", specifier = ">=0.0.6" },
-    { name = "pyright", specifier = ">=1.1.407" },
+    { name = "pyright", specifier = ">=1.1.408" },
     { name = "scipy-stubs", specifier = ">=1.15.3.0" },
 ]
 
@@ -1150,7 +1150,7 @@ wheels = [
 
 [[package]]
 name = "phylogenie"
-version = "3.1.14"
+version = "3.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
@@ -1160,9 +1160,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/a8/10207a30954ecc1424c25f532cfc7d81bb73b48b104d436d33246b5c8f72/phylogenie-3.1.14.tar.gz", hash = "sha256:f249ad0519cba393dee9ae9214f9170fcfc3bd7c7f0c9ba32f60f4c10299f417", size = 33630, upload-time = "2026-01-07T11:33:10.372Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/06/b35e0b6826df42872dcfd3766eab26cae2ce036d46b8fbae846d90411752/phylogenie-3.2.2.tar.gz", hash = "sha256:21517e4805888be72b0301fda33f7b0f04a379b4cbade8f05d0a8d4ff6082421", size = 32149, upload-time = "2026-01-26T22:44:18.684Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/8f/191d5597e43b7a0942223b1ed44df6e9b8d198d88128c2f21cb75ecc79c7/phylogenie-3.1.14-py3-none-any.whl", hash = "sha256:c9014fb1808d1dd6d999aabcba5a94cec451259b2964f4b4b1e2ef447d2067d3", size = 42778, upload-time = "2026-01-07T11:33:09.253Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/a9/242ece77f9c24cd4960e0fee4aa5113f227eb32951a33706949827177bce/phylogenie-3.2.2-py3-none-any.whl", hash = "sha256:84f3e48cab60493ac1e4ea367233157a1fc1e6b05ed59572565f05aeb1dbdd0f", size = 40324, upload-time = "2026-01-26T22:44:17.345Z" },
 ]
 
 [[package]]
@@ -1464,15 +1464,15 @@ wheels = [
 
 [[package]]
 name = "pyright"
-version = "1.1.407"
+version = "1.1.408"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "nodeenv" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a6/1b/0aa08ee42948b61745ac5b5b5ccaec4669e8884b53d31c8ec20b2fcd6b6f/pyright-1.1.407.tar.gz", hash = "sha256:099674dba5c10489832d4a4b2d302636152a9a42d317986c38474c76fe562262", size = 4122872, upload-time = "2025-10-24T23:17:15.145Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/74/b2/5db700e52554b8f025faa9c3c624c59f1f6c8841ba81ab97641b54322f16/pyright-1.1.408.tar.gz", hash = "sha256:f28f2321f96852fa50b5829ea492f6adb0e6954568d1caa3f3af3a5f555eb684", size = 4400578, upload-time = "2026-01-08T08:07:38.795Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/93/b69052907d032b00c40cb656d21438ec00b3a471733de137a3f65a49a0a0/pyright-1.1.407-py3-none-any.whl", hash = "sha256:6dd419f54fcc13f03b52285796d65e639786373f433e243f8b94cf93a7444d21", size = 5997008, upload-time = "2025-10-24T23:17:13.159Z" },
+    { url = "https://files.pythonhosted.org/packages/0c/82/a2c93e32800940d9573fb28c346772a14778b84ba7524e691b324620ab89/pyright-1.1.408-py3-none-any.whl", hash = "sha256:090b32865f4fdb1e0e6cd82bf5618480d48eecd2eb2e70f960982a3d9a4c17c1", size = 6399144, upload-time = "2026-01-08T08:07:37.082Z" },
 ]
 
 [[package]]

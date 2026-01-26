@@ -49,8 +49,7 @@ def run_simulations():
 
                 if scenario.type == ScenarioType.EPI:
                     tree: Tree = load_newick(tree_file)  # pyright: ignore
-                    lastSampleTime = tree.height + tree.branch_length_or_raise()
-                    data["lastSampleTime"] = str(lastSampleTime)
+                    data["lastSampleTime"] = str(tree.age)
 
                 if model.startswith("BELLA"):
                     nodes = model.split("-")[1].split("_")

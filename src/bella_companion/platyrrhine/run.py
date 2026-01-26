@@ -30,7 +30,6 @@ def run_platyrrhine():
     for i, tree in enumerate(
         tqdm(trees, desc="Submitting BEAST jobs for platyrrhine datasets")
     ):
-        process_length = tree.height + tree.branch_length_or_raise()
         data = {
             "types": ",".join(map(str, TYPES)),
             "startTypePriorProbs": "0.25 0.25 0.25 0.25",
@@ -48,7 +47,7 @@ def run_platyrrhine():
             "changeTimesFile": str(CHANGE_TIMES_FILE),
             "traitsFile": str(TRAITS_FILE),
             "traitValueCol": "3",
-            "processLength": str(process_length),
+            "processLength": str(tree.age),
             "timePredictor": time_predictor,
             "log10BMPredictor": log10BM_predictor,
         }
