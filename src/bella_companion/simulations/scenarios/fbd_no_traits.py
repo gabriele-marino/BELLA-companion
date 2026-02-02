@@ -31,6 +31,7 @@ def _get_scenario(rates: dict[str, list[float]]) -> Scenario:
             birth_rates=SkylineParameter(rates["birth"], change_times),
             death_rates=SkylineParameter(rates["death"], change_times),
         ),
+        init_state="X",
         get_random_predictor=partial(
             get_random_time_series_predictor, n_time_bins=n_time_bins
         ),

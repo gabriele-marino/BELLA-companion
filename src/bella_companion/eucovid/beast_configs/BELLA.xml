@@ -83,7 +83,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="migrationRateW$(n)"/>
                                 </plate>
-                                <outputActivation spec="bella.activations.SoftPlus"/>
+                                <outputActivation spec="bella.activations.Softplus"/>
                             </skylineValues>
                             <changeTimes spec="RealParameterFromXSV" fileName="$(changeTimesFile)"/>
                         </migrationRate> 
@@ -130,10 +130,11 @@
                         <Normal name="distr" mean="0.0" sigma="1.0"/>
                     </prior>
                 </plate>
+
                 <prior name="distribution" x="@gammaShape">
                     <Exponential name="distr" mean="0.5"/>
                 </prior>
-                <prior id="KappaPrior" name="distribution" x="@kappa">
+                <prior name="distribution" x="@kappa">
                     <LogNormal name="distr" M="1.0" S="1.25"/>
                 </prior>
             </distribution>

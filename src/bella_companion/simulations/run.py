@@ -5,7 +5,7 @@ from glob import glob
 from pathlib import Path
 
 from numpy.random import default_rng
-from phylogenie import Tree, load_newick
+from phylogenie import TreeNode, load_newick
 from tqdm import tqdm
 
 from bella_companion.backend import submit_beast_job
@@ -48,8 +48,8 @@ def run_simulations():
                 }
 
                 if scenario.type == ScenarioType.EPI:
-                    tree: Tree = load_newick(tree_file)  # pyright: ignore
-                    data["lastSampleTime"] = str(tree.age)
+                    tree: TreeNode = load_newick(tree_file)  # pyright: ignore
+                    data["lastSampleTime"] = str(tree.origin)
 
                 if model.startswith("BELLA"):
                     nodes = model.split("-")[1].split("_")

@@ -125,12 +125,12 @@
                     <Normal name="distr" mean="0.0" sigma="1.0"/>
                 </prior>
                 <prior name="distribution" x="@migrationRateScaler">
-                    <LogNormal name="distr" M="0.0" S="1"/>
+                    <LogNormal name="distr" M="0.0" S="1.0"/>
                 </prior>
                 <prior name="distribution" x="@gammaShape">
                     <Exponential name="distr" mean="0.5"/>
                 </prior>
-                <prior id="KappaPrior" name="distribution" x="@kappa">
+                <prior name="distribution" x="@kappa">
                     <LogNormal name="distr" M="1.0" S="1.25"/>
                 </prior>
             </distribution>

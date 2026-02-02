@@ -11,6 +11,7 @@ from bella_companion.eucovid import (
     plot_eucovid_flights_over_populations,
     plot_eucovid_sankey,
     plot_eucovid_trees,
+    plot_likelihood,
     run_eucovid,
     summarize_eucovid,
 )
@@ -182,6 +183,10 @@ def main():
     eucovid_plot_subparsers.add_parser(
         "all", help="Generate plots and figures for empirical eucovid datasets."
     ).set_defaults(func=plot_eucovid)
+
+    eucovid_plot_subparsers.add_parser(
+        "likelihood", help="Generate likelihood distribution plots for eucovid dataset."
+    ).set_defaults(func=plot_likelihood)
 
     eucovid_plot_subparsers.add_parser(
         "sankey", help="Generate sankey plots for eucovid dataset."

@@ -25,7 +25,7 @@ def summarize_simulations():
                 target_columns=[c for t in scenario.targets.values() for c in t],
                 job_ids=job_ids[scenario_name][model],
             )
-            summaries.to_csv(summaries_dir / f"{model}.csv")
+            summaries.to_csv(summaries_dir / f"{model}.csv", index=False)
             if model.startswith("BELLA"):
                 weights = read_weights_dir(logs_dir)
                 joblib.dump(weights, summaries_dir / f"{model}.weights.pkl")

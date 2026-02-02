@@ -3,7 +3,7 @@ from itertools import product
 from pathlib import Path
 
 from bella_companion.backend import submit_beast_job
-from bella_companion.eucovid.settings import DATA_DIR, MSA_FILE
+from bella_companion.eucovid.settings import DATA_DIR, MSA_FILE, N_SEEDS
 
 
 def run_eucovid():
@@ -12,7 +12,7 @@ def run_eucovid():
     beast_configs_dir = Path(__file__).parent / "beast_configs"
 
     for seed, (model, experiment, predictors) in product(
-        range(1, 4),
+        range(1, N_SEEDS + 1),
         [
             ("GLM", "flights_over_populations", ["flights_over_populations"]),
             ("BELLA", "flights_over_populations", ["flights_over_populations"]),

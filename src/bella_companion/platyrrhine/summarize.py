@@ -27,17 +27,31 @@ def summarize_platyrrhine():
 
     summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"], "platyrrhine")
     os.makedirs(summaries_dir, exist_ok=True)
-    summaries.to_csv(summaries_dir / "BELLA.csv")
+    summaries.to_csv(summaries_dir / "BELLA.csv", index=False)
     joblib.dump(weights, summaries_dir / "BELLA.weights.pkl")
+
+    mcc_trees_dir = summaries_dir / "mcc_trees"
+    os.makedirs(mcc_trees_dir, exist_ok=True)
+
+    for tree_file in tqdm(glob(str(logs_dir / "*.trees"))):
+        subprocess.run(
+            [
+                "treeannotator",
+                "-file",
+                tree_file,
+                str(mcc_trees_dir / f"{Path(tree_file).stem}.nexus"),
+                "-height",
+                "median",
+            ]
+        )
 
     options = [
         ("-log", tree_file) for tree_file in tqdm(glob(str(logs_dir / "*.trees")))
     ]
-    combined_trees_file = summaries_dir / ".trees.combined.tmp.nwk"
+    combined_trees_file = summaries_dir / ".trees.combined.tmp.nexus"
     subprocess.run(
         ["logcombiner", *list(chain(*options)), "-o", str(combined_trees_file)]
     )
-
     subprocess.run(
         [
             "treeannotator",

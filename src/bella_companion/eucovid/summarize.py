@@ -3,6 +3,8 @@ import subprocess
 from itertools import chain
 from pathlib import Path
 
+from bella_companion.eucovid.settings import N_SEEDS
+
 
 def summarize_eucovid():
     logs_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"]) / "eucovid"
@@ -18,7 +20,8 @@ def summarize_eucovid():
         os.makedirs(summaries_dir, exist_ok=True)
 
         options = [
-            ("-log", str(log_dir / str(seed) / "MCMC.log")) for seed in range(1, 4)
+            ("-log", str(log_dir / str(seed) / "MCMC.log"))
+            for seed in range(1, N_SEEDS + 1)
         ]
         subprocess.run(
             [
@@ -31,7 +34,7 @@ def summarize_eucovid():
 
         options = [
             ("-log", str(log_dir / str(seed) / "typedNodeTrees.trees"))
-            for seed in range(1, 4)
+            for seed in range(1, N_SEEDS + 1)
         ]
         combined_trees_file = summaries_dir / ".trees.combined.tmp.nwk"
         subprocess.run(

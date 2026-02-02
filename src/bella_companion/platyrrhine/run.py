@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import numpy as np
-from phylogenie import Tree, load_newick
+from phylogenie import TreeNode, load_newick
 from tqdm import tqdm
 
 from bella_companion.backend import submit_beast_job
@@ -20,7 +20,7 @@ def run_platyrrhine():
     output_dir = base_output_dir / "platyrrhine"
     os.makedirs(output_dir, exist_ok=True)
 
-    trees: list[Tree] = load_newick(TREE_FILE)  # pyright: ignore
+    trees: list[TreeNode] = load_newick(TREE_FILE)  # pyright: ignore
     time_bins = [0, *CHANGE_TIMES]
     n_time_bins = len(time_bins)
 

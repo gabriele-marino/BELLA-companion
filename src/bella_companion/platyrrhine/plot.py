@@ -1,5 +1,6 @@
 import os
 from collections.abc import Iterable, Sequence
+from glob import glob
 from itertools import product
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from matplotlib.colors import LinearSegmentedColormap, ListedColormap
-from phylogenie import load_nexus
+from phylogenie import TreeNode, load_nexus
 from phylogenie.draw import (
     draw_colored_tree_categorical,
     draw_colored_tree_continuous,
@@ -44,7 +45,7 @@ def plot_platyrrhine_estimates():
                 - log_summary[f"deathRateSPi{i}_{t}_median"]
             )
 
-    time_bins = [0.0, *CHANGE_TIMES, 30.0]
+    time_bins = list(reversed([0.0, *CHANGE_TIMES, 30.0]))
 
     gradient = np.linspace(0.4, 0.9, 4)
     colors: dict[str, np.typing.NDArray[np.floating]] = {
@@ -76,7 +77,7 @@ def plot_platyrrhine_estimates():
                     log_summary[f"{rate}RateSPi{i}_{t}_median"].median()
                     for i in range(len(CHANGE_TIMES) + 1)
                 ],
-                list(reversed(time_bins)),
+                time_bins,
                 step_kwargs={"color": colors[rate][t], "label": label},
             )
         plt.gca().invert_xaxis()
@@ -86,6 +87,54 @@ def plot_platyrrhine_estimates():
         if rate in {"birth", "death"}:
             plt.ylim(0, 0.4)  # pyright: ignore
         plt.savefig(output_dir / "all.svg")  # pyright: ignore
+        plt.close()
+
+        # ------------------
+        # Marginal estimates
+        # ------------------
+
+        def _get_marginal_rates(tree: TreeNode) -> list[float]:
+            ages = tree.ages
+            for node in tree:
+                node["diversificationRateSP"] = (
+                    node["birthRateSP"] - node["deathRateSP"]
+                )
+
+            def _node_is_in_time_bin(node: TreeNode, i: int) -> bool:
+                bin_end = time_bins[i]
+                bin_start = time_bins[i + 1]
+                age = ages[node]
+                origin = age + node.branch_length_or_raise()
+                return bin_end > age >= bin_start or bin_end > origin >= bin_start
+
+            return [
+                np.mean(
+                    [
+                        node[f"{rate}RateSP"]
+                        for node in tree
+                        if _node_is_in_time_bin(node, i)
+                    ],
+                    dtype=float,
+                )
+                for i in range(len(CHANGE_TIMES) + 1)
+            ]
+
+        ribbon_plot(
+            [
+                _get_marginal_rates(load_nexus(tree_file)["TREE_MCC_median"])
+                for tree_file in glob(str(summaries_dir / "mcc_trees" / "*.nexus"))
+            ],
+            time_bins,
+            color=colors[rate].mean(axis=0),
+            skyline=True,
+            samples_kwargs={"linewidth": 1},
+        )
+        plt.gca().invert_xaxis()
+        plt.xlabel("Time (mya)")  # pyright: ignore
+        plt.ylabel(labels[rate])  # pyright: ignore
+        if rate in {"birth", "death"}:
+            plt.ylim(0, 0.8)  # pyright: ignore
+        plt.savefig(output_dir / "marginal.svg")  # pyright: ignore
         plt.close()
 
         # -------------------------
@@ -100,7 +149,7 @@ def plot_platyrrhine_estimates():
                         for i in range(len(CHANGE_TIMES) + 1)
                     ]
                 ].values,
-                list(reversed(time_bins)),
+                time_bins,
                 color=colors[rate][t],
                 skyline=True,
                 samples_kwargs={"linewidth": 1},

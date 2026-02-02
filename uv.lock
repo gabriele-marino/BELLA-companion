@@ -53,7 +53,7 @@ wheels = [
 
 [[package]]
 name = "bella-companion"
-version = "0.1.24"
+version = "0.1.25"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
@@ -87,7 +87,7 @@ requires-dist = [
     { name = "autoregistry", specifier = ">=1.2.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "kaleido", specifier = ">=1.2.0" },
-    { name = "phylogenie", specifier = ">=3.2.2" },
+    { name = "phylogenie", specifier = ">=3.3.1" },
     { name = "plotly", specifier = ">=6.5.0" },
     { name = "scipy", specifier = ">=1.15.3" },
     { name = "seaborn", specifier = ">=0.13.2" },
@@ -1150,7 +1150,7 @@ wheels = [
 
 [[package]]
 name = "phylogenie"
-version = "3.2.2"
+version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
@@ -1160,9 +1160,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/64/06/b35e0b6826df42872dcfd3766eab26cae2ce036d46b8fbae846d90411752/phylogenie-3.2.2.tar.gz", hash = "sha256:21517e4805888be72b0301fda33f7b0f04a379b4cbade8f05d0a8d4ff6082421", size = 32149, upload-time = "2026-01-26T22:44:18.684Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/09/42/097d19f639812d604d60f4e041d6e7cab1397c8b2452dfaa1de66bcb4586/phylogenie-3.3.1.tar.gz", hash = "sha256:374122b12fd032716c25b302c2a40cad3c86f854b031c2cfabd1aa6fd1074b59", size = 37301, upload-time = "2026-02-02T16:24:52.517Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3b/a9/242ece77f9c24cd4960e0fee4aa5113f227eb32951a33706949827177bce/phylogenie-3.2.2-py3-none-any.whl", hash = "sha256:84f3e48cab60493ac1e4ea367233157a1fc1e6b05ed59572565f05aeb1dbdd0f", size = 40324, upload-time = "2026-01-26T22:44:17.345Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/59/17abe0c54c28c27f1db125b28070fc7b95b68ecf92b5ba09fa43683f5e96/phylogenie-3.3.1-py3-none-any.whl", hash = "sha256:85bb67907ede48b8cc5f42b4ea99137bb8b498021329da1590a6357ddf94835a", size = 45832, upload-time = "2026-02-02T16:24:51.509Z" },
 ]
 
 [[package]]

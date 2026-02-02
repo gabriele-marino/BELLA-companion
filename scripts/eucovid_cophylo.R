@@ -17,6 +17,6 @@ tree2c <- drop.tip(tree2c, setdiff(tree2c$tip.label, common))
 
 cop <- cophylo(tree1c, tree2c, assoc = cbind(common, common))
 
-pdf("figures/eucovid-cophylo.pdf", width = 20, height = 12)
+pdf("figures/eucovid/cophylo.pdf", width = 20, height = 12)
 plot(cop, fsize = 0.5, link.type = "curved", link.lwd = 1)
 dev.off()

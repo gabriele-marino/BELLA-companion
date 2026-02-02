@@ -1,11 +1,13 @@
 import os
-from datetime import date
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import seaborn as sns
+from matplotlib.patches import Patch
 from phylogenie import load_nexus
 from phylogenie.draw import CalibrationNode, draw_colored_dated_tree_categorical
 
@@ -16,7 +18,13 @@ from bella_companion.backend import (
     read_log_file,
     ribbon_plot,
 )
-from bella_companion.eucovid.settings import COLORS, COUNTRIES, DATA_DIR, N_COUNTRIES
+from bella_companion.eucovid.settings import (
+    COLORS,
+    COUNTRIES,
+    DATA_DIR,
+    N_COUNTRIES,
+    N_SEEDS,
+)
 
 
 def plot_eucovid_flights_over_populations():
@@ -131,11 +139,11 @@ def plot_eucovid_trees():
                 node["type"] = rng.choice(countries)
 
         node1 = CalibrationNode(
-            node=tree.get_node(name="CHN/WH-09/2020|China|2020-01-08"),
+            node=tree.get_descendant(name="CHN/WH-09/2020|China|2020-01-08"),
             date=date.fromisoformat("2020-01-08"),
         )
         node2 = CalibrationNode(
-            node=tree.get_node(name="IMS-10216-CVDP-0161|Germany|2020-03-08"),
+            node=tree.get_descendant(name="IMS-10216-CVDP-0161|Germany|2020-03-08"),
             date=date.fromisoformat("2020-03-08"),
         )
 
@@ -176,46 +184,135 @@ def plot_eucovid_sankey():
     N_LAYERS = len(AGES)
     N_TIME_BINS = N_LAYERS - 1
 
-    for model in ["GLM", "BELLA"]:
-        trajectories = pd.concat(
+    def _get_migrations(
+        traj: pd.DataFrame, time_bin: int, source: str, target: str
+    ) -> pd.Series:
+        mask = (
+            (traj["age"] < AGES[time_bin])
+            & (traj["age"] > AGES[time_bin + 1])
+            & (traj["variable"] == "M")
+            & (traj["type"] == COUNTRIES.index(source))
+            & (traj["type2"] == COUNTRIES.index(target))
+        )
+        migrations = traj.loc[mask].groupby(["Sample", "seed"])["value"].sum()  # pyright: ignore
+        index = traj.set_index(["Sample", "seed"]).index.unique()
+        return migrations.reindex(index, fill_value=0)
+
+    trajectories = {
+        model: pd.concat(
             [
                 pd.read_csv(  # pyright: ignore
                     runs_dir / model / str(seed) / "trajectories.csv", sep="\t"
                 ).assign(seed=seed)
-                for seed in range(1, 4)
+                for seed in range(1, N_SEEDS + 1)
             ],
             ignore_index=True,
-        )
-        trajectories = trajectories[trajectories["Sample"] >= 1_000_000]
-        trajectories_index = trajectories.set_index(["Sample", "seed"]).index.unique()
+        ).query("Sample >= 1_000_000")
+        for model in ["GLM", "BELLA"]
+    }
 
-        def _count_migrations(source: str, target: str, time_bin: int) -> int:
-            mask = (
-                (trajectories["age"] < AGES[time_bin])
-                & (trajectories["age"] > AGES[time_bin + 1])
-                & (trajectories["variable"] == "M")
-                & (trajectories["type"] == COUNTRIES.index(source))
-                & (trajectories["type2"] == COUNTRIES.index(target))
-            )
-            migrations_per_traj = (
-                trajectories.loc[mask].groupby(["Sample", "seed"])["value"].sum()  # pyright: ignore
-            )
-            n_migrations = int(
-                migrations_per_traj.reindex(trajectories_index, fill_value=0).median()
-            )
-            return n_migrations
-
-        migrations = np.array(
+    # Plot the estimated dates of introduction to Europe
+    plt.figure(figsize=(8, 6))  # pyright: ignore
+    ref_date = datetime(2020, 3, 8)  # date of the latest sample
+    initial_introductions = {
+        model: pd.to_datetime(
             [
-                _count_migrations(source, target, time_bin)
-                for time_bin in range(N_TIME_BINS)
-                for source in COUNTRIES
-                for target in COUNTRIES
-                if target != source
+                ref_date - timedelta(days=age * 365)
+                for age in trajectories[model]
+                .query(f"variable == 'M' and type == {COUNTRIES.index('China')}")  # pyright: ignore
+                .groupby(["Sample", "seed"])["age"]
+                .max()
+                .values
             ]
         )
-        mask = migrations > 0
-        migrations = migrations[mask]
+        for model in ["GLM", "BELLA"]
+    }
+    plt.hist(  # pyright: ignore
+        [initial_introductions["GLM"], initial_introductions["BELLA"]],
+        bins=20,
+        label=["GLM", "BELLA"],
+        color=["C1", "C2"],
+        edgecolor="black",
+        alpha=0.7,
+    )
+    plt.legend()  # pyright: ignore
+    plt.xlabel("Estimated date of introduction to Europe")  # pyright: ignore
+    plt.ylabel("Frequency")  # pyright: ignore
+    plt.xticks(rotation=45)  # pyright: ignore
+    plt.savefig(output_dir / "introduction-dates.svg")  # pyright: ignore
+    plt.close()
+
+    migrations = {
+        model: {
+            (time_bin, source, target): _get_migrations(
+                traj=trajectories[model],
+                time_bin=time_bin,
+                source=source,
+                target=target,
+            )
+            for time_bin in range(N_TIME_BINS)
+            for source in COUNTRIES
+            for target in COUNTRIES
+            if source != target
+        }
+        for model in ["GLM", "BELLA"]
+    }
+
+    migrations_output_dir = output_dir / "migrations"
+    os.makedirs(migrations_output_dir, exist_ok=True)
+
+    # Plot migration distributions
+    for time_bin in range(N_TIME_BINS):
+        fig, axes = plt.subplots(  # pyright: ignore
+            nrows=N_COUNTRIES, ncols=N_COUNTRIES - 1, figsize=(20, 15)
+        )
+        for i, source in enumerate(COUNTRIES):
+            for j, target in enumerate([c for c in COUNTRIES if c != source]):
+                ax = axes[i, j]
+                max_value = pd.concat(
+                    [
+                        migrations[model][(time_bin, source, target)]
+                        for model in ["GLM", "BELLA"]
+                    ]
+                ).max()
+                for color, model in zip(["C1", "C2"], ["GLM", "BELLA"]):
+                    n_migrations = migrations[model][(time_bin, source, target)]
+                    n_migrations.plot(
+                        kind="hist",
+                        bins=np.linspace(0, max_value, 30),
+                        density=True,
+                        ax=ax,
+                        alpha=0.6,
+                        color=color,
+                    )
+                    try:
+                        n_migrations.plot(kind="density", ax=ax, color=color)
+                    except np.linalg.LinAlgError:
+                        pass
+
+                    ax.set_title(f"{source} → {target}")
+                    ax.set_xlim(left=0)
+                    ax.set_xlabel("N. migration events")
+
+        legend_elements = [
+            Patch(facecolor="C1", label="GLM", alpha=0.6),
+            Patch(facecolor="C2", label="BELLA", alpha=0.6),
+        ]
+        fig.legend(  # pyright: ignore
+            handles=legend_elements,
+            loc="upper center",
+            ncol=2,
+            bbox_to_anchor=(0.5, 1.05),
+        )
+
+        plt.savefig(migrations_output_dir / f"{time_bin}.svg")  # pyright: ignore
+        plt.close(fig)
+
+    # Plot sankey diagrams using median migrations
+    for model in ["GLM", "BELLA"]:
+        median_migrations = np.array(list(map(np.median, migrations[model].values())))
+        mask = median_migrations > 0
+        median_migrations = median_migrations[mask]
         source = np.repeat(list(range(N_COUNTRIES * N_TIME_BINS)), N_COUNTRIES - 1)[
             mask
         ]
@@ -238,10 +335,55 @@ def plot_eucovid_sankey():
             go.Sankey(  # pyright: ignore
                 arrangement="snap",
                 node=dict(color=colors, x=x, y=y),
-                link=dict(source=source, target=target, value=migrations),
+                link=dict(source=source, target=target, value=median_migrations),
             )
         )
         fig.write_image(output_dir / f"{model}-sankey.svg")
+
+
+def plot_likelihood():
+    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
+    os.makedirs(output_dir, exist_ok=True)
+
+    summaries_dir = (
+        Path(os.environ["BELLA_SUMMARIES_DIR"]) / "eucovid" / "flights_over_populations"
+    )
+
+    glm_log = read_log_file(summaries_dir / "GLM" / "MCMC.combined.log", burn_in=0.0)
+    bella_log = read_log_file(
+        summaries_dir / "BELLA" / "MCMC.combined.log", burn_in=0.0
+    )
+
+    all_likelihoods = np.concatenate([glm_log["likelihood"], bella_log["likelihood"]])
+    bins = np.histogram_bin_edges(all_likelihoods, bins=20).tolist()
+
+    plt.figure(figsize=(10, 5))  # pyright: ignore
+    plt.hist(  # pyright: ignore
+        glm_log["likelihood"],
+        bins=bins,
+        color="C1",
+        alpha=0.5,
+        label="GLM",
+        edgecolor="black",
+        density=True,
+    )
+    plt.hist(  # pyright: ignore
+        bella_log["likelihood"],
+        bins=bins,
+        color="C2",
+        alpha=0.5,
+        label="BELLA",
+        edgecolor="black",
+        density=True,
+    )
+
+    sns.kdeplot(glm_log["likelihood"].tolist(), color="C1", lw=2)
+    sns.kdeplot(bella_log["likelihood"].tolist(), color="C2", lw=2)
+
+    plt.xlabel("Phylogenetic Likelihood")  # pyright: ignore
+    plt.ylabel("Density")  # pyright: ignore
+    plt.legend()  # pyright: ignore
+    plt.savefig(output_dir / "likelihood.svg")  # pyright: ignore
 
 
 def plot_eucovid():
@@ -249,3 +391,4 @@ def plot_eucovid():
     plot_eucovid_flights_and_populations()
     plot_eucovid_trees()
     plot_eucovid_sankey()
+    plot_likelihood()

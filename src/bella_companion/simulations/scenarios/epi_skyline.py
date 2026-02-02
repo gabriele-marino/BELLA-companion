@@ -27,6 +27,7 @@ def _get_scenario(reproduction_number: list[float]) -> Scenario:
             reproduction_numbers=SkylineParameter(reproduction_number, change_times),
             become_uninfectious_rates=BECOME_UNINFECTIOUS_RATE,
         ),
+        init_state="X",
         get_random_predictor=partial(
             get_random_time_series_predictor, n_time_bins=n_time_bins
         ),
