@@ -6,7 +6,7 @@ from bella_companion.backend.xAI.pdp import (
     get_partial_dependence_plots,
     get_partial_dependence_plots_distribution,
 )
-from bella_companion.backend.xAI.shapley import (
+from bella_companion.backend.xAI.shap import (
     get_median_shap_feature_importance_distribution,
     get_shap_feature_importance_distribution,
     get_shap_features_importance,
