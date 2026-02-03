@@ -2,17 +2,30 @@
 
 ### ⚠️🚧🚨 The documentation for this repository is still under development.
 
+## Installation
+
+BELLA-Companion is a Python package, and can be installed via pip:
+
+```bash
+pip install bella-companion
+```
+
+To reproduce BEAST analyses, you will need to have [BEAST2](https://www.beast2.org/) as well as [SLURM](https://slurm.schedmd.com/) installed and properly configured on your system, as well as the following BEAST2 packages:
+- [BDMM-Prime](https://tgvaughan.github.io/BDMM-Prime/);
+- [Feast](https://tgvaughan.github.io/feast/);
+- [BELLA](https://gabriele-marino.github.io/BELLA/)
+
 ## CLI
 
 The CLI entrypoint is `bella` (see `src/bella_companion/cli.py`). It requires an `.env` file to be present in the current working directory defining the settings for the analyses to be run.
 
-### Usage
+Basic usage is as follows:
 
 ```bash
 bella <command> <subcommand> <...>
 ```
 
-### Commands
+Where commands and subcommands are as follows:
 
 ```text
 sim
