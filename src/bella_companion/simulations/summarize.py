@@ -5,6 +5,7 @@ from pathlib import Path
 import joblib
 
 from bella_companion.backend import read_weights_dir, summarize_logs_dir
+from bella_companion.settings import BELLA_SETTINGS
 from bella_companion.simulations.run import JOB_IDS_FILENAME
 from bella_companion.simulations.scenarios import SCENARIOS
 
@@ -26,6 +27,6 @@ def summarize_simulations():
                 job_ids=job_ids[scenario_name][model],
             )
             summaries.to_csv(summaries_dir / f"{model}.csv", index=False)
-            if model.startswith("BELLA"):
+            if model in BELLA_SETTINGS:
                 weights = read_weights_dir(logs_dir)
                 joblib.dump(weights, summaries_dir / f"{model}.weights.pkl")

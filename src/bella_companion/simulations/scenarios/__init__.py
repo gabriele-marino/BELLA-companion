@@ -2,19 +2,19 @@ from bella_companion.simulations.scenarios.epi_multitype import EPI_MULTITYPE_SC
 from bella_companion.simulations.scenarios.epi_skyline import EPI_SKYLINE_SCENARIOS
 from bella_companion.simulations.scenarios.fbd_2traits import FBD_2TRAITS_SCENARIO
 from bella_companion.simulations.scenarios.fbd_no_traits import FBD_NO_TRAITS_SCENARIOS
-from bella_companion.simulations.scenarios.scenario import Scenario, ScenarioType
+from bella_companion.simulations.scenarios.scenario import Scenario
 
 SCENARIOS = {
-    **{
-        f"epi-skyline_{i}": scenario
-        for i, scenario in enumerate(EPI_SKYLINE_SCENARIOS, start=1)
-    },
-    "epi-multitype": EPI_MULTITYPE_SCENARIO,
+    "fbd-2traits": FBD_2TRAITS_SCENARIO,
     **{
         f"fbd-no-traits_{i}": scenario
         for i, scenario in enumerate(FBD_NO_TRAITS_SCENARIOS, start=1)
     },
-    "fbd-2traits": FBD_2TRAITS_SCENARIO,
+    "epi-multitype": EPI_MULTITYPE_SCENARIO,
+    **{
+        f"epi-skyline_{i}": scenario
+        for i, scenario in enumerate(EPI_SKYLINE_SCENARIOS, start=1)
+    },
 }
 
-__all__ = ["SCENARIOS", "Scenario", "ScenarioType"]
+__all__ = ["SCENARIOS", "Scenario"]

@@ -50,7 +50,7 @@ def skyline_plot(
     if step_kwargs is None:
         step_kwargs = {}
 
-    ax.step(x, data, **(step_kwargs or {}))  # pyright: ignore
+    ax.step(x, data, **step_kwargs)  # pyright: ignore
     return ax
 
 

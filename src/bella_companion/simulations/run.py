@@ -5,11 +5,12 @@ from glob import glob
 from pathlib import Path
 
 from numpy.random import default_rng
-from phylogenie import TreeNode, load_newick
+from phylogenie import load_newick
 from tqdm import tqdm
 
 from bella_companion.backend import submit_beast_job
-from bella_companion.simulations.scenarios import SCENARIOS, ScenarioType
+from bella_companion.settings import BELLA_SETTINGS
+from bella_companion.simulations.scenarios import SCENARIOS
 
 JOB_IDS_FILENAME = "sim-job-ids.json"
 
@@ -21,46 +22,43 @@ def run_simulations():
     base_log_dir = Path(os.environ["BELLA_SBATCH_LOG_DIR"])
     beast_configs_dir = Path(__file__).parent / "beast_configs"
 
-    job_ids = {}
+    job_ids: dict[str, dict[str, dict[str, str]]] = {}
     for scenario_id, scenario in SCENARIOS.items():
         job_ids[scenario_id] = defaultdict(dict)
         data_dir = base_data_dir / scenario_id
-        scenario_name = scenario_id.split("_")[0] if "_" in scenario_id else scenario_id
-        inference_configs_dir = beast_configs_dir / scenario_name
+        inference_configs_dir = beast_configs_dir / scenario.beast_configs
         log_dir = base_log_dir / scenario_id
         for tree_file in tqdm(
             glob(str(data_dir / "*.nwk")),
             desc=f"Submitting BEAST2 jobs for {scenario_id}",
         ):
             tree_id = Path(tree_file).stem
-            for model in ["PA", "GLM"] + [
-                f"BELLA-{hidden_nodes}" for hidden_nodes in ["3_2", "16_8", "32_16"]
-            ]:
+            for model in ["PA", "GLM", *BELLA_SETTINGS.keys()]:
                 output_dir = base_output_dir / scenario_id / model
                 os.makedirs(output_dir, exist_ok=True)
 
                 data = scenario.beast_args | {
                     "treeFile": tree_file,
                     "treeID": tree_id,
-                    "randomPredictor": " ".join(
-                        map(str, scenario.get_random_predictor(rng))
-                    ),
                 }
+                if scenario.get_random_predictor is not None:
+                    data["randomPredictor"] = " ".join(
+                        map(str, scenario.get_random_predictor(rng))
+                    )
 
-                if scenario.type == ScenarioType.EPI:
-                    tree: TreeNode = load_newick(tree_file)  # pyright: ignore
-                    data["lastSampleTime"] = str(tree.origin)
+                if scenario.tree_beast_args is not None:
+                    (tree,) = load_newick(tree_file)
+                    for arg_name, arg_func in scenario.tree_beast_args.items():
+                        data[arg_name] = arg_func(tree)
 
-                if model.startswith("BELLA"):
-                    nodes = model.split("-")[1].split("_")
-                    data["nodes"] = " ".join(nodes)
-                    data["layersRange"] = ",".join(map(str, range(len(nodes) + 1)))
+                if model in BELLA_SETTINGS:
+                    data.update(BELLA_SETTINGS[model].get_beast_data())
 
-                config_filename = "BELLA" if model.startswith("BELLA") else model
+                config_filename = "BELLA" if model in BELLA_SETTINGS else model
                 job_ids[scenario_id][model][tree_id] = submit_beast_job(
                     data=data,
                     prefix=f"{output_dir}{os.sep}",
-                    config_path=inference_configs_dir / config_filename,
+                    config_path=inference_configs_dir / f"{config_filename}.xml",
                     log_dir=log_dir / model / tree_id,
                 )
 

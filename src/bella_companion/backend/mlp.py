@@ -46,8 +46,8 @@ class MLP:
             raise ValueError("Output layer must have a single output neuron.")
 
         self._weights = weights
-        self._hidden_activation = as_activation_function(activation=hidden_activation)
-        self._output_activation = as_activation_function(activation=output_activation)
+        self._hidden_activation = as_activation_function(hidden_activation)
+        self._output_activation = as_activation_function(output_activation)
         self._activations = [self._hidden_activation] * (self.n_layers - 1) + [
             self._output_activation
         ]

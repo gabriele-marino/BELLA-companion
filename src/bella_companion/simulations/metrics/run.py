@@ -19,6 +19,14 @@ def _mae(summaries: pd.DataFrame, targets: dict[str, float]) -> float:
     return mae_from_summaries(summaries, targets)
 
 
+def _norm_mae(summaries: pd.DataFrame, targets: dict[str, float]) -> float:
+    return (
+        mae_from_summaries(summaries, targets)
+        / np.mean(list(targets.values()), dtype=float)
+        * 100
+    )
+
+
 def _coverage(summaries: pd.DataFrame, targets: dict[str, float]) -> float:
     return coverage_from_summaries(summaries, targets)
 
@@ -32,9 +40,11 @@ def _mean_ess_per_hour(summaries: pd.DataFrame, targets: dict[str, float]) -> fl
 
 
 def _format_results(
-    results: dict[str, float], lower_is_better: bool | None = None
-) -> dict[str, str]:
-    formatted_results = {model: f"{value:.3f}" for model, value in results.items()}
+    results: dict[str, float], lower_is_better: bool | None, n_decimals: int
+) -> dict[str, float | str]:
+    formatted_results: dict[str, float | str] = {
+        model: round(value, n_decimals) for model, value in results.items()
+    }
     if lower_is_better is not None:
         sorted_models = sorted(
             formatted_results.items(),
@@ -53,6 +63,7 @@ def _run_metric(
     metric_func: Callable[[pd.DataFrame, dict[str, float]], float],
     metric_name: str,
     lower_is_better: bool | None = None,
+    n_decimals: int = 3,
 ) -> str:
     base_summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"])
 
@@ -84,7 +95,9 @@ def _run_metric(
         }
 
         for target in scenario.targets:
-            formatted_results = _format_results(results[target], lower_is_better)
+            formatted_results = _format_results(
+                results[target], lower_is_better, n_decimals
+            )
             for model, value in formatted_results.items():
                 placeholder = f"{{{{{scenario_name}-{model}-{target}}}}}"
                 output_table = output_table.replace(placeholder, str(value))
@@ -96,7 +109,9 @@ def _run_metric(
                 )
                 for model in models_summaries
             }
-            formatted_mean_results = _format_results(mean_results, lower_is_better)
+            formatted_mean_results = _format_results(
+                mean_results, lower_is_better, n_decimals
+            )
             for model, value in formatted_mean_results.items():
                 placeholder = f"{{{{{scenario_name}-{model}-average}}}}"
                 output_table = output_table.replace(placeholder, str(value))
@@ -115,6 +130,17 @@ def run_metrics():
                 metric_func=_mae,
                 metric_name="Mean absolute error (MAE)",
                 lower_is_better=True,
+            )
+        )
+
+    with open(outputs_dir / "norm_mae.tex", "w") as f:
+        f.write(
+            _run_metric(
+                metric_label="norm_mae",
+                metric_func=_norm_mae,
+                metric_name="MAE normalized by mean target value (\\%)",
+                lower_is_better=True,
+                n_decimals=1,
             )
         )
 

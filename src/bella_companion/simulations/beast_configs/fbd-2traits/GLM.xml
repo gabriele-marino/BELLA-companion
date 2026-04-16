@@ -43,18 +43,18 @@
                         <birthRate id="birthRateSP" spec="SkylineVectorParameter" changeTimes="$(changeTimes)" typeSet="@typeSet">
                             <skylineValues id="birthRate" spec="glmprior.util.GLMLogLinear" coefficients="@birthRateW" scaleFactor="@birthRateScaler" transform="false">
                                 <predictor spec="RealParameter" value="$(timePredictor)"/>
+                                <predictor spec="RealParameter" value="$(deathPredictor)"/>
                                 <predictor spec="RealParameter" value="$(trait1Predictor)"/>
                                 <predictor spec="RealParameter" value="$(trait2Predictor)"/>
-                                <predictor spec="RealParameter" value="$(randomPredictor)"/>
                                 <indicators spec="BooleanParameter" value="1"/>
                             </skylineValues>
                         </birthRate>
                         <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="$(changeTimes)" typeSet="@typeSet">
                             <skylineValues id="deathRate" spec="glmprior.util.GLMLogLinear" coefficients="@deathRateW" scaleFactor="@deathRateScaler" transform="false">
                                 <predictor spec="RealParameter" value="$(timePredictor)"/>
+                                <predictor spec="RealParameter" value="$(deathPredictor)"/>
                                 <predictor spec="RealParameter" value="$(trait1Predictor)"/>
                                 <predictor spec="RealParameter" value="$(trait2Predictor)"/>
-                                <predictor spec="RealParameter" value="$(randomPredictor)"/>
                                 <indicators spec="BooleanParameter" value="1"/>
                             </skylineValues>
                         </deathRate>

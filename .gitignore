@@ -14,4 +14,3 @@ wheels/
 
 # Project specific ignores
 outputs/
-sim-data.zip

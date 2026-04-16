@@ -9,26 +9,30 @@
         :bdmmprime.distribution
         :bdmmprime.mapping
         :bdmmprime.parameterization
+        :bella.activations
         :feast.fileio"
     version="2.5"
 >
-    <map name="Uniform">beast.base.inference.distribution.Uniform</map>
-    <map name="Normal">beast.base.inference.distribution.Normal</map>
-
     <map name="TreeFromNewickFile">feast.fileio.TreeFromNewickFile</map>
     <map name="TaxonSetFromTree">feast.fileio.TaxonSetFromTree</map>
 	<map name="TraitSetFromXSV">feast.fileio.TraitSetFromXSV</map>
     <map name="RealParameterFromXSV">feast.fileio.RealParameterFromXSV</map>
     <map name="TypeSet">bdmmprime.parameterization.TypeSet</map>
 
+    <map name="Uniform">beast.base.inference.distribution.Uniform</map>
+    <map name="Normal">beast.base.inference.distribution.Normal</map>
+    <map name="Laplace">beast.base.inference.distribution.LaplaceDistribution</map>
+
     <TreeFromNewickFile id="tree" fileName="$(treeFile)" treeIndex="$(treeIndex)" IsLabelledNewick="true" adjustTipHeights='false'/>
     <TaxonSetFromTree id="taxonSet" tree="@tree"/>
 	<TraitSetFromXSV id="typeTraitSet" traitname="type" fileName="$(traitsFile)" traitValueCol="$(traitValueCol)" skipFirstRow="true" taxa="@taxonSet"/>
 	<TypeSet id="typeSet" value="$(types)" typeTraitSet="@typeTraitSet"/>
 
-    <Normal id="weightsPrior" mean="0" sigma="1"/>
     <Uniform id="samplingRatePrior" upper="$(samplingRateUpper)"/>
     <Uniform id="migrationRatePrior" upper="$(migrationRateUpper)"/>
+
+    <Normal id="Normal" mean="0" sigma="1"/>
+    <Laplace id="Laplace" mu="0" scale="1"/>
 
     <RealParameterFromXSV id="changeTimes" fileName="$(changeTimesFile)"/>
 
@@ -53,6 +57,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="birthRateW$(n)"/>
                                 </plate>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
                                 <outputActivation spec="bella.activations.Sigmoid" upper="$(birthRateUpper)"/>
                             </skylineValues>
                         </birthRate>
@@ -63,6 +68,7 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="deathRateW$(n)"/>
                                 </plate>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
                                 <outputActivation spec="bella.activations.Sigmoid" upper="$(deathRateUpper)"/>
                             </skylineValues>
                         </deathRate>
@@ -74,11 +80,11 @@
                     <startTypePriorProbs spec="RealParameter" value="$(startTypePriorProbs)"/>
                 </distribution>
             </distribution>
-        
+
             <distribution id="prior" spec="CompoundDistribution">
                 <plate var="n" range="$(layersRange)">
-                    <distribution spec="Prior" x="@birthRateW$(n)" distr="@weightsPrior"/>
-                    <distribution spec="Prior" x="@deathRateW$(n)" distr="@weightsPrior"/>
+                    <distribution spec="Prior" x="@birthRateW$(n)" distr="@$(weightsPrior)"/>
+                    <distribution spec="Prior" x="@deathRateW$(n)" distr="@$(weightsPrior)"/>
                 </plate>
                 <distribution spec="Prior" x="@samplingRate" distr="@samplingRatePrior"/>
                 <distribution spec="Prior" x="@migrationRate" distr="@migrationRatePrior"/>

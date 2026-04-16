@@ -11,6 +11,7 @@ from bella_companion.backend import (
     mae_distribution_from_summaries,
     skyline_plot,
 )
+from bella_companion.settings import BELLA_SETTINGS
 from bella_companion.simulations.plot.globals import COLORS
 from bella_companion.simulations.scenarios.fbd_no_traits import RATES
 
@@ -24,6 +25,10 @@ def plot_fbd_no_traits():
         models_summaries = {
             model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
             for model in [f"BELLA-{mlp_models[i]}", "GLM", "PA"]
+        }
+        bella_models_summaries = {
+            model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
+            for model in BELLA_SETTINGS
         }
 
         for rate, values in rates.items():
@@ -97,4 +102,21 @@ def plot_fbd_no_traits():
             )
             plt.gca().invert_xaxis()
             plt.savefig(output_dir / "maes.svg")  # pyright: ignore
+            plt.close()
+
+            for model, summaries in bella_models_summaries.items():
+                medians = [
+                    summaries[f"{rate}RateSPi{i}{MEDIAN_POSTFIX}"].median()
+                    for i in range(len(values))
+                ]
+                skyline_plot(list(reversed(medians)))
+            skyline_plot(
+                list(reversed(values)), step_kwargs={"color": "k", "linestyle": "--"}
+            )
+            plt.gca().invert_xaxis()
+            plt.xlabel("Time")  # pyright: ignore
+            plt.ylabel(  # pyright: ignore
+                r"$\lambda$" if rate == "birth" else r"$\mu$"
+            )
+            plt.savefig(output_dir / "bella-comparison.svg")  # pyright: ignore
             plt.close()

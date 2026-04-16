@@ -29,7 +29,7 @@ from bella_companion.simulations.scenarios.fbd_2traits import (
 def plot_fbd_2traits():
     base_output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "fbd-2traits"
     summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "fbd-2traits"
-    model = "BELLA-16_8"
+    model = "BELLA-32_16"
     summaries = pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
     weights: list[dict[str, list[Weights]]] = joblib.load(
         summaries_dir / f"{model}.weights.pkl"
@@ -77,13 +77,16 @@ def plot_fbd_2traits():
         inputs = list(
             product(
                 np.linspace(0, 1, 10),
-                [0, 1],
-                [0, 1],
                 np.linspace(0, 1, 10),
+                [0, 1],
+                [0, 1],
             )
         )
 
-        for feature_idx, feature, color in [(3, "Random", "gray"), (0, "Time", "red")]:
+        death_predictor_color = "red" if rate == "death" else "gray"
+        time_predictor_color = "gray" if rate == "death" else "red"
+
+        for feature_idx, feature, color in [(0, "Time", time_predictor_color)]:
             grid = np.linspace(0, 1, 10).tolist()
             pdps = get_median_partial_dependence_plot_distribution(
                 models=mlp_ensembles,
@@ -104,7 +107,11 @@ def plot_fbd_2traits():
         plt.savefig(output_dir / "PDP-continuous.svg")  # pyright: ignore
         plt.close()
 
-        binary_features = [(1, "Trait 1", "red"), (2, "Trait 2", "gray")]
+        binary_features = [
+            (1, "Death predictor", death_predictor_color),
+            (2, "Trait 1", "red"),
+            (3, "Trait 2", "gray"),
+        ]
         data: list[float] = []
         x: list[float] = []
         labels: list[str] = []
@@ -134,10 +141,10 @@ def plot_fbd_2traits():
         )
         shap /= shap.sum(axis=1, keepdims=True)
         for feature_idx, feature, color in [
-            (0, "Time", "red"),
-            (3, "Random", "gray"),
-            (1, "Trait 1", "red"),
-            (2, "Trait 2", "gray"),
+            (0, "Time", time_predictor_color),
+            (1, "Death predictor", death_predictor_color),
+            (2, "Trait 1", "red"),
+            (3, "Trait 2", "gray"),
         ]:
             sns.violinplot(
                 y=shap[:, feature_idx],

@@ -2,6 +2,7 @@ from typing import Any
 
 import numpy as np
 from numpy.random import Generator
+from phylogenie import TreeNode
 
 
 def get_start_type_prior_probabilities(types: list[str], init_type: str):
@@ -19,3 +20,7 @@ def get_prior_params(target: str, upper: float, n: int) -> dict[str, Any]:
         f"{target}Upper": upper,
         f"{target}Init": " ".join([str(upper / 2)] * n),
     }
+
+
+def get_last_sample_time(tree: TreeNode) -> float:
+    return tree.origin

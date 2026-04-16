@@ -1,72 +1,67 @@
-from abc import abstractmethod
-from typing import Callable
+from abc import ABC, abstractmethod
+from typing import Any
 
 import numpy as np
-from autoregistry import Registry
 from numpy.typing import ArrayLike
 
 from bella_companion.backend.type_hints import Array
 
-ActivationFunction = Callable[[ArrayLike], Array]
-ActivationFunctionLike = str | ActivationFunction
 
-
-class RegisteredActivationFunction(Registry):
+class ActivationFunction(ABC):
     @abstractmethod
     def __call__(self, x: ArrayLike) -> Array: ...
 
 
-class Identity(RegisteredActivationFunction):
+class Identity(ActivationFunction):
     def __call__(self, x: ArrayLike) -> Array:
         return np.asarray(x, dtype=np.float64)
 
-    def __repr__(self) -> str:
-        return "Identity()"
 
-
-class Sigmoid(RegisteredActivationFunction):
-    def __init__(self, lower: float = 0.0, upper: float = 1.0, shape: float = 1.0):
+class Sigmoid(ActivationFunction):
+    def __init__(
+        self,
+        lower: float = 0.0,
+        upper: float = 1.0,
+        shape: float = 1.0,
+        midpoint: float = 0.0,
+    ):
         self._lower = lower
         self._upper = upper
         self._shape = shape
+        self._midpoint = midpoint
 
     def __call__(self, x: ArrayLike) -> Array:
         x = np.asarray(x, dtype=np.float64)
         return self._lower + (self._upper - self._lower) / (
-            1 + np.exp(-self._shape * x)
+            1 + np.exp(-self._shape * (x - self._midpoint))
         )
 
-    def __repr__(self) -> str:
-        return f"Sigmoid(lower={self._lower}, upper={self._upper}, shape={self._shape})"
 
-
-class ReLU(RegisteredActivationFunction):
+class ReLU(ActivationFunction):
     def __call__(self, x: ArrayLike) -> Array:
         return np.maximum(0, x)
 
-    def __repr__(self) -> str:
-        return "ReLU()"
 
-
-class Softplus(RegisteredActivationFunction):
+class Softplus(ActivationFunction):
     def __call__(self, x: ArrayLike) -> Array:
         return np.log1p(np.exp(x))
 
-    def __repr__(self) -> str:
-        return "Softplus()"
 
-
-class Tanh(RegisteredActivationFunction):
+class Tanh(ActivationFunction):
     def __call__(self, x: ArrayLike) -> Array:
         return np.tanh(x)
 
-    def __repr__(self) -> str:
-        return "Tanh()"
+
+ACTIVATION_FUNCTIONS_REGISTRY = {
+    class_.__name__.lower(): class_ for class_ in ActivationFunction.__subclasses__()
+}
+ActivationFunctionLike = str | ActivationFunction
 
 
 def as_activation_function(
     activation: ActivationFunctionLike,
+    **kwargs: Any,
 ) -> ActivationFunction:
     if isinstance(activation, str):
-        return RegisteredActivationFunction[activation]()
+        return ACTIVATION_FUNCTIONS_REGISTRY[activation.lower()](**kwargs)
     return activation

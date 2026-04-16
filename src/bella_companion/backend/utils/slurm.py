@@ -13,7 +13,7 @@ def submit_job(
     time: str = "240:00:00",
     cpus: int = 1,
     mem_per_cpu: int = 2000,
-) -> str | None:
+) -> str:
     """
     Submits a job to the SLURM scheduler.
 
@@ -32,8 +32,8 @@ def submit_job(
 
     Returns
     -------
-    str | None
-        The job ID if submission is successful, None if the log directory already exists.
+    str
+        The job ID of the submitted job.
     """
     log_dir = Path(log_dir)
     cmd = " ".join(

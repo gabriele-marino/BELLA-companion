@@ -2,8 +2,12 @@ import os
 from itertools import product
 from pathlib import Path
 
+from phylogenie import load_fasta
+
 from bella_companion.backend import submit_beast_job
-from bella_companion.eucovid.settings import DATA_DIR, MSA_FILE, N_SEEDS
+from bella_companion.eucovid.settings import MSA_FILE, N_SEEDS
+
+THIS_DIR = Path(__file__).parent
 
 
 def run_eucovid():
@@ -14,9 +18,9 @@ def run_eucovid():
     for seed, (model, experiment, predictors) in product(
         range(1, N_SEEDS + 1),
         [
-            ("GLM", "flights_over_populations", ["flights_over_populations"]),
-            ("BELLA", "flights_over_populations", ["flights_over_populations"]),
             ("BELLA", "flights_and_populations", ["flights", "populations"]),
+            ("BELLA", "flights_over_populations", ["flights_over_populations"]),
+            ("GLM", "flights_over_populations", ["flights_over_populations"]),
         ],
     ):
         output_dir = base_output_dir / experiment / model / str(seed)
@@ -32,6 +36,19 @@ def run_eucovid():
         if model == "BELLA":
             data["layersRange"] = "0,1,2"
             data["nodes"] = "16 8"
+
+        data["ReInitChinaAfterLockdown"] = "1.0"
+        data["ReInitFrance"] = "1.1"
+        data["ReInitGermany"] = "1.2"
+        data["ReInitItaly"] = "1.3"
+        data["ReInitOtherEU"] = "1.4"
+        data["ReInitChinaBeforeLockdown"] = "1.01"
+
+        data["samplingProportionInitChina"] = "1.1E-4"
+        data["samplingProportionInitFrance"] = "1.2E-3"
+        data["samplingProportionInitGermany"] = "1.3E-2"
+        data["samplingProportionInitItaly"] = "1.4E-3"
+        data["samplingProportionInitOtherEU"] = "1.5E-3"
 
         os.makedirs(output_dir, exist_ok=True)
         submit_beast_job(

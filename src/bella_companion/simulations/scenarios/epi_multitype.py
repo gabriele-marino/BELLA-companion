@@ -1,14 +1,15 @@
 import numpy as np
 from numpy.random import Generator
-from phylogenie import get_epidemiological_events
+from phylogenie.treesimulator.open_population import get_epidemiological_model
 
 from bella_companion.simulations.scenarios.globals import (
     BECOME_UNINFECTIOUS_RATE,
     EPI_MAX_TIME,
     EPI_SAMPLING_PROPORTION,
 )
-from bella_companion.simulations.scenarios.scenario import Scenario, ScenarioType
+from bella_companion.simulations.scenarios.scenario import Scenario
 from bella_companion.simulations.scenarios.utils import (
+    get_last_sample_time,
     get_prior_params,
     get_start_type_prior_probabilities,
 )
@@ -32,17 +33,23 @@ MIGRATION_RATES = _MIGRATION_SIGMOID_AMPLITUDE / (
 MIGRATION_RATE_UPPER = 0.2
 
 EPI_MULTITYPE_SCENARIO = Scenario(
-    type=ScenarioType.EPI,
-    max_time=EPI_MAX_TIME,
-    init_state=_INIT_TYPE,
-    events=get_epidemiological_events(
+    model=get_epidemiological_model(
+        init_state=_INIT_TYPE,
         states=TYPES,
         sampling_proportions=EPI_SAMPLING_PROPORTION,
         reproduction_numbers=_REPRODUCTION_NUMBERS,
         become_uninfectious_rates=BECOME_UNINFECTIOUS_RATE,
         migration_rates=MIGRATION_RATES.tolist(),
     ),
-    get_random_predictor=_get_random_predictor,
+    max_time=EPI_MAX_TIME,
+    targets={
+        "migrationRate": {
+            f"migrationRateSP{t1}_to_{t2}": MIGRATION_RATES[i, j]
+            for i, t1 in enumerate(TYPES)
+            for j, t2 in enumerate([t for t in TYPES if t != t1])
+        }
+    },
+    beast_configs="epi-multitype",
     beast_args={
         "types": ",".join(TYPES),
         "startTypePriorProbs": get_start_type_prior_probabilities(TYPES, _INIT_TYPE),
@@ -53,11 +60,6 @@ EPI_MULTITYPE_SCENARIO = Scenario(
         "samplingProportion": EPI_SAMPLING_PROPORTION,
         "migrationPredictor": " ".join(map(str, MIGRATION_PREDICTOR.flatten())),
     },
-    targets={
-        "migrationRate": {
-            f"migrationRateSP{t1}_to_{t2}": MIGRATION_RATES[i, j]
-            for i, t1 in enumerate(TYPES)
-            for j, t2 in enumerate([t for t in TYPES if t != t1])
-        }
-    },
+    tree_beast_args={"lastSampleTime": get_last_sample_time},
+    get_random_predictor=_get_random_predictor,
 )

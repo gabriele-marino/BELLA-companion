@@ -21,7 +21,6 @@ from bella_companion.backend import (
 from bella_companion.eucovid.settings import (
     COLORS,
     COUNTRIES,
-    DATA_DIR,
     N_COUNTRIES,
     N_SEEDS,
 )

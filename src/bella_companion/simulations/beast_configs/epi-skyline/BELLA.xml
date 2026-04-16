@@ -8,19 +8,22 @@
         :beast.base.inference.distribution
         :bdmmprime.distribution
         :bdmmprime.parameterization
+        :bella.activations
         :feast.fileio
         :feast.expressions"
     version="2.5"
 >
-    <map name="Normal">beast.base.inference.distribution.Normal</map>
-
     <map name="TreeFromNewickFile">feast.fileio.TreeFromNewickFile</map>
+
+    <map name="Normal">beast.base.inference.distribution.Normal</map>
+    <map name="Laplace">beast.base.inference.distribution.LaplaceDistribution</map>
+
+    <Normal id="Normal" mean="0" sigma="1"/>
+    <Laplace id="Laplace" mu="0" scale="1"/>
 
     <TreeFromNewickFile id="tree" fileName="$(treeFile)" IsLabelledNewick="true" adjustTipHeights='false'/>
 
     <parameter id="finalSampleOffset" spec="ExpCalculator" value="$(processLength)-$(lastSampleTime)"/>
-
-    <Normal id="weightsPrior" mean="0" sigma="1"/>
 
     <run spec="MCMC" chainLength="10000000">
         <state id="state">
@@ -40,7 +43,8 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="reproductionNumberW$(n)"/>
                                 </plate>
-                                <outputActivation spec="bella.activations.Sigmoid" upper="$(reproductionNumberUpper)"/>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
+                                <outputActivation spec="Sigmoid" upper="$(reproductionNumberUpper)"/>
                             </skylineValues>
                         </Re>
                         <becomeUninfectiousRate spec="SkylineVectorParameter" skylineValues="$(becomeUninfectiousRate)"/>
@@ -52,7 +56,7 @@
 
             <distribution id="prior" spec="CompoundDistribution">
                 <plate var="n" range="$(layersRange)">
-                    <distribution spec="Prior" x="@reproductionNumberW$(n)" distr="@weightsPrior"/>
+                    <distribution spec="Prior" x="@reproductionNumberW$(n)" distr="@$(weightsPrior)"/>
                 </plate>
             </distribution>
         </distribution>

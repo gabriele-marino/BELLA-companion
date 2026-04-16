@@ -7,16 +7,21 @@
         :beast.base.inference.distribution
         :bdmmprime.distribution
         :bdmmprime.parameterization
+        :bella.activations
         :feast.fileio
         :feast.expressions"
     version="2.5"
 >
-    <map name="Normal">beast.base.inference.distribution.Normal</map>
-
     <map name="TreeFromNewickFile">feast.fileio.TreeFromNewickFile</map>
     <map name="TaxonSetFromTree">feast.fileio.TaxonSetFromTree</map>
 	<map name="TraitSetFromTaxonSet">feast.fileio.TraitSetFromTaxonSet</map>
     <map name="TypeSet">bdmmprime.parameterization.TypeSet</map>
+
+    <map name="Normal">beast.base.inference.distribution.Normal</map>
+    <map name="Laplace">beast.base.inference.distribution.LaplaceDistribution</map>
+
+    <Normal id="Normal" mean="0" sigma="1"/>
+    <Laplace id="Laplace" mu="0" scale="1"/>
 
     <TreeFromNewickFile id="tree" fileName="$(treeFile)" IsLabelledNewick="true" adjustTipHeights='false'/>
     <TaxonSetFromTree id="taxonSet" tree="@tree"/>
@@ -24,8 +29,6 @@
 	<TypeSet id="typeSet" value="$(types)" typeTraitSet="@typeTraitSet"/>
 
     <parameter id="finalSampleOffset" spec="ExpCalculator" value="$(processLength)-$(lastSampleTime)"/>
-
-    <Normal id="weightsPrior" mean="0" sigma="1"/>
 
     <run spec="MCMC" chainLength="10000000">
         <state id="state">
@@ -48,7 +51,8 @@
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="migrationRateW$(n)"/>
                                 </plate>
-                                <outputActivation spec="bella.activations.Sigmoid" upper="$(migrationRateUpper)"/>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
+                                <outputActivation spec="Sigmoid" upper="$(migrationRateUpper)"/>
                             </skylineValues>
 						</migrationRate>
 						<removalProb spec="SkylineVectorParameter" skylineValues="1.0" typeSet="@typeSet"/>
@@ -59,7 +63,7 @@
 
             <distribution id="prior" spec="CompoundDistribution">
                 <plate var="n" range="$(layersRange)">
-                    <distribution spec="Prior" x="@migrationRateW$(n)" distr="@weightsPrior"/>
+                    <distribution spec="Prior" x="@migrationRateW$(n)" distr="@$(weightsPrior)"/>
                 </plate>
             </distribution>
         </distribution>

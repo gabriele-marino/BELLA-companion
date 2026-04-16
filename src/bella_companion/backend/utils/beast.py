@@ -29,18 +29,44 @@ def submit_beast_job(
     cpus: int = 1,
     mem_per_cpu: int = 2000,
     seed: int = 42,
-) -> str | None:
+) -> str:
+    """Submits a BEAST job to SLURM with the given data and configuration.
+
+    Parameters
+    ----------
+    data : dict[str, str]
+        Dictionary of data to be passed to BEAST, where keys are variable names and values are
+        file paths or string values.
+    prefix : str | Path
+        Prefix for the BEAST output files.
+    config_path : str | Path
+        Path to the BEAST XML configuration file.
+    log_dir : str | Path
+        Directory where the BEAST log files will be stored.
+    time : str, optional
+        Time limit for the SLURM job in the format "HH:MM:SS", by default "240:00:00".
+    cpus : int, optional
+        Number of CPU cores to request for the SLURM job, by default 1.
+    mem_per_cpu : int, optional
+        Memory per CPU in megabytes to request for the SLURM job, by default 2000.
+    seed : int, optional
+        Random seed to use for the BEAST run, by default 42.
+
+    Returns
+    -------
+    str
+        The SLURM job ID of the submitted BEAST job.
+    """
     log_dir = Path(log_dir)
     if log_dir.exists():
-        print(f"Log directory {log_dir} already exists. Skipping.")
-        return None
+        raise FileExistsError(f"Log directory {log_dir} already exists")
     else:
         os.makedirs(log_dir, exist_ok=True)
 
     data_file = log_dir / ".data.tmp.json"
     with open(data_file, "w") as f:
         json.dump(data, f)
-    submit_job(
+    return submit_job(
         command=" ".join(
             [
                 "beast",
@@ -62,8 +88,7 @@ def submit_beast_job(
 
 
 def read_log_file(log_file: str | Path, burn_in: int | float = 0.1) -> pd.DataFrame:
-    """
-    Reads a BEAST log file into a pandas DataFrame, applying burn-in removal.
+    """Reads a BEAST log file into a pandas DataFrame, applying burn-in removal.
 
     Parameters
     ----------
@@ -93,8 +118,7 @@ def read_weights(
     n_samples: int | None = 100,
     random_seed: int | None = 42,
 ) -> dict[str, list[Weights]]:
-    """
-    Reads BELLA weights from a BEAST log file.
+    """Reads BELLA weights from a BEAST log file.
 
     The weights are organized by target name, with each target mapping to
     a list of weight samples. The target names and network architecture are
@@ -177,8 +201,7 @@ def summarize_log(
     hdi_prob: float = 0.95,
     job_id: str | None = None,
 ) -> dict[str, Any]:
-    """
-    Summarizes a BEAST log file by computing median, ESS, and HDI for target columns.
+    """Summarizes a BEAST log file by computing median, ESS, and HDI for target columns.
 
     Parameters
     ----------
@@ -220,8 +243,7 @@ def summarize_logs_dir(
     job_ids: dict[str, str] | None = None,
     n_jobs: int = -1,
 ) -> pd.DataFrame:
-    """
-    Summarizes all BEAST log files in a directory.
+    """Summarizes all BEAST log files in a directory.
 
     Parameters
     ----------
@@ -267,8 +289,7 @@ def read_weights_dir(
     random_seed: int | None = 42,
     n_jobs: int = -1,
 ) -> list[dict[str, list[Weights]]]:
-    """
-    Reads BELLA weights from all BEAST log files in a directory.
+    """Reads BELLA weights from all BEAST log files in a directory.
 
     Parameters
     ----------

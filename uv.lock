@@ -43,21 +43,11 @@ wheels = [
 ]
 
 [[package]]
-name = "autoregistry"
-version = "1.2.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/93/da/29c70f1068a1fd68021610e2e3e33d6ad13c5ff713fc820c2521fef147ed/autoregistry-1.2.1.tar.gz", hash = "sha256:6ef26a2ad7a34b2f8cf97e53699e5dd49d92d15474e22bfef625ae1b8734e877", size = 17670, upload-time = "2025-12-08T03:11:45.163Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/8c/bb/2c9f8812f713dff207a15b960495527a462b401e9e22dc27edece97a916e/autoregistry-1.2.1-py3-none-any.whl", hash = "sha256:e1033b1b1511ffddf37d75ea5f697f00adb519ea387bb071b5c6bfb13d397d39", size = 17836, upload-time = "2025-12-08T03:11:44.004Z" },
-]
-
-[[package]]
 name = "bella-companion"
-version = "0.1.25"
+version = "0.1.26"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
-    { name = "autoregistry" },
     { name = "dotenv" },
     { name = "kaleido" },
     { name = "phylogenie" },
@@ -84,10 +74,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "arviz", specifier = "==0.22.0" },
-    { name = "autoregistry", specifier = ">=1.2.0" },
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "kaleido", specifier = ">=1.2.0" },
-    { name = "phylogenie", specifier = ">=3.3.1" },
+    { name = "phylogenie", specifier = ">=3.10.0" },
     { name = "plotly", specifier = ">=6.5.0" },
     { name = "scipy", specifier = ">=1.15.3" },
     { name = "seaborn", specifier = ">=0.13.2" },
@@ -1150,7 +1139,7 @@ wheels = [
 
 [[package]]
 name = "phylogenie"
-version = "3.3.1"
+version = "3.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
@@ -1160,9 +1149,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/42/097d19f639812d604d60f4e041d6e7cab1397c8b2452dfaa1de66bcb4586/phylogenie-3.3.1.tar.gz", hash = "sha256:374122b12fd032716c25b302c2a40cad3c86f854b031c2cfabd1aa6fd1074b59", size = 37301, upload-time = "2026-02-02T16:24:52.517Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/76/68/1aec62c62e7dff976baf786873c60d4c75e26f2083dce0b53e732903ff54/phylogenie-3.10.0.tar.gz", hash = "sha256:1e84a498441c94ba5471808322f85763027c0b5c827f1dfd4bba285ccccb43ce", size = 35130, upload-time = "2026-04-04T08:47:45.822Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fb/59/17abe0c54c28c27f1db125b28070fc7b95b68ecf92b5ba09fa43683f5e96/phylogenie-3.3.1-py3-none-any.whl", hash = "sha256:85bb67907ede48b8cc5f42b4ea99137bb8b498021329da1590a6357ddf94835a", size = 45832, upload-time = "2026-02-02T16:24:51.509Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/4e/c9116f159a4a4d5fb042bb8e1176a2b500e1076c00fdf6ef10845925b7ea/phylogenie-3.10.0-py3-none-any.whl", hash = "sha256:7c9ee3987700c009c2df950a9bdc72ee42315f76c2c8f775a993ed557ec38796", size = 44409, upload-time = "2026-04-04T08:47:44.421Z" },
 ]
 
 [[package]]

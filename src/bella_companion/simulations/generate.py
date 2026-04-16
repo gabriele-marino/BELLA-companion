@@ -1,14 +1,10 @@
 import os
 from pathlib import Path
 
-from phylogenie import (
-    TimedSampling,
-    TreeNode,
-    UnboundedPopulationModel,
-    generate_trees,
-)
+from phylogenie import TreeNode
+from phylogenie.treesimulator import generate_trees
 
-from bella_companion.simulations.scenarios import SCENARIOS, ScenarioType
+from bella_companion.simulations.scenarios import SCENARIOS
 
 N_TREES = 100
 MIN_TIPS = 200
@@ -29,17 +25,9 @@ def generate():
         generate_trees(
             output_dir=base_output_dir / scenario_name,
             n_trees=N_TREES,
-            events=scenario.events,
-            timed_events=[
-                TimedSampling(
-                    times=[scenario.max_time], state=state, proportion=1.0, removal=True
-                )
-                for state in list({event.state for event in scenario.events})
-            ]
-            if scenario.type == ScenarioType.FBD
-            else None,
-            model=UnboundedPopulationModel(scenario.init_state),
+            model=scenario.model,
             max_time=scenario.max_time,
             seed=42,
+            n_jobs=1,
             acceptance_criterion=_acceptance_criterion,
         )

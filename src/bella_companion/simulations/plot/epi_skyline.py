@@ -11,6 +11,7 @@ from bella_companion.backend import (
     mae_distribution_from_summaries,
     skyline_plot,
 )
+from bella_companion.settings import BELLA_SETTINGS
 from bella_companion.simulations.plot.globals import COLORS
 from bella_companion.simulations.scenarios.epi_skyline import REPRODUCTION_NUMBERS
 
@@ -18,16 +19,20 @@ from bella_companion.simulations.scenarios.epi_skyline import REPRODUCTION_NUMBE
 def plot_epi_skyline():
     base_output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "epi-skyline"
 
-    mlp_models = {1: "3_2", 2: "16_8", 3: "32_16"}
+    bella_testimonials = {1: "BELLA-3_2", 2: "BELLA-16_8", 3: "BELLA-32_16"}
     for i, reproduction_number in enumerate(REPRODUCTION_NUMBERS, start=1):
+        output_dir = base_output_dir / str(i)
+        os.makedirs(output_dir, exist_ok=True)
+
         summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / f"epi-skyline_{i}"
         models_summaries = {
             model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
-            for model in ["PA", "GLM", f"BELLA-{mlp_models[i]}"]
+            for model in ["PA", "GLM", bella_testimonials[i]]
         }
-
-        output_dir = base_output_dir / str(i)
-        os.makedirs(output_dir, exist_ok=True)
+        bella_models_summaries = {
+            model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
+            for model in BELLA_SETTINGS
+        }
 
         for model, summaries in models_summaries.items():
             skyline_plot(
@@ -85,4 +90,17 @@ def plot_epi_skyline():
             legend=False,
         )
         plt.savefig(output_dir / "maes.svg")  # pyright: ignore
+        plt.close()
+
+        for model, summaries in bella_models_summaries.items():
+            skyline_plot(
+                [
+                    summaries[f"reproductionNumberSPi{i}{MEDIAN_POSTFIX}"].median()
+                    for i in range(len(reproduction_number))
+                ],
+            )
+        skyline_plot(reproduction_number, step_kwargs={"color": "k", "linestyle": "--"})
+        plt.xlabel("Time")  # pyright: ignore
+        plt.ylabel(r"$R_t$")  # pyright: ignore
+        plt.savefig(output_dir / "bella-comparison.svg")  # pyright: ignore
         plt.close()

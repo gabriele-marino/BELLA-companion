@@ -7,22 +7,25 @@
         :beast.base.inference.distribution
         :bdmmprime.distribution
         :bdmmprime.parameterization
+        :bella.activations
         :feast.fileio"
     version="2.5"
 >
-    <map name="Normal">beast.base.inference.distribution.Normal</map>
-
     <map name="TreeFromNewickFile">feast.fileio.TreeFromNewickFile</map>
     <map name="TaxonSetFromTree">feast.fileio.TaxonSetFromTree</map>
 	<map name="TraitSetFromTaxonSet">feast.fileio.TraitSetFromTaxonSet</map>
     <map name="TypeSet">bdmmprime.parameterization.TypeSet</map>
 
+    <map name="Normal">beast.base.inference.distribution.Normal</map>
+    <map name="Laplace">beast.base.inference.distribution.LaplaceDistribution</map>
+
+    <Normal id="Normal" mean="0" sigma="1"/>
+    <Laplace id="Laplace" mu="0" scale="1"/>
+
     <TreeFromNewickFile id="tree" fileName="$(treeFile)" IsLabelledNewick="true" adjustTipHeights='false'/>
     <TaxonSetFromTree id="taxonSet" tree="@tree"/>
 	<TraitSetFromTaxonSet id="typeTraitSet" traitname="type" delimiter="|" takeGroup="1" taxa="@taxonSet"/>
 	<TypeSet id="typeSet" value="$(types)" typeTraitSet="@typeTraitSet"/>
-
-    <Normal id="weightsPrior" mean="0" sigma="1"/>
 
     <run spec="MCMC" chainLength="10000000">
         <state id="state">
@@ -39,25 +42,27 @@
                         <birthRate id="birthRateSP" spec="SkylineVectorParameter" changeTimes="$(changeTimes)" typeSet="@typeSet">
                             <skylineValues id="birthRate" spec="bella.BayesMLP" nodes="$(nodes)">
                                 <predictor spec="RealParameter" value="$(timePredictor)"/>
+                                <predictor spec="RealParameter" value="$(deathPredictor)"/>
                                 <predictor spec="RealParameter" value="$(trait1Predictor)"/>
                                 <predictor spec="RealParameter" value="$(trait2Predictor)"/>
-                                <predictor spec="RealParameter" value="$(randomPredictor)"/>
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="birthRateW$(n)"/>
                                 </plate>
-                                <outputActivation spec="bella.activations.Sigmoid" upper="$(birthRateUpper)"/>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
+                                <outputActivation spec="Sigmoid" upper="$(birthRateUpper)"/>
                             </skylineValues>
                         </birthRate>
                         <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="$(changeTimes)" typeSet="@typeSet">
                             <skylineValues id="deathRate" spec="bella.BayesMLP" nodes="$(nodes)">
                                 <predictor spec="RealParameter" value="$(timePredictor)"/>
+                                <predictor spec="RealParameter" value="$(deathPredictor)"/>
                                 <predictor spec="RealParameter" value="$(trait1Predictor)"/>
                                 <predictor spec="RealParameter" value="$(trait2Predictor)"/>
-                                <predictor spec="RealParameter" value="$(randomPredictor)"/>
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="deathRateW$(n)"/>
                                 </plate>
-                                <outputActivation spec="bella.activations.Sigmoid" upper="$(deathRateUpper)"/>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
+                                <outputActivation spec="Sigmoid" upper="$(deathRateUpper)"/>
                             </skylineValues>
                         </deathRate>
                         <migrationRate spec="SkylineMatrixParameter" skylineValues="$(migrationRate)" typeSet="@typeSet"/>
@@ -71,8 +76,8 @@
 
             <distribution id="prior" spec="CompoundDistribution">
                 <plate var="n" range="$(layersRange)">
-                    <distribution spec="Prior" x="@birthRateW$(n)" distr="@weightsPrior"/>
-                    <distribution spec="Prior" x="@deathRateW$(n)" distr="@weightsPrior"/>
+                    <distribution spec="Prior" x="@birthRateW$(n)" distr="@$(weightsPrior)"/>
+                    <distribution spec="Prior" x="@deathRateW$(n)" distr="@$(weightsPrior)"/>
                 </plate>
             </distribution>
         </distribution>

@@ -75,7 +75,7 @@ def main():
     ).set_defaults(func=summarize_simulations)
 
     sim_subparsers.add_parser(
-        "metrics", help="Compute and print metrics for simulated datasets."
+        "metrics", help="Compute and format evaluation metrics for simulated datasets."
     ).set_defaults(func=run_metrics)
 
     sim_plot_parser = sim_subparsers.add_parser(

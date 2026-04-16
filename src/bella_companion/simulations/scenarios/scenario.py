@@ -1,23 +1,18 @@
 from collections.abc import Callable
 from dataclasses import dataclass
-from enum import Enum
 from typing import Any
 
 from numpy.random import Generator
-from phylogenie.treesimulator import UnboundedPopulationEvent
-
-
-class ScenarioType(Enum):
-    EPI = "epi"
-    FBD = "fbd"
+from phylogenie import TreeNode
+from phylogenie.treesimulator import Model
 
 
 @dataclass
 class Scenario:
-    type: ScenarioType
-    max_time: float
-    events: list[UnboundedPopulationEvent]
-    init_state: str
-    get_random_predictor: Callable[[Generator], list[float]]
-    beast_args: dict[str, Any]
+    model: Model
+    max_time: float | None
     targets: dict[str, dict[str, float]]
+    beast_configs: str
+    beast_args: dict[str, Any]
+    get_random_predictor: Callable[[Generator], list[float]] | None = None
+    tree_beast_args: dict[str, Callable[[TreeNode], Any]] | None = None
