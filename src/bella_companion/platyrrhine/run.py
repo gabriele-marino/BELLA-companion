@@ -1,3 +1,4 @@
+import json
 import os
 from collections import defaultdict
 from pathlib import Path
@@ -17,10 +18,11 @@ from bella_companion.platyrrhine.settings import (
 )
 from bella_companion.settings import BELLA_SETTINGS
 
+JOB_IDS_FILENAME = "sim-job-ids.json"
+
 
 def run_platyrrhine():
-    base_output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"]) / "platyrrhine"
-
+    base_output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"])
     trees = load_newick(TREE_FILE)
     time_bins = [0, *CHANGE_TIMES]
     n_time_bins = len(time_bins)
@@ -30,9 +32,9 @@ def run_platyrrhine():
 
     job_ids: dict[str, dict[int, str]] = defaultdict(dict)
     for model, settings in BELLA_SETTINGS.items():
-        output_dir = base_output_dir / model
-        os.makedirs(output_dir, exist_ok=True)
         base_log_dir = Path(os.environ["BELLA_SBATCH_LOG_DIR"]) / "platyrrhine" / model
+        output_dir = base_output_dir / "platyrrhine" / model
+        os.makedirs(output_dir, exist_ok=True)
 
         for i, tree in enumerate(
             tqdm(trees, desc="Submitting BEAST jobs for platyrrhine datasets")
@@ -64,3 +66,6 @@ def run_platyrrhine():
                 log_dir=base_log_dir / str(i),
                 mem_per_cpu=12000,
             )
+
+    with open(base_output_dir / JOB_IDS_FILENAME, "w") as f:
+        json.dump(job_ids, f)
