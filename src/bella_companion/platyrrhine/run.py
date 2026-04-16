@@ -37,7 +37,10 @@ def run_platyrrhine():
         os.makedirs(output_dir, exist_ok=True)
 
         for i, tree in enumerate(
-            tqdm(trees, desc="Submitting BEAST jobs for platyrrhine datasets")
+            tqdm(
+                trees,
+                desc=f"Submitting BEAST jobs for platyrrhine datasets (model: {model})",
+            )
         ):
             data = {
                 "types": ",".join(map(str, TYPES)),

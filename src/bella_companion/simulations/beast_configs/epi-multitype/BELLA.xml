@@ -80,5 +80,4 @@
             <log idref="migrationRate"/>
         </logger>
     </run>
-
 </beast>
