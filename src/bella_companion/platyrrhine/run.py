@@ -18,7 +18,7 @@ from bella_companion.platyrrhine.settings import (
 )
 from bella_companion.settings import BELLA_SETTINGS
 
-JOB_IDS_FILENAME = "sim-job-ids.json"
+JOB_IDS_FILENAME = "platyrrhine-job-ids.json"
 
 
 def run_platyrrhine():

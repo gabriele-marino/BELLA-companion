@@ -11,20 +11,33 @@ from bella_companion.backend import (
     mae_distribution_from_summaries,
     skyline_plot,
 )
-from bella_companion.settings import BELLA_SETTINGS
-from bella_companion.simulations.plot.globals import COLORS
+from bella_companion.settings import BELLA_REFERENCE_MODEL, BELLA_SETTINGS, MODEL_COLORS
 from bella_companion.simulations.scenarios.fbd_no_traits import RATES
 
 
 def plot_fbd_no_traits():
     base_output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "fbd-no-traits"
 
-    mlp_models = {1: "3_2", 2: "16_8", 3: "3_2"}
+    y_lims = {
+        1: {
+            "birth": (0.15, 0.8),
+            "death": (-0.05, 0.6),
+        },
+        2: {
+            "birth": (0.05, 0.95),
+            "death": (0, 0.55),
+        },
+        3: {
+            "birth": (0.0, 1.25),
+            "death": (0.0, 0.65),
+        },
+    }
+
     for i, rates in enumerate(RATES, start=1):
         summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / f"fbd-no-traits_{i}"
         models_summaries = {
             model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
-            for model in [f"BELLA-{mlp_models[i]}", "GLM", "PA"]
+            for model in [BELLA_REFERENCE_MODEL, "GLM", "PA"]
         }
         bella_models_summaries = {
             model: pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
@@ -41,16 +54,19 @@ def plot_fbd_no_traits():
                     for i in range(len(values))
                 ]
                 skyline_plot(
-                    list(reversed(medians)), step_kwargs={"color": COLORS[model]}
+                    list(reversed(medians)),
+                    step_kwargs={"label": model, "color": MODEL_COLORS[model]},
                 )
             skyline_plot(
                 list(reversed(values)), step_kwargs={"color": "k", "linestyle": "--"}
             )
             plt.gca().invert_xaxis()
+            plt.legend()  # pyright: ignore
             plt.xlabel("Time")  # pyright: ignore
             plt.ylabel(  # pyright: ignore
                 r"$\lambda$" if rate == "birth" else r"$\mu$"
             )
+            plt.ylim(y_lims[i][rate])  # pyright: ignore
             plt.savefig(output_dir / "predictions.svg")  # pyright: ignore
             plt.close()
 
@@ -64,7 +80,7 @@ def plot_fbd_no_traits():
                 plt.plot(  # pyright: ignore
                     list(reversed(coverage_by_time_bin)),
                     marker="o",
-                    color=COLORS[model],
+                    color=MODEL_COLORS[model],
                 )
             plt.gca().invert_xaxis()
             plt.xlabel("Time bin")  # pyright: ignore
@@ -97,7 +113,7 @@ def plot_fbd_no_traits():
                 inner=None,
                 cut=0,
                 density_norm="width",
-                palette=COLORS,
+                palette=MODEL_COLORS,
                 legend=False,
             )
             plt.gca().invert_xaxis()
@@ -109,14 +125,20 @@ def plot_fbd_no_traits():
                     summaries[f"{rate}RateSPi{i}{MEDIAN_POSTFIX}"].median()
                     for i in range(len(values))
                 ]
-                skyline_plot(list(reversed(medians)))
+                skyline_plot(
+                    list(reversed(medians)),
+                    step_kwargs={"label": model, "color": MODEL_COLORS[model]},
+                )
             skyline_plot(
-                list(reversed(values)), step_kwargs={"color": "k", "linestyle": "--"}
+                list(reversed(values)),
+                step_kwargs={"color": "k", "linestyle": "--"},
             )
             plt.gca().invert_xaxis()
+            plt.legend()  # pyright: ignore
             plt.xlabel("Time")  # pyright: ignore
             plt.ylabel(  # pyright: ignore
                 r"$\lambda$" if rate == "birth" else r"$\mu$"
             )
-            plt.savefig(output_dir / "bella-comparison.svg")  # pyright: ignore
+            plt.ylim(y_lims[i][rate])  # pyright: ignore
+            plt.savefig(output_dir / "bella-variance.svg")  # pyright: ignore
             plt.close()

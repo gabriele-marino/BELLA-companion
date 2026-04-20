@@ -18,6 +18,7 @@ from bella_companion.backend import (
     skyline_plot,
 )
 from bella_companion.backend.plots import ribbon_plot
+from bella_companion.settings import BELLA_REFERENCE_MODEL, BELLA_SETTINGS
 from bella_companion.simulations.scenarios.fbd_2traits import (
     FBD_RATE_UPPER,
     N_TIME_BINS,
@@ -29,43 +30,47 @@ from bella_companion.simulations.scenarios.fbd_2traits import (
 def plot_fbd_2traits():
     base_output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "fbd-2traits"
     summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "fbd-2traits"
-    model = "BELLA-32_16"
-    summaries = pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
-    weights: list[dict[str, list[Weights]]] = joblib.load(
-        summaries_dir / f"{model}.weights.pkl"
-    )
 
     for rate, state_rates in RATES.items():
         output_dir = base_output_dir / rate
         os.makedirs(output_dir, exist_ok=True)
 
         label = r"\lambda" if rate == "birth" else r"\mu"
-        for state, color in zip(STATES, ["#0072B2", "#009E73", "#CC79A7", "#E69F00"]):
-            estimates = [
-                summaries[f"{rate}RateSPi{i}_{state}{MEDIAN_POSTFIX}"].median()
-                for i in range(N_TIME_BINS)
-            ]
+
+        for model in ["PA", "GLM", *BELLA_SETTINGS]:
+            summaries = pd.read_csv(summaries_dir / f"{model}.csv")  # pyright: ignore
+            for state, color in zip(
+                STATES, ["#0072B2", "#009E73", "#CC79A7", "#E69F00"]
+            ):
+                estimates = [
+                    summaries[f"{rate}RateSPi{i}_{state}{MEDIAN_POSTFIX}"].median()
+                    for i in range(N_TIME_BINS)
+                ]
+                skyline_plot(
+                    list(reversed(estimates)),
+                    step_kwargs={
+                        "label": rf"${label}_{{{state[0]},{state[1]}}}$",
+                        "color": color,
+                    },
+                )
             skyline_plot(
-                list(reversed(estimates)),
-                step_kwargs={
-                    "label": rf"${label}_{{{state[0]},{state[1]}}}$",
-                    "color": color,
-                },
+                list(reversed(state_rates["00"])),
+                step_kwargs={"color": "k", "linestyle": "dashed"},
             )
-        skyline_plot(
-            list(reversed(state_rates["00"])),
-            step_kwargs={"color": "k", "linestyle": "dashed"},
+            skyline_plot(
+                list(reversed(state_rates["10"])),
+                step_kwargs={"color": "gray", "linestyle": "dashed"},
+            )
+            plt.gca().invert_xaxis()
+            plt.legend()  # pyright: ignore
+            plt.xlabel("Time")  # pyright: ignore
+            plt.ylabel(rf"${label}$")  # pyright: ignore
+            plt.savefig(output_dir / f"{model}-predictions.svg")  # pyright: ignore
+            plt.close()
+
+        weights: list[dict[str, list[Weights]]] = joblib.load(
+            summaries_dir / f"{BELLA_REFERENCE_MODEL}.weights.pkl"
         )
-        skyline_plot(
-            list(reversed(state_rates["10"])),
-            step_kwargs={"color": "gray", "linestyle": "dashed"},
-        )
-        plt.gca().invert_xaxis()
-        plt.legend()  # pyright: ignore
-        plt.xlabel("Time")  # pyright: ignore
-        plt.ylabel(rf"${label}$")  # pyright: ignore
-        plt.savefig(output_dir / "predictions.svg")  # pyright: ignore
-        plt.close()
 
         mlp_ensembles = [
             MLPEnsemble(
