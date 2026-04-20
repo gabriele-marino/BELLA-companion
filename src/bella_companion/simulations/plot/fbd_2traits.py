@@ -75,6 +75,9 @@ def plot_fbd_2traits():
         mlp_ensembles = [
             MLPEnsemble(
                 weights_list=sample_weights[f"{rate}Rate"],
+                hidden_activation=BELLA_SETTINGS[
+                    BELLA_REFERENCE_MODEL
+                ].hidden_activation(),
                 output_activation=Sigmoid(upper=FBD_RATE_UPPER),
             )
             for sample_weights in weights

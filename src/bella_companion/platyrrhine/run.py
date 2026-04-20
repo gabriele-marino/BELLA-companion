@@ -36,8 +36,8 @@ def run_platyrrhine():
         output_dir = base_output_dir / "platyrrhine" / model
         os.makedirs(output_dir, exist_ok=True)
 
-        for i in tqdm(
-            range(len(trees)),
+        for i, tree in tqdm(
+            enumerate(trees),
             desc=f"Submitting BEAST jobs for platyrrhine datasets (model: {model})",
         ):
             data = {
@@ -52,6 +52,7 @@ def run_platyrrhine():
                 "migrationRateInit": "2.5 0 0 2.5 2.5 0 0 2.5 2.5 0 0 2.5",
                 "treeFile": str(TREE_FILE),
                 "treeIndex": str(i),
+                "processLength": str(tree.origin),
                 "changeTimesFile": str(CHANGE_TIMES_FILE),
                 "traitsFile": str(TRAITS_FILE),
                 "traitValueCol": "3",
