@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -12,6 +13,7 @@ from bella_companion.backend import (
     skyline_plot,
 )
 from bella_companion.settings import BELLA_REFERENCE_MODEL, BELLA_SETTINGS, MODEL_COLORS
+from bella_companion.simulations.scenarios import EPI_MAX_TIME
 from bella_companion.simulations.scenarios.epi_skyline import REPRODUCTION_NUMBERS
 
 
@@ -38,15 +40,22 @@ def plot_epi_skyline():
             for model in BELLA_SETTINGS
         }
 
+        time_axis = np.linspace(0, EPI_MAX_TIME, len(reproduction_number) + 1)
+
         for model, summaries in models_summaries.items():
             skyline_plot(
                 [
                     summaries[f"reproductionNumberSPi{i}{MEDIAN_POSTFIX}"].median()
                     for i in range(len(reproduction_number))
                 ],
+                x=time_axis,
                 step_kwargs={"label": model, "color": MODEL_COLORS[model]},
             )
-        skyline_plot(reproduction_number, step_kwargs={"color": "k", "linestyle": "--"})
+        skyline_plot(
+            reproduction_number,
+            x=time_axis,
+            step_kwargs={"color": "k", "linestyle": "--"},
+        )
         plt.legend()  # pyright: ignore
         plt.xlabel("Time")  # pyright: ignore
         plt.ylabel(r"$R_t$")  # pyright: ignore
@@ -104,9 +113,14 @@ def plot_epi_skyline():
                     summaries[f"reproductionNumberSPi{i}{MEDIAN_POSTFIX}"].median()
                     for i in range(len(reproduction_number))
                 ],
+                x=time_axis,
                 step_kwargs={"label": model, "color": MODEL_COLORS[model]},
             )
-        skyline_plot(reproduction_number, step_kwargs={"color": "k", "linestyle": "--"})
+        skyline_plot(
+            reproduction_number,
+            x=time_axis,
+            step_kwargs={"color": "k", "linestyle": "--"},
+        )
         plt.legend()  # pyright: ignore
         plt.xlabel("Time")  # pyright: ignore
         plt.ylabel(r"$R_t$")  # pyright: ignore

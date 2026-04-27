@@ -39,6 +39,7 @@ def run_platyrrhine():
         for i, tree in tqdm(
             enumerate(trees),
             desc=f"Submitting BEAST jobs for platyrrhine datasets (model: {model})",
+            total=len(trees),
         ):
             data = {
                 "types": ",".join(map(str, TYPES)),

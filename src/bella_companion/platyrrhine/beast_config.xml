@@ -75,7 +75,7 @@
                         <samplingRate id="samplingRateSP" spec="SkylineVectorParameter" skylineValues="@samplingRate" changeTimes="$(samplingChangeTimes)" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet"/>
                         <migrationRate id="migrationRateSP" spec="SkylineMatrixParameter" skylineValues="@migrationRate" typeSet="@typeSet"/>
                         <removalProb spec="SkylineVectorParameter" skylineValues="0.0" typeSet="@typeSet"/>
-                        <rhoSampling spec="TimedParameter" values="0.44" times="@tree" typeSet="@typeSet"/>
+                        <rhoSampling spec="TimedParameter" values="0.44" times="0.0" timesAreAges="true" typeSet="@typeSet"/>
                     </parameterization>
                     <startTypePriorProbs spec="RealParameter" value="$(startTypePriorProbs)"/>
                 </distribution>

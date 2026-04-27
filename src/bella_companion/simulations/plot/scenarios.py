@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from bella_companion.backend import skyline_plot
+from bella_companion.simulations.scenarios import EPI_MAX_TIME, FBD_MAX_TIME
 from bella_companion.simulations.scenarios.epi_multitype import (
     MIGRATION_PREDICTOR,
     MIGRATION_RATES,
@@ -15,6 +16,7 @@ from bella_companion.simulations.scenarios.fbd_2traits import (
     BIRTH_RATE_TRAIT1_UNSET,
     DEATH_RATE_TRAIT1_SET,
     DEATH_RATE_TRAIT1_UNSET,
+    N_TIME_BINS,
 )
 from bella_companion.simulations.scenarios.fbd_no_traits import RATES
 
@@ -27,7 +29,8 @@ def plot_scenarios():
     # epi-skyline
     # -----------
     for i, reproduction_number in enumerate(REPRODUCTION_NUMBERS, start=1):
-        skyline_plot(reproduction_number, step_kwargs={"color": "k"})
+        time_axis = np.linspace(0, EPI_MAX_TIME, len(reproduction_number) + 1)
+        skyline_plot(reproduction_number, x=time_axis, step_kwargs={"color": "k"})
         plt.ylabel(r"$R_t$")  # pyright: ignore
         plt.xlabel("Time")  # pyright: ignore
         plt.savefig(output_dir / f"epi-skyline_{i}.svg")  # pyright: ignore
@@ -52,10 +55,15 @@ def plot_scenarios():
     # fbd-no-traits
     # -------------
     for i, rates in enumerate(RATES, start=1):
+        time_axis = np.linspace(0, FBD_MAX_TIME, len(rates["birth"]) + 1)
         skyline_plot(
-            list(reversed(rates["birth"])), step_kwargs={"label": r"$\lambda$"}
+            list(reversed(rates["birth"])),
+            x=time_axis,
+            step_kwargs={"label": r"$\lambda$"},
         )
-        skyline_plot(list(reversed(rates["death"])), step_kwargs={"label": r"$\mu$"})
+        skyline_plot(
+            list(reversed(rates["death"])), x=time_axis, step_kwargs={"label": r"$\mu$"}
+        )
         plt.gca().invert_xaxis()
         plt.ylabel("Rate")  # pyright: ignore
         plt.xlabel("Time")  # pyright: ignore
@@ -66,12 +74,15 @@ def plot_scenarios():
     # -----------
     # fbd-2traits
     # -----------
+    time_axis = np.linspace(0, FBD_MAX_TIME, N_TIME_BINS + 1)
     skyline_plot(
         list(reversed(BIRTH_RATE_TRAIT1_UNSET)),
+        x=time_axis,
         step_kwargs={"label": r"$\lambda_{0,0} = \lambda_{0,1}$", "color": "C0"},
     )
     skyline_plot(
         list(reversed(BIRTH_RATE_TRAIT1_SET)),
+        x=time_axis,
         step_kwargs={
             "label": r"$\lambda_{1,0} = \lambda_{1,1}$",
             "color": "C0",
@@ -80,6 +91,7 @@ def plot_scenarios():
     )
     skyline_plot(
         list(reversed(DEATH_RATE_TRAIT1_UNSET)),
+        x=time_axis,
         step_kwargs={
             "label": r"$\mu_{0,0} = \mu_{0,1}$",
             "color": "C1",
@@ -87,6 +99,7 @@ def plot_scenarios():
     )
     skyline_plot(
         list(reversed(DEATH_RATE_TRAIT1_SET)),
+        x=time_axis,
         step_kwargs={
             "label": r"$\mu_{1,0} = \mu_{1,1}$",
             "color": "C1",

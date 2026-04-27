@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -12,6 +13,7 @@ from bella_companion.backend import (
     skyline_plot,
 )
 from bella_companion.settings import BELLA_REFERENCE_MODEL, BELLA_SETTINGS, MODEL_COLORS
+from bella_companion.simulations.scenarios import FBD_MAX_TIME
 from bella_companion.simulations.scenarios.fbd_no_traits import RATES
 
 
@@ -48,6 +50,8 @@ def plot_fbd_no_traits():
             output_dir = base_output_dir / str(i) / rate
             os.makedirs(output_dir, exist_ok=True)
 
+            time_axis = np.linspace(0, FBD_MAX_TIME, len(values) + 1)
+
             for model, summaries in models_summaries.items():
                 medians = [
                     summaries[f"{rate}RateSPi{i}{MEDIAN_POSTFIX}"].median()
@@ -55,10 +59,13 @@ def plot_fbd_no_traits():
                 ]
                 skyline_plot(
                     list(reversed(medians)),
+                    x=time_axis,
                     step_kwargs={"label": model, "color": MODEL_COLORS[model]},
                 )
             skyline_plot(
-                list(reversed(values)), step_kwargs={"color": "k", "linestyle": "--"}
+                list(reversed(values)),
+                x=time_axis,
+                step_kwargs={"color": "k", "linestyle": "--"},
             )
             plt.gca().invert_xaxis()
             plt.legend()  # pyright: ignore
@@ -127,10 +134,12 @@ def plot_fbd_no_traits():
                 ]
                 skyline_plot(
                     list(reversed(medians)),
+                    x=time_axis,
                     step_kwargs={"label": model, "color": MODEL_COLORS[model]},
                 )
             skyline_plot(
                 list(reversed(values)),
+                x=time_axis,
                 step_kwargs={"color": "k", "linestyle": "--"},
             )
             plt.gca().invert_xaxis()

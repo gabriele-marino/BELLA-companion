@@ -19,6 +19,7 @@ from bella_companion.backend import (
 )
 from bella_companion.backend.plots import ribbon_plot
 from bella_companion.settings import BELLA_REFERENCE_MODEL, BELLA_SETTINGS
+from bella_companion.simulations.scenarios import FBD_MAX_TIME
 from bella_companion.simulations.scenarios.fbd_2traits import (
     FBD_RATE_UPPER,
     N_TIME_BINS,
@@ -35,6 +36,8 @@ def plot_fbd_2traits():
         output_dir = base_output_dir / rate
         os.makedirs(output_dir, exist_ok=True)
 
+        time_axis = np.linspace(0, FBD_MAX_TIME, N_TIME_BINS + 1)
+
         label = r"\lambda" if rate == "birth" else r"\mu"
 
         for model in ["PA", "GLM", *BELLA_SETTINGS]:
@@ -48,6 +51,7 @@ def plot_fbd_2traits():
                 ]
                 skyline_plot(
                     list(reversed(estimates)),
+                    x=time_axis,
                     step_kwargs={
                         "label": rf"${label}_{{{state[0]},{state[1]}}}$",
                         "color": color,
@@ -55,10 +59,12 @@ def plot_fbd_2traits():
                 )
             skyline_plot(
                 list(reversed(state_rates["00"])),
+                x=time_axis,
                 step_kwargs={"color": "k", "linestyle": "dashed"},
             )
             skyline_plot(
                 list(reversed(state_rates["10"])),
+                x=time_axis,
                 step_kwargs={"color": "gray", "linestyle": "dashed"},
             )
             plt.gca().invert_xaxis()

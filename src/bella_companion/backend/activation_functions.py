@@ -59,8 +59,7 @@ ActivationFunctionLike = str | ActivationFunction
 
 
 def as_activation_function(
-    activation: ActivationFunctionLike,
-    **kwargs: Any,
+    activation: ActivationFunctionLike, **kwargs: dict[str, Any]
 ) -> ActivationFunction:
     if isinstance(activation, str):
         return ACTIVATION_FUNCTIONS_REGISTRY[activation.lower()](**kwargs)

@@ -2,6 +2,7 @@ from bella_companion.simulations.scenarios.epi_multitype import EPI_MULTITYPE_SC
 from bella_companion.simulations.scenarios.epi_skyline import EPI_SKYLINE_SCENARIOS
 from bella_companion.simulations.scenarios.fbd_2traits import FBD_2TRAITS_SCENARIO
 from bella_companion.simulations.scenarios.fbd_no_traits import FBD_NO_TRAITS_SCENARIOS
+from bella_companion.simulations.scenarios.globals import EPI_MAX_TIME, FBD_MAX_TIME
 from bella_companion.simulations.scenarios.scenario import Scenario
 
 SCENARIOS = {
@@ -17,4 +18,4 @@ SCENARIOS = {
     },
 }
 
-__all__ = ["SCENARIOS", "Scenario"]
+__all__ = ["SCENARIOS", "Scenario", "EPI_MAX_TIME", "FBD_MAX_TIME"]
