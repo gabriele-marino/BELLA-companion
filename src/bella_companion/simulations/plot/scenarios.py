@@ -1,114 +1,116 @@
-import os
-from pathlib import Path
+import string
 
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes import Axes
 
-from bella_companion.backend import skyline_plot
-from bella_companion.simulations.scenarios import EPI_MAX_TIME, FBD_MAX_TIME
-from bella_companion.simulations.scenarios.epi_multitype import (
-    MIGRATION_PREDICTOR,
-    MIGRATION_RATES,
+from bella_companion.backend.plots import skyline_plot
+from bella_companion.settings import settings
+from bella_companion.simulations.scenarios import (
+    EPI_MULTITYPE,
+    EPI_SKYLINE_SCENARIOS,
+    EPI_TIME_AXIS,
+    FBD_2TRAITS,
+    FBD_NO_TRAITS_SCENARIOS,
+    FBD_TIME_AXIS,
 )
-from bella_companion.simulations.scenarios.epi_skyline import REPRODUCTION_NUMBERS
-from bella_companion.simulations.scenarios.fbd_2traits import (
-    BIRTH_RATE_TRAIT1_SET,
-    BIRTH_RATE_TRAIT1_UNSET,
-    DEATH_RATE_TRAIT1_SET,
-    DEATH_RATE_TRAIT1_UNSET,
-    N_TIME_BINS,
-)
-from bella_companion.simulations.scenarios.fbd_no_traits import RATES
+from bella_companion.targets import SkylineArray
 
 
-def plot_scenarios():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "scenarios"
-    os.makedirs(output_dir, exist_ok=True)
+def _plot_epi_skyline(ax: Axes, reproduction_number: SkylineArray):
+    skyline_plot(
+        reproduction_number, x=EPI_TIME_AXIS, step_kwargs={"color": "k"}, ax=ax
+    )
+    ax.set_ylabel(r"$R_t$")  # pyright: ignore
+    ax.set_xlabel("Time")  # pyright: ignore
 
-    # -----------
-    # epi-skyline
-    # -----------
-    for i, reproduction_number in enumerate(REPRODUCTION_NUMBERS, start=1):
-        time_axis = np.linspace(0, EPI_MAX_TIME, len(reproduction_number) + 1)
-        skyline_plot(reproduction_number, x=time_axis, step_kwargs={"color": "k"})
-        plt.ylabel(r"$R_t$")  # pyright: ignore
-        plt.xlabel("Time")  # pyright: ignore
-        plt.savefig(output_dir / f"epi-skyline_{i}.svg")  # pyright: ignore
-        plt.close()
 
-    # -------------
-    # epi-multitype
-    # -------------
-    sort_idx = np.argsort(MIGRATION_PREDICTOR.flatten())
-    plt.plot(  # pyright: ignore
-        MIGRATION_PREDICTOR.flatten()[sort_idx],
-        MIGRATION_RATES.flatten()[sort_idx],
+def _plot_epi_multitype(ax: Axes):
+    sort_idx = np.argsort(EPI_MULTITYPE.migration_predictor.flatten())
+    ax.plot(  # pyright: ignore
+        EPI_MULTITYPE.migration_predictor.flatten()[sort_idx],
+        EPI_MULTITYPE.migration_rates.flatten()[sort_idx],
         marker="o",
         color="k",
     )
-    plt.xlabel("Migration predictor")  # pyright: ignore
-    plt.ylabel("Migration rate")  # pyright: ignore
-    plt.savefig(output_dir / "epi-multitype.svg")  # pyright: ignore
-    plt.close()
+    ax.set_xlabel(r"$x_{ij}$")  # pyright: ignore
+    ax.set_ylabel(r"$m_{ij}$")  # pyright: ignore
 
-    # -------------
-    # fbd-no-traits
-    # -------------
-    for i, rates in enumerate(RATES, start=1):
-        time_axis = np.linspace(0, FBD_MAX_TIME, len(rates["birth"]) + 1)
-        skyline_plot(
-            list(reversed(rates["birth"])),
-            x=time_axis,
-            step_kwargs={"label": r"$\lambda$"},
-        )
-        skyline_plot(
-            list(reversed(rates["death"])), x=time_axis, step_kwargs={"label": r"$\mu$"}
-        )
-        plt.gca().invert_xaxis()
-        plt.ylabel("Rate")  # pyright: ignore
-        plt.xlabel("Time")  # pyright: ignore
-        plt.legend()  # pyright: ignore
-        plt.savefig(output_dir / f"fbd-no-traits_{i}.svg")  # pyright: ignore
-        plt.close()
 
-    # -----------
-    # fbd-2traits
-    # -----------
-    time_axis = np.linspace(0, FBD_MAX_TIME, N_TIME_BINS + 1)
+def _plot_fbd_no_traits(ax: Axes, birth_rate: SkylineArray, death_rate: SkylineArray):
     skyline_plot(
-        list(reversed(BIRTH_RATE_TRAIT1_UNSET)),
-        x=time_axis,
-        step_kwargs={"label": r"$\lambda_{0,0} = \lambda_{0,1}$", "color": "C0"},
+        list(reversed(birth_rate)),
+        x=FBD_TIME_AXIS,
+        step_kwargs={"label": r"$\lambda$"},
+        ax=ax,
     )
     skyline_plot(
-        list(reversed(BIRTH_RATE_TRAIT1_SET)),
-        x=time_axis,
+        list(reversed(death_rate)),
+        x=FBD_TIME_AXIS,
+        step_kwargs={"label": r"$\mu$"},
+        ax=ax,
+    )
+    ax.invert_xaxis()
+    ax.set_ylabel("Rate")  # pyright: ignore
+    ax.set_xlabel("Time")  # pyright: ignore
+    ax.legend()  # pyright: ignore
+
+
+def _plot_fbd_2traits(ax: Axes):
+    skyline_plot(
+        list(reversed(FBD_2TRAITS.birth_rate_trait1_unset)),
+        x=FBD_TIME_AXIS,
+        step_kwargs={"label": r"$\lambda^{(00)} = \lambda^{(01)}$", "color": "C0"},
+        ax=ax,
+    )
+    skyline_plot(
+        list(reversed(FBD_2TRAITS.birth_rate_trait1_set)),
+        x=FBD_TIME_AXIS,
         step_kwargs={
-            "label": r"$\lambda_{1,0} = \lambda_{1,1}$",
+            "label": r"$\lambda^{(10)} = \lambda^{(11)}$",
             "color": "C0",
             "linestyle": "dashed",
         },
+        ax=ax,
     )
     skyline_plot(
-        list(reversed(DEATH_RATE_TRAIT1_UNSET)),
-        x=time_axis,
-        step_kwargs={
-            "label": r"$\mu_{0,0} = \mu_{0,1}$",
-            "color": "C1",
-        },
+        list(reversed(FBD_2TRAITS.death_rate_trait1_unset)),
+        x=FBD_TIME_AXIS,
+        step_kwargs={"label": r"$\mu^{(00)} = \mu^{(01)}$", "color": "C1"},
+        ax=ax,
     )
     skyline_plot(
-        list(reversed(DEATH_RATE_TRAIT1_SET)),
-        x=time_axis,
+        list(reversed(FBD_2TRAITS.death_rate_trait1_set)),
+        x=FBD_TIME_AXIS,
         step_kwargs={
-            "label": r"$\mu_{1,0} = \mu_{1,1}$",
+            "label": r"$\mu^{(10)} = \mu^{(11)}$",
             "color": "C1",
             "linestyle": "dashed",
         },
+        ax=ax,
     )
-    plt.gca().invert_xaxis()
-    plt.ylabel("Rate")  # pyright: ignore
-    plt.xlabel("Time")  # pyright: ignore
-    plt.legend()  # pyright: ignore
-    plt.savefig(output_dir / "fbd-2traits.svg")  # pyright: ignore
+
+    ax.invert_xaxis()
+    ax.set_ylabel("Rate")  # pyright: ignore
+    ax.set_xlabel("Time")  # pyright: ignore
+    ax.legend()  # pyright: ignore
+
+
+def plot_scenarios():
+    _, axes = plt.subplots(2, 4, figsize=(14, 6), layout="constrained")  # pyright: ignore
+
+    for ax, label in zip(axes.flat, string.ascii_lowercase):
+        ax.text(
+            -0.22, 0.95, label, transform=ax.transAxes, fontsize=15, fontweight="bold"
+        )
+
+    for i, scenario in enumerate(EPI_SKYLINE_SCENARIOS.values()):
+        _plot_epi_skyline(axes[0, i], scenario.reproduction_number)
+    _plot_epi_multitype(axes[0, 3])
+
+    for i, scenario in enumerate(FBD_NO_TRAITS_SCENARIOS.values()):
+        _plot_fbd_no_traits(axes[1, i], scenario.birth_rate, scenario.death_rate)
+    _plot_fbd_2traits(axes[1, 3])
+
+    plt.savefig(settings.figures_dir / "scenarios.svg")  # pyright: ignore
     plt.close()

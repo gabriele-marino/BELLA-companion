@@ -1,11 +1,11 @@
-from typing import Any
+from typing import Any, TypeAlias
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
 from numpy.typing import ArrayLike
 
-Color = (
+Color: TypeAlias = (
     str
     | np.typing.NDArray[np.floating]
     | tuple[float, float, float]
@@ -19,25 +19,17 @@ def skyline_plot(
     ax: Axes | None = None,
     step_kwargs: dict[str, Any] | None = None,
 ) -> Axes:
-    """
-    Plot a skyline (step) plot.
+    """Skyline (step) plot.
 
-    Parameters
-    ----------
-    data : ArrayLike
-        The y values for the skyline plot, of shape (n_points,).
-    x : ArrayLike | None, optional
-        The x values, of shape (n_points + 1,), by default None (uses indices).
-        The first x value corresponds to the start of the first step, the
-        last x value corresponds to the end of the last step.
-    ax : Axes | None, optional
-        The matplotlib Axes to plot on, by default None (uses current Axes).
-    step_kwargs : dict[str, Any] | None, optional
-        Additional keyword arguments for the step plot, by default None.
+    Args:
+        data: The y values for the skyline plot, of shape (n_points,).
+        x: The x values, of shape (n_points + 1,). If None, uses indices.
+            If provided, the first x value corresponds to the start of the first step,
+            and the last x value corresponds to the end of the last step.
+        ax: The matplotlib Axes to plot on. If None, uses the current Axes.
+        step_kwargs: Additional keyword arguments for the step plot.
 
-    Returns
-    -------
-    Axes
+    Returns:
         The matplotlib Axes with the plot.
     """
     data = np.asarray(data, dtype=np.float64)
@@ -70,47 +62,29 @@ def ribbon_plot(
     show_median: bool = True,
     median_kwargs: dict[str, Any] | None = None,
 ) -> Axes:
-    """
-    Plot a ribbon plot with uncertainty intervals.
+    """Ribbon plot with uncertainty intervals.
 
-    Parameters
-    ----------
-    y : ArrayLike
-        The y values, of shape (n_samples, n_points).
-    x : ArrayLike | None, optional
-        The x values, by default None (uses indices).
-        If skyline is True, x should have shape (n_points + 1,),
-        where the first x value corresponds to the start of the first step,
-        the last x value corresponds to the end of the last step.
-        If skyline is False, x should have shape (n_points,).
-    color : str | None, optional
-        The color for the plot, by default None.
-    label : str | None, optional
-        The label for the median line, by default None.
-    ax : Axes | None, optional
-        The matplotlib Axes to plot on, by default None (uses current Axes).
-    skyline : bool, optional
-        Whether to use a skyline (step) plot, by default False.
-    lower_percentile : float, optional
-        The lower percentile for the percentile interval, by default 2.5.
-    upper_percentile : float, optional
-        The upper percentile for the percentile interval, by default 97.5.
-    show_fill : bool, optional
-        Whether to show the percentile interval fill, by default True.
-    fill_kwargs : dict[str, Any] | None, optional
-        Additional keyword arguments for the fill_between call, by default None.
-    show_samples : bool, optional
-        Whether to show individual sample lines, by default True.
-    samples_kwargs : dict[str, Any] | None, optional
-        Additional keyword arguments for the sample lines, by default None.
-    show_median : bool, optional
-        Whether to show the median line, by default True.
-    median_kwargs : dict[str, Any] | None, optional
-        Additional keyword arguments for the median line, by default None.
+    Args:
+        y: The y values, of shape (n_samples, n_points).
+        x: The x values. If None, uses indices.
+            If skyline is False, x should have shape (n_points,).
+            If skyline is True, x should have shape (n_points + 1,),
+            where the first x value corresponds to the start of the first step,
+            the last x value corresponds to the end of the last step.
+        color: The color for the plot.
+        label: The label for the median line.
+        ax: The matplotlib Axes to plot on. If None, uses the current Axes.
+        skyline: Whether to use a skyline (step) plot.
+        lower_percentile: The lower percentile for the percentile interval.
+        upper_percentile: The upper percentile for the percentile interval.
+        show_fill: Whether to show the percentile interval fill.
+        fill_kwargs: Additional keyword arguments for the fill_between call.
+        show_samples: Whether to show individual sample lines.
+        samples_kwargs: Additional keyword arguments for the sample lines.
+        show_median: Whether to show the median line.
+        median_kwargs: Additional keyword arguments for the median line.
 
-    Returns
-    -------
-    Axes
+    Returns:
         The matplotlib Axes with the plot.
     """
     if ax is None:

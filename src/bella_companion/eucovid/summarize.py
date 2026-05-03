@@ -1,14 +1,14 @@
 import os
 import subprocess
 from itertools import chain
-from pathlib import Path
 
 from bella_companion.eucovid.settings import N_SEEDS
+from bella_companion.settings import settings
 
 
 def summarize_eucovid():
-    logs_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"]) / "eucovid"
-    base_summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"], "eucovid")
+    logs_dir = settings.bella_beast_output_dir / "eucovid"
+    base_summaries_dir = settings.bella_summaries_dir / "eucovid"
 
     for model, experiment in [
         ("BELLA", "flights_and_populations"),

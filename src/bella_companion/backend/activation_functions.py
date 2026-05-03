@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 import numpy as np
 from numpy.typing import ArrayLike
 
-from bella_companion.backend.type_hints import Array
+from bella_companion.typings import Array
 
 
 class ActivationFunction(ABC):
@@ -52,15 +51,13 @@ class Tanh(ActivationFunction):
         return np.tanh(x)
 
 
-ACTIVATION_FUNCTIONS_REGISTRY = {
+_ACTIVATION_FUNCTIONS_REGISTRY = {
     class_.__name__.lower(): class_ for class_ in ActivationFunction.__subclasses__()
 }
 ActivationFunctionLike = str | ActivationFunction
 
 
-def as_activation_function(
-    activation: ActivationFunctionLike, **kwargs: dict[str, Any]
-) -> ActivationFunction:
+def as_activation_function(activation: ActivationFunctionLike) -> ActivationFunction:
     if isinstance(activation, str):
-        return ACTIVATION_FUNCTIONS_REGISTRY[activation.lower()](**kwargs)
+        return _ACTIVATION_FUNCTIONS_REGISTRY[activation.lower()]()
     return activation

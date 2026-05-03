@@ -1,21 +1,33 @@
-from bella_companion.simulations.scenarios.epi_multitype import EPI_MULTITYPE_SCENARIO
+from bella_companion.simulations.scenarios.common import (
+    EPI_TIME_AXIS,
+    FBD_RATE_UPPER,
+    FBD_TIME_AXIS,
+    MIGRATION_RATE_UPPER,
+    N_TIME_BINS,
+    REPRODUCTION_NUMBER_UPPER,
+)
+from bella_companion.simulations.scenarios.epi_multitype import EPI_MULTITYPE
 from bella_companion.simulations.scenarios.epi_skyline import EPI_SKYLINE_SCENARIOS
-from bella_companion.simulations.scenarios.fbd_2traits import FBD_2TRAITS_SCENARIO
+from bella_companion.simulations.scenarios.fbd_2traits import FBD_2TRAITS
 from bella_companion.simulations.scenarios.fbd_no_traits import FBD_NO_TRAITS_SCENARIOS
-from bella_companion.simulations.scenarios.globals import EPI_MAX_TIME, FBD_MAX_TIME
-from bella_companion.simulations.scenarios.scenario import Scenario
+from bella_companion.typings import Scenario, ScenarioID
 
-SCENARIOS = {
-    "fbd-2traits": FBD_2TRAITS_SCENARIO,
-    **{
-        f"fbd-no-traits_{i}": scenario
-        for i, scenario in enumerate(FBD_NO_TRAITS_SCENARIOS, start=1)
-    },
-    "epi-multitype": EPI_MULTITYPE_SCENARIO,
-    **{
-        f"epi-skyline_{i}": scenario
-        for i, scenario in enumerate(EPI_SKYLINE_SCENARIOS, start=1)
-    },
+SCENARIOS: dict[ScenarioID, Scenario] = {
+    **EPI_SKYLINE_SCENARIOS,
+    "epi-multitype": EPI_MULTITYPE,
+    **FBD_NO_TRAITS_SCENARIOS,
+    "fbd-2traits": FBD_2TRAITS,
 }
-
-__all__ = ["SCENARIOS", "Scenario", "EPI_MAX_TIME", "FBD_MAX_TIME"]
+__all__ = [
+    "EPI_TIME_AXIS",
+    "FBD_RATE_UPPER",
+    "FBD_TIME_AXIS",
+    "MIGRATION_RATE_UPPER",
+    "N_TIME_BINS",
+    "REPRODUCTION_NUMBER_UPPER",
+    "SCENARIOS",
+    "EPI_MULTITYPE",
+    "EPI_SKYLINE_SCENARIOS",
+    "FBD_NO_TRAITS_SCENARIOS",
+    "FBD_2TRAITS",
+]

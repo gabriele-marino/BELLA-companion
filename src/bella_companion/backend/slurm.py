@@ -1,41 +1,29 @@
 import re
 import subprocess
 from pathlib import Path
-from typing import Any
 
-STATUS_KEY = "status"
-TOTAL_HOURS_KEY = "total_hours"
+from bella_companion.typings import JobID, JobMetadata
 
 
-def submit_job(
+def sbatch(
     command: str,
-    log_dir: str | Path,
+    log_dir: Path,
     time: str = "240:00:00",
     cpus: int = 1,
     mem_per_cpu: int = 2000,
-) -> str:
-    """
-    Submits a job to the SLURM scheduler.
+) -> JobID:
+    """Submits a job to the SLURM scheduler.
 
-    Parameters
-    ----------
-    command : str
-        The command to execute.
-    log_dir : str | Path
-        Directory to store log files.
-    time : str, optional
-        Maximum runtime for the job in the format 'HH:MM:SS', by default "240:00:00".
-    cpus : int, optional
-        Number of CPU cores to allocate, by default 1.
-    mem_per_cpu : int, optional
-        Memory per CPU in MB, by default 2000.
+    Args:
+        command: The command to execute.
+        log_dir: Directory to store log files.
+        time: Maximum runtime for the job in the format 'HH:MM:SS', by default "240:00:00".
+        cpus: Number of CPU cores to allocate, by default 1.
+        mem_per_cpu: Memory per CPU in MB, by default 2000.
 
-    Returns
-    -------
-    str
+    Returns:
         The job ID of the submitted job.
     """
-    log_dir = Path(log_dir)
     cmd = " ".join(
         [
             "sbatch",
@@ -60,20 +48,8 @@ def submit_job(
     return job_id.group(1)
 
 
-def get_job_metadata(job_id: str) -> dict[str, Any]:
-    """
-    Retrieves metadata for a submitted SLURM job.
-
-    Parameters
-    ----------
-    job_id : str
-        The job ID.
-
-    Returns
-    -------
-    dict[str, Any]
-        A dictionary containing the job status and total wall-clock time in hours.
-    """
+def get_job_metadata(job_id: JobID) -> JobMetadata:
+    """Retrieves metadata for a submitted SLURM job."""
     output = subprocess.run(
         f"myjobs -j {job_id}", shell=True, capture_output=True, text=True
     ).stdout
@@ -96,4 +72,4 @@ def get_job_metadata(job_id: str) -> dict[str, Any]:
     hours, minutes, seconds = map(int, wall_clock.split(":"))
     total_hours = days * 24 + hours + minutes / 60 + seconds / 3600
 
-    return {STATUS_KEY: status, TOTAL_HOURS_KEY: total_hours}
+    return {"status": status, "total_hours": total_hours}

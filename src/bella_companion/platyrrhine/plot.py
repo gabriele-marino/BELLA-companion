@@ -2,7 +2,6 @@ import os
 from collections.abc import Iterable, Sequence
 from glob import glob
 from itertools import product
-from pathlib import Path
 
 import joblib
 import matplotlib.pyplot as plt
@@ -16,26 +15,20 @@ from phylogenie.draw import (
     draw_colored_tree_continuous,
 )
 
-from bella_companion.backend import (
-    MLPEnsemble,
-    Model,
-    Sigmoid,
-    Weights,
-    get_median_shap_feature_importance_distribution,
-    normalize,
-    ribbon_plot,
-    skyline_plot,
-)
+# from bella_companion.backend import (
+#    MLPEnsemble,
+#    Model,
+#    Weights,
+# )
 from bella_companion.platyrrhine.settings import CHANGE_TIMES, TYPES
+from bella_companion.settings import settings
 
 TYPE_LABELS = {0: "0 (Tiny)", 1: "1 (Small)", 2: "2 (Medium)", 3: "3 (Large)"}
 
 
-def plot_platyrrhine_estimates():
-    summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "platyrrhine"
-    base_output_dir = (
-        Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine" / "estimates"
-    )
+def plot_estimates():
+    summaries_dir = settings.summaries_dir / "platyrrhine"
+    base_output_dir = settings.figures_dir / "platyrrhine" / "estimates"
 
     log_summary = pd.read_csv(summaries_dir / "BELLA.csv")  # pyright: ignore
     for t in TYPES:
@@ -162,11 +155,11 @@ def plot_platyrrhine_estimates():
             plt.close()
 
 
-def plot_platyrrhine_trees():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine" / "trees"
+def plot_trees():
+    output_dir = settings.figures_dir / "platyrrhine" / "trees"
     os.makedirs(output_dir, exist_ok=True)
 
-    tree_file = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "platyrrhine" / "mcc.nexus"
+    tree_file = settings.summaries_dir / "platyrrhine" / "mcc.nexus"
     tree = load_nexus(tree_file)["TREE_MCC_median"]
     tree.ladderize()
     for node in tree:
@@ -215,9 +208,9 @@ def plot_platyrrhine_trees():
         plt.close()
 
 
-def plot_platyrrhine_shap():
-    summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / "platyrrhine"
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "platyrrhine" / "shap"
+def plot_shap():
+    summaries_dir = settings.summaries_dir / "platyrrhine"
+    output_dir = settings.figures_dir / "platyrrhine" / "shap"
     os.makedirs(output_dir, exist_ok=True)
 
     weights: list[dict[str, list[Weights]]] = joblib.load(
@@ -261,7 +254,7 @@ def plot_platyrrhine_shap():
         plt.close()
 
 
-def plot_platyrrhine():
-    plot_platyrrhine_estimates()
-    plot_platyrrhine_shap()
-    plot_platyrrhine_trees()
+def plot_all():
+    plot_estimates()
+    plot_shap()
+    plot_trees()

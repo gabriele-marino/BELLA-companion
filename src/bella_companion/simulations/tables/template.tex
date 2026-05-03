@@ -1,0 +1,42 @@
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{pdflscape}
+
+\begin{document}
+
+\begin{landscape}
+    \begin{table*}[h!]
+        \centering
+        \begin{tabular}{cccccccccccc}
+            \toprule
+
+            \multicolumn{12}{c}{\textbf{{{METRIC_NAME}}}}                                                                                                                                                                                                                                                                                                      \\
+            \midrule
+
+            \textbf{Scenario} & PA                     & GLM                     & BELLA-1                     & BELLA-2                     & BELLA-3                     & BELLA-4                     & BELLA-5                     & BELLA-6                     & BELLA-7                     & BELLA-8                     & BELLA-9                     \\
+            \midrule
+
+            \texttt{Epi-1}    & {{epi-skyline_1-PA}}   & {{epi-skyline_1-GLM}}   & {{epi-skyline_1-BELLA-1}}   & {{epi-skyline_1-BELLA-2}}   & {{epi-skyline_1-BELLA-3}}   & {{epi-skyline_1-BELLA-4}}   & {{epi-skyline_1-BELLA-5}}   & {{epi-skyline_1-BELLA-6}}   & {{epi-skyline_1-BELLA-7}}   & {{epi-skyline_1-BELLA-8}}   & {{epi-skyline_1-BELLA-9}}   \\[6pt]
+
+            \texttt{Epi-2}    & {{epi-skyline_2-PA}}   & {{epi-skyline_2-GLM}}   & {{epi-skyline_2-BELLA-1}}   & {{epi-skyline_2-BELLA-2}}   & {{epi-skyline_2-BELLA-3}}   & {{epi-skyline_2-BELLA-4}}   & {{epi-skyline_2-BELLA-5}}   & {{epi-skyline_2-BELLA-6}}   & {{epi-skyline_2-BELLA-7}}   & {{epi-skyline_2-BELLA-8}}   & {{epi-skyline_2-BELLA-9}}   \\[6pt]
+
+            \texttt{Epi-3}    & {{epi-skyline_3-PA}}   & {{epi-skyline_3-GLM}}   & {{epi-skyline_3-BELLA-1}}   & {{epi-skyline_3-BELLA-2}}   & {{epi-skyline_3-BELLA-3}}   & {{epi-skyline_3-BELLA-4}}   & {{epi-skyline_3-BELLA-5}}   & {{epi-skyline_3-BELLA-6}}   & {{epi-skyline_3-BELLA-7}}   & {{epi-skyline_3-BELLA-8}}   & {{epi-skyline_3-BELLA-9}}   \\[6pt]
+
+            \texttt{Epi-4}    & {{epi-multitype-PA}}   & {{epi-multitype-GLM}}   & {{epi-multitype-BELLA-1}}   & {{epi-multitype-BELLA-2}}   & {{epi-multitype-BELLA-3}}   & {{epi-multitype-BELLA-4}}   & {{epi-multitype-BELLA-5}}   & {{epi-multitype-BELLA-6}}   & {{epi-multitype-BELLA-7}}   & {{epi-multitype-BELLA-8}}   & {{epi-multitype-BELLA-9}}   \\[6pt]
+
+            \texttt{FBD-1}    & {{fbd-no-traits_1-PA}} & {{fbd-no-traits_1-GLM}} & {{fbd-no-traits_1-BELLA-1}} & {{fbd-no-traits_1-BELLA-2}} & {{fbd-no-traits_1-BELLA-3}} & {{fbd-no-traits_1-BELLA-4}} & {{fbd-no-traits_1-BELLA-5}} & {{fbd-no-traits_1-BELLA-6}} & {{fbd-no-traits_1-BELLA-7}} & {{fbd-no-traits_1-BELLA-8}} & {{fbd-no-traits_1-BELLA-9}} \\[6pt]
+
+            \texttt{FBD-2}    & {{fbd-no-traits_2-PA}} & {{fbd-no-traits_2-GLM}} & {{fbd-no-traits_2-BELLA-1}} & {{fbd-no-traits_2-BELLA-2}} & {{fbd-no-traits_2-BELLA-3}} & {{fbd-no-traits_2-BELLA-4}} & {{fbd-no-traits_2-BELLA-5}} & {{fbd-no-traits_2-BELLA-6}} & {{fbd-no-traits_2-BELLA-7}} & {{fbd-no-traits_2-BELLA-8}} & {{fbd-no-traits_2-BELLA-9}} \\[6pt]
+
+            \texttt{FBD-3}    & {{fbd-no-traits_3-PA}} & {{fbd-no-traits_3-GLM}} & {{fbd-no-traits_3-BELLA-1}} & {{fbd-no-traits_3-BELLA-2}} & {{fbd-no-traits_3-BELLA-3}} & {{fbd-no-traits_3-BELLA-4}} & {{fbd-no-traits_3-BELLA-5}} & {{fbd-no-traits_3-BELLA-6}} & {{fbd-no-traits_3-BELLA-7}} & {{fbd-no-traits_3-BELLA-8}} & {{fbd-no-traits_3-BELLA-9}} \\[6pt]
+
+            \texttt{FBD-4}    & {{fbd-2traits-PA}}     & {{fbd-2traits-GLM}}     & {{fbd-2traits-BELLA-1}}     & {{fbd-2traits-BELLA-2}}     & {{fbd-2traits-BELLA-3}}     & {{fbd-2traits-BELLA-4}}     & {{fbd-2traits-BELLA-5}}     & {{fbd-2traits-BELLA-6}}     & {{fbd-2traits-BELLA-7}}     & {{fbd-2traits-BELLA-8}}     & {{fbd-2traits-BELLA-9}}     \\[6pt]
+
+            \bottomrule
+        \end{tabular}
+        \caption{{{METRIC_NAME}} averaged over 100 simulated trees per scenario and across targets, for all scenarios and inference frameworks (PA denotes the predictor-agnostic model). {{CAPTION_EXTRA}}}%
+        \label{tab:{{METRIC_LABEL}}}
+    \end{table*}
+\end{landscape}
+
+\end{document}

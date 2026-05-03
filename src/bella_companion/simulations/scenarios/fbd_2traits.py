@@ -1,86 +1,120 @@
+from dataclasses import dataclass
+from itertools import product
+
 import numpy as np
 from phylogenie.skyline import SkylineVector
 from phylogenie.treesimulator import Sampling, TimedEvent
 from phylogenie.treesimulator.open_population import get_canonical_model
 
-from bella_companion.simulations.scenarios.globals import (
+from bella_companion.simulations.scenarios.common import (
+    FBD_CHANGE_TIMES,
     FBD_MAX_TIME,
     FBD_RATE_UPPER,
     FBD_SAMPLING_RATE,
-)
-from bella_companion.simulations.scenarios.scenario import Scenario
-from bella_companion.simulations.scenarios.utils import (
+    N_TIME_BINS,
     get_prior_params,
     get_start_type_prior_probabilities,
 )
+from bella_companion.targets import SkylineTarget
+from bella_companion.typings import Scenario, SkylineArray
 
-STATES = ["00", "01", "10", "11"]
+
+@dataclass(kw_only=True)
+class FBD2Traits(Scenario):
+    birth_rate_trait1_unset: SkylineArray
+    birth_rate_trait1_set: SkylineArray
+    death_rate_trait1_unset: SkylineArray
+    death_rate_trait1_set: SkylineArray
+
+    def birth_rate(self, trait1: int) -> SkylineArray:
+        return self.birth_rate_trait1_set if trait1 else self.birth_rate_trait1_unset
+
+    @property
+    def birth_rates(self) -> list[SkylineTarget]:
+        return [
+            SkylineTarget("birthRateSP", skyline=self.birth_rate(t1), state=f"{t1}{t2}")
+            for t1, t2 in product([0, 1], repeat=2)
+        ]
+
+    def death_rate(self, trait1: int) -> SkylineArray:
+        return self.death_rate_trait1_set if trait1 else self.death_rate_trait1_unset
+
+    @property
+    def death_rates(self) -> list[SkylineTarget]:
+        return [
+            SkylineTarget("deathRateSP", skyline=self.death_rate(t1), state=f"{t1}{t2}")
+            for t1, t2 in product([0, 1], repeat=2)
+        ]
+
+    @property
+    def targets(self) -> list[SkylineTarget]:
+        return self.birth_rates + self.death_rates
+
+
+_STATES = ["00", "01", "10", "11"]
 _INIT_STATE = "00"
-N_STATES = len(STATES)
-N_TIME_BINS = 10
-_CHANGE_TIMES = np.linspace(0, FBD_MAX_TIME, N_TIME_BINS + 1)[1:-1].tolist()
-BIRTH_RATE_TRAIT1_UNSET = np.linspace(0.6, 0.1, N_TIME_BINS).tolist()
-BIRTH_RATE_TRAIT1_SET = np.linspace(0.2, 0.5, N_TIME_BINS).tolist()
-DEATH_RATE_TRAIT1_UNSET = [0.1] * 4 + [1.0] * 4 + [0.1] * 2
-DEATH_RATE_TRAIT1_SET = [0.1] * 4 + [0.5] * 4 + [0.1] * 2
-DEATH_PREDICTOR = [0] * 4 + [1] * 4 + [0] * 2
-BIRTH_RATES = {
-    "00": BIRTH_RATE_TRAIT1_UNSET,
-    "01": BIRTH_RATE_TRAIT1_UNSET,
-    "10": BIRTH_RATE_TRAIT1_SET,
-    "11": BIRTH_RATE_TRAIT1_SET,
-}
-DEATH_RATES = {
-    "00": DEATH_RATE_TRAIT1_UNSET,
-    "01": DEATH_RATE_TRAIT1_UNSET,
-    "10": DEATH_RATE_TRAIT1_SET,
-    "11": DEATH_RATE_TRAIT1_SET,
-}
-RATES = {"birth": BIRTH_RATES, "death": DEATH_RATES}
+_N_STATES = len(_STATES)
+_BIRTH_RATE_TRAIT1_UNSET = np.linspace(0.6, 0.1, N_TIME_BINS, dtype=np.float64)
+_BIRTH_RATE_TRAIT1_SET = np.linspace(0.2, 0.5, N_TIME_BINS, dtype=np.float64)
+_DEATH_RATE_TRAIT1_UNSET = np.array([0.1] * 4 + [1.0] * 4 + [0.1] * 2)
+_DEATH_RATE_TRAIT1_SET = np.array([0.1] * 4 + [0.5] * 4 + [0.1] * 2)
+_DEATH_PREDICTOR = [0] * 4 + [1] * 4 + [0] * 2
 _MIGRATION_RATES = (
-    np.array([[1, 1, 0], [1, 0, 1], [1, 0, 1], [0, 1, 1]]) * 0.1
+    0.1 * np.array([[1, 1, 0], [1, 0, 1], [1, 0, 1], [0, 1, 1]])
 ).tolist()
 
-model = get_canonical_model(
+_MODEL = get_canonical_model(
     init_state=_INIT_STATE,
-    states=STATES,
+    states=_STATES,
     sampling_rates=FBD_SAMPLING_RATE,
     remove_after_sampling=False,
     birth_rates=SkylineVector(
-        value=list(zip(*BIRTH_RATES.values())), change_times=_CHANGE_TIMES
+        value=np.array(
+            [
+                _BIRTH_RATE_TRAIT1_UNSET,
+                _BIRTH_RATE_TRAIT1_UNSET,
+                _BIRTH_RATE_TRAIT1_SET,
+                _BIRTH_RATE_TRAIT1_SET,
+            ]
+        ).T.tolist(),
+        change_times=FBD_CHANGE_TIMES,
     ),
     death_rates=SkylineVector(
-        value=list(zip(*DEATH_RATES.values())), change_times=_CHANGE_TIMES
+        value=np.array(
+            [
+                _DEATH_RATE_TRAIT1_UNSET,
+                _DEATH_RATE_TRAIT1_UNSET,
+                _DEATH_RATE_TRAIT1_SET,
+                _DEATH_RATE_TRAIT1_SET,
+            ]
+        ).T.tolist(),
+        change_times=FBD_CHANGE_TIMES,
     ),
     migration_rates=_MIGRATION_RATES,
 )
-model.add_event(TimedEvent(time=FBD_MAX_TIME, firings=1.0, fn=Sampling(removal=True)))
+_MODEL.add_event(TimedEvent(time=FBD_MAX_TIME, firings=1.0, fn=Sampling(removal=True)))
 
-FBD_2TRAITS_SCENARIO = Scenario(
-    model=model,
+FBD_2TRAITS = FBD2Traits(
+    name="fbd-2traits",
+    model=_MODEL,
     max_time=FBD_MAX_TIME,
-    targets={
-        f"{rate}Rate": {
-            f"{rate}RateSPi{i}_{s}": values[s][i]
-            for i in range(N_TIME_BINS)
-            for s in STATES
-        }
-        for rate, values in RATES.items()
-    },
-    beast_configs="fbd-2traits",
-    beast_args={
-        "types": ",".join(STATES),
-        "startTypePriorProbs": get_start_type_prior_probabilities(STATES, _INIT_STATE),
+    birth_rate_trait1_unset=_BIRTH_RATE_TRAIT1_UNSET,
+    birth_rate_trait1_set=_BIRTH_RATE_TRAIT1_SET,
+    death_rate_trait1_unset=_DEATH_RATE_TRAIT1_UNSET,
+    death_rate_trait1_set=_DEATH_RATE_TRAIT1_SET,
+    beast_static_data={
+        "types": ",".join(_STATES),
+        "startTypePriorProbs": get_start_type_prior_probabilities(_STATES, _INIT_STATE),
         "processLength": FBD_MAX_TIME,
-        "changeTimes": " ".join(map(str, _CHANGE_TIMES)),
-        **get_prior_params("birthRate", FBD_RATE_UPPER, N_TIME_BINS * N_STATES),
-        **get_prior_params("deathRate", FBD_RATE_UPPER, N_TIME_BINS * N_STATES),
+        "changeTimes": " ".join(map(str, FBD_CHANGE_TIMES)),
+        **get_prior_params("birthRate", FBD_RATE_UPPER, N_TIME_BINS * _N_STATES),
+        **get_prior_params("deathRate", FBD_RATE_UPPER, N_TIME_BINS * _N_STATES),
         "samplingRate": FBD_SAMPLING_RATE,
         "migrationRate": " ".join(map(str, np.array(_MIGRATION_RATES).flatten())),
         "timePredictor": " ".join(
-            list(map(str, np.repeat(np.linspace(0, 1, N_TIME_BINS), N_STATES)))
+            list(map(str, np.repeat(np.linspace(0, 1, N_TIME_BINS), _N_STATES)))
         ),
-        "deathPredictor": " ".join(map(str, np.repeat(DEATH_PREDICTOR, N_STATES))),
+        "deathPredictor": " ".join(map(str, np.repeat(_DEATH_PREDICTOR, _N_STATES))),
         "trait1Predictor": " ".join(map(str, [1, 1, 0, 0] * N_TIME_BINS)),
         "trait2Predictor": " ".join(map(str, [0, 1, 0, 1] * N_TIME_BINS)),
     },

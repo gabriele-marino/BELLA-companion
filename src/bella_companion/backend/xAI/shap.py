@@ -2,163 +2,60 @@ from collections.abc import Iterable
 
 import numpy as np
 import shap  # pyright: ignore
+from jaxtyping import Float
 from joblib import Parallel, delayed
-from numpy.typing import ArrayLike
 from tqdm import tqdm
 
-from bella_companion.backend.type_hints import Array, Model
+from bella_companion.backend.mlp import MLP, BayesMLP
+from bella_companion.settings import memory
+from bella_companion.typings import Array
 
 
-def get_shap_values(
-    model: Model,
-    inputs: ArrayLike,  # (n_samples, n_features)
-    background: ArrayLike | None = None,  # (n_background_samples, n_features)
-) -> Array:  # (n_samples, n_features)
-    """
-    Compute SHAP feature importance values for the given inputs and model.
-
-    Parameters
-    ----------
-    model : Model
-        A callable representing the model.
-    inputs : ArrayLike
-        Input data of shape (n_samples, n_features).
-    background : ArrayLike | None, optional
-        Background data for SHAP explainer of shape (n_background_samples, n_features).
-        Default is None, in which case the inputs are used as background.
-
-    Returns
-    -------
-    Array
-        SHAP values for the inputs, of shape (n_samples, n_features).
-    """
-    inputs = np.asarray(inputs, dtype=np.float64)
+def shap_importance(
+    mlp: MLP,
+    inputs: Float[Array, "batch_size n_features"],  # noqa: F722
+    background: Float[Array, "background_size n_features"] | None = None,  # noqa: F722
+) -> Float[Array, "n_features"]:  # noqa: F821
+    """Compute SHAP feature importance values for a given MLP model and input data."""
     if background is None:
         background = inputs
-    explainer = shap.Explainer(model, background)
-    return explainer(inputs).values  # pyright: ignore
+    explainer = shap.Explainer(mlp, background)
+    shap_values = explainer(inputs).values  # pyright: ignore
+    return np.mean(np.abs(shap_values), axis=0)  # pyright: ignore
 
 
-def get_shap_features_importance(
-    model: Model,
-    inputs: ArrayLike,  # (n_samples, n_features)
-    background: ArrayLike | None = None,  # (n_background_samples, n_features)
-) -> Array:  # (n_features,)
-    """
-    Compute SHAP feature importance values for the given inputs and model.
-
-    Parameters
-    ----------
-    model : Model
-        A callable representing the model.
-    inputs : ArrayLike
-        Input data of shape (n_samples, n_features).
-    background : ArrayLike | None, optional
-        Background data for SHAP explainer of shape (n_background_samples, n_features).
-        Default is None, in which case the inputs are used as background.
-
-    Returns
-    -------
-    Array
-        SHAP feature importance values for the inputs, of shape (n_features,).
-    """
-    shap_values = get_shap_values(model, inputs, background)
-    return np.mean(np.abs(shap_values), axis=0)
+@memory.cache
+def posterior_shap_importance(
+    bayes_mlp: BayesMLP,
+    inputs: Float[Array, "batch_size n_features"],  # noqa: F722
+    background: Float[Array, "background_size n_features"] | None = None,  # noqa: F722
+) -> Float[Array, "n_samples n_features"]:  # noqa: F722
+    """Compute SHAP feature importance values for each sampled MLP model in a Bayesian MLP."""
+    return np.array([shap_importance(mlp, inputs, background) for mlp in bayes_mlp])
 
 
-def get_shap_feature_importance_distribution(
-    models: Iterable[Model],
-    inputs: ArrayLike,  # (n_samples, n_features)
-    background: ArrayLike | None = None,  # (n_background_samples, n_features)
-) -> Array:  # (n_models, n_features)
-    """
-    Compute SHAP feature importance values for an ensemble of models.
-
-    Parameters
-    ----------
-    models : Iterable[Model]
-        An iterable of callables representing the ensemble of models.
-    inputs : ArrayLike
-        Input data of shape (n_samples, n_features).
-    background : ArrayLike | None, optional
-        Background data for SHAP explainer of shape (n_background_samples, n_features).
-        Default is None, in which case the inputs are used as background.
-
-    Returns
-    -------
-    Array
-        SHAP feature importance values for each model in the ensemble,
-        of shape (n_models, n_features).
-    """
-    return np.array(
-        [get_shap_features_importance(model, inputs, background) for model in models]
-    )
-
-
-def get_median_shap_feature_importance(
-    models: Iterable[Model],
-    inputs: ArrayLike,  # (n_samples, n_features)
-    background: ArrayLike | None = None,  # (n_background_samples, n_features)
-) -> Array:  # (n_features)
-    """
-    Compute median SHAP feature importance values for an ensemble of models.
-
-    Parameters
-    ----------
-    models : Iterable[Model]
-        An iterable of callables representing the ensemble of models.
-    inputs : ArrayLike
-        Input data of shape (n_samples, n_features).
-    background : ArrayLike | None, optional
-        Background data for SHAP explainer of shape (n_background_samples, n_features).
-        Default is None, in which case the inputs are used as background.
-
-    Returns
-    -------
-    Array
-        Median SHAP feature importance values across the ensemble,
-        of shape (n_features,).
-    """
-    return np.median(
-        get_shap_feature_importance_distribution(models, inputs, background), axis=0
-    )
-
-
-def get_median_shap_feature_importance_distribution(
-    models: Iterable[Iterable[Model]],
-    inputs: ArrayLike,  # (n_samples, n_features)
-    background: ArrayLike | None = None,  # (n_background_samples, n_features
+@memory.cache
+def posterior_median_shap_importance(
+    bayes_mlps: Iterable[BayesMLP],
+    inputs: Float[Array, "batch_size n_features"],  # noqa: F722
+    background: Float[Array, "background_size n_features"] | None = None,  # noqa: F722
     n_jobs: int = -1,
-) -> Array:  # (n_ensembles, n_features)
-    """
-    Compute median SHAP feature importance values for multiple ensembles of models.
+) -> Float[Array, "n_bayes_mlps n_features"]:  # noqa: F722
+    """Compute the distribution of median posterior SHAP feature importance values for a given set of Bayesian MLPs."""
 
-    Parameters
-    ----------
-    models : Iterable[Iterable[Model]]
-        An iterable of iterables, where each inner iterable represents an ensemble of models.
-    inputs : ArrayLike
-        Input data of shape (n_samples, n_features).
-    background : ArrayLike | None, optional
-        Background data for SHAP explainer of shape (n_background_samples, n_features).
-        Default is None, in which case the inputs are used as background.
-    n_jobs : int, optional
-        The number of parallel jobs to run. Default is -1 (use all available cores).
+    def median_posterior_shap_importance(
+        bayes_mlp: BayesMLP,
+    ) -> Float[Array, "n_features"]:  # noqa: F821
+        return np.median(
+            posterior_shap_importance(bayes_mlp, inputs, background), axis=0
+        )
 
-    Returns
-    -------
-    Array
-        Median SHAP feature importance values for each ensemble,
-        of shape (n_ensembles, n_features).
-    """
     return np.array(
         Parallel(n_jobs=n_jobs)(
-            delayed(get_median_shap_feature_importance)(
-                models=ensemble, inputs=inputs, background=background
-            )
-            for ensemble in tqdm(
-                models,
-                desc="Computing median SHAP feature importance for ensembles",
+            delayed(median_posterior_shap_importance)(bayes_mlp=bayes_mlp)
+            for bayes_mlp in tqdm(
+                bayes_mlps,
+                desc="Computing median posterior SHAP importance distribution",
             )
         )
     )

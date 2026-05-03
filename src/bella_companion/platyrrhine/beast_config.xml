@@ -58,7 +58,7 @@
                                     <weights idref="birthRateW$(n)"/>
                                 </plate>
                                 <hiddenActivation spec="$(hiddenActivation)"/>
-                                <outputActivation spec="bella.activations.Sigmoid" upper="$(birthRateUpper)"/>
+                                <outputActivation spec="Sigmoid" upper="$(birthRateUpper)"/>
                             </skylineValues>
                         </birthRate>
                         <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="@changeTimes" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet">
@@ -69,13 +69,13 @@
                                     <weights idref="deathRateW$(n)"/>
                                 </plate>
                                 <hiddenActivation spec="$(hiddenActivation)"/>
-                                <outputActivation spec="bella.activations.Sigmoid" upper="$(deathRateUpper)"/>
+                                <outputActivation spec="Sigmoid" upper="$(deathRateUpper)"/>
                             </skylineValues>
                         </deathRate>
                         <samplingRate id="samplingRateSP" spec="SkylineVectorParameter" skylineValues="@samplingRate" changeTimes="$(samplingChangeTimes)" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet"/>
                         <migrationRate id="migrationRateSP" spec="SkylineMatrixParameter" skylineValues="@migrationRate" typeSet="@typeSet"/>
                         <removalProb spec="SkylineVectorParameter" skylineValues="0.0" typeSet="@typeSet"/>
-                        <rhoSampling spec="TimedParameter" values="0.44" times="0.0" timesAreAges="true" typeSet="@typeSet"/>
+                        <rhoSampling spec="TimedParameter" values="0.44" times="0.0" timesAreAges="true" processLength="@tree" typeSet="@typeSet"/>
                     </parameterization>
                     <startTypePriorProbs spec="RealParameter" value="$(startTypePriorProbs)"/>
                 </distribution>

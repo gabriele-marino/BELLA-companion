@@ -4,15 +4,16 @@ from pathlib import Path
 
 from phylogenie import load_fasta
 
-from bella_companion.backend import submit_beast_job
+from bella_companion.backend.beast import submit_job
 from bella_companion.eucovid.settings import MSA_FILE, N_SEEDS
+from bella_companion.settings import settings
 
 THIS_DIR = Path(__file__).parent
 
 
 def run_eucovid():
-    base_output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"]) / "eucovid"
-    base_log_dir = Path(os.environ["BELLA_SBATCH_LOG_DIR"]) / "eucovid"
+    base_output_dir = settings.bella_beast_output_dir / "eucovid"
+    base_log_dir = settings.bella_sbatch_log_dir / "eucovid"
     beast_configs_dir = Path(__file__).parent / "beast_configs"
 
     for seed, (model, experiment, predictors) in product(

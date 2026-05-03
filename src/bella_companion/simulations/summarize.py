@@ -1,32 +1,36 @@
 import json
 import os
-from pathlib import Path
 
 import joblib
 
-from bella_companion.backend import read_weights_dir, summarize_logs_dir
-from bella_companion.settings import BELLA_SETTINGS
-from bella_companion.simulations.run import JOB_IDS_FILENAME
+from bella_companion.backend.beast import read_weights_dir, summarize_logs_dir
+from bella_companion.settings import settings
 from bella_companion.simulations.scenarios import SCENARIOS
+from bella_companion.typings import ModelJobBatch
 
 
-def summarize_simulations():
-    output_dir = Path(os.environ["BELLA_BEAST_OUTPUT_DIR"])
-    with open(output_dir / JOB_IDS_FILENAME, "r") as f:
-        job_ids: dict[str, dict[str, dict[str, str]]] = json.load(f)
+def summarize():
+    output_dir = settings.beast_output_dir
 
-    for scenario_name, scenario in SCENARIOS.items():
-        summaries_dir = Path(os.environ["BELLA_SUMMARIES_DIR"]) / scenario_name
+    for scenario_id, scenario in SCENARIOS.items():
+        with open(settings.job_registry_dir / f"{scenario_id}.json", "r") as f:
+            model_job_ids: ModelJobBatch = json.load(f)
+
+        summaries_dir = settings.summaries_dir / scenario_id
         os.makedirs(summaries_dir, exist_ok=True)
-        for model in job_ids[scenario_name]:
-            logs_dir = output_dir / scenario_name / model
-            print(f"Summarizing {scenario_name} - {model}")
+        for model, job_ids in model_job_ids.items():
+            logs_dir = output_dir / scenario_id / model
+            print(f"Summarizing {scenario_id} - {model}")
             summaries = summarize_logs_dir(
                 logs_dir,
-                target_columns=[c for t in scenario.targets.values() for c in t],
-                job_ids=job_ids[scenario_name][model],
+                target_columns=[
+                    target_key
+                    for target in scenario.targets
+                    for target_key in target.keys
+                ],
+                job_ids=job_ids,
             )
             summaries.to_csv(summaries_dir / f"{model}.csv", index=False)
-            if model in BELLA_SETTINGS:
+            if model in settings.bella_model_configs:
                 weights = read_weights_dir(logs_dir)
                 joblib.dump(weights, summaries_dir / f"{model}.weights.pkl")

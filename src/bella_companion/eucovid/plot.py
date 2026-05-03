@@ -1,6 +1,5 @@
 import os
 from datetime import date, datetime, timedelta
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,10 +12,6 @@ from phylogenie.draw import CalibrationNode, draw_colored_dated_tree_categorical
 
 from bella_companion.backend import (
     MLPEnsemble,
-    get_partial_dependence_plot_distribution,
-    normalize,
-    read_log_file,
-    ribbon_plot,
 )
 from bella_companion.eucovid.settings import (
     COLORS,
@@ -24,14 +19,15 @@ from bella_companion.eucovid.settings import (
     N_COUNTRIES,
     N_SEEDS,
 )
+from bella_companion.settings import settings
 
 
 def plot_eucovid_flights_over_populations():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
+    output_dir = settings.bella_figures_dir / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
     summaries_dir = (
-        Path(os.environ["BELLA_SUMMARIES_DIR"]) / "eucovid" / "flights_over_populations"
+        settings.bella_summaries_dir / "eucovid" / "flights_over_populations"
     )
 
     log = read_log_file(summaries_dir / "GLM" / "MCMC.combined.log", burn_in=0.0)
@@ -66,12 +62,10 @@ def plot_eucovid_flights_over_populations():
 
 
 def plot_eucovid_flights_and_populations():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
+    output_dir = settings.bella_figures_dir / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
-    summaries_dir = (
-        Path(os.environ["BELLA_SUMMARIES_DIR"]) / "eucovid" / "flights_and_populations"
-    )
+    summaries_dir = settings.bella_summaries_dir / "eucovid" / "flights_and_populations"
 
     mlps = MLPEnsemble.from_log_file(
         log_file=summaries_dir / "BELLA" / "MCMC.combined.log",
@@ -119,11 +113,11 @@ def plot_eucovid_flights_and_populations():
 
 
 def plot_eucovid_trees():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
+    output_dir = settings.bella_figures_dir / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
     summaries_dir = (
-        Path(os.environ["BELLA_SUMMARIES_DIR"]) / "eucovid" / "flights_over_populations"
+        settings.bella_summaries_dir / "eucovid" / "flights_over_populations"
     )
 
     for model in ["GLM", "BELLA"]:
@@ -165,14 +159,10 @@ def plot_eucovid_trees():
 
 
 def plot_eucovid_sankey():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
+    output_dir = settings.bella_figures_dir / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
-    runs_dir = (
-        Path(os.environ["BELLA_BEAST_OUTPUT_DIR"])
-        / "eucovid"
-        / "flights_over_populations"
-    )
+    runs_dir = settings.bella_beast_output_dir / "eucovid" / "flights_over_populations"
 
     AGES = [
         0.173,  # 63 days
@@ -341,11 +331,11 @@ def plot_eucovid_sankey():
 
 
 def plot_likelihood():
-    output_dir = Path(os.environ["BELLA_FIGURES_DIR"]) / "eucovid"
+    output_dir = settings.bella_figures_dir / "eucovid"
     os.makedirs(output_dir, exist_ok=True)
 
     summaries_dir = (
-        Path(os.environ["BELLA_SUMMARIES_DIR"]) / "eucovid" / "flights_over_populations"
+        settings.bella_summaries_dir / "eucovid" / "flights_over_populations"
     )
 
     glm_log = read_log_file(summaries_dir / "GLM" / "MCMC.combined.log", burn_in=0.0)

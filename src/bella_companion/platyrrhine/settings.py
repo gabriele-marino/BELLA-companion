@@ -13,3 +13,4 @@ TYPES = list(range(4))
 CHANGE_TIMES: list[float] = (
     pd.read_csv(CHANGE_TIMES_FILE, header=None).values.flatten().tolist()  # pyright: ignore
 )
+N_TIME_BINS = len(CHANGE_TIMES) + 1
