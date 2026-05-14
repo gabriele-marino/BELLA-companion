@@ -1,6 +1,6 @@
 \subsection{Phylogeographic analysis of early SARS-CoV-2 spread in Europe}
 
-We analyzed the early spread of COVID-19 across Europe using an open access dataset comprising 123 SARS-CoV-2 full viral genomes sampled between the start of the pandemic and 8 March 2020. 
+We analyzed the early spread of COVID-19 across Europe using an open access dataset comprising 123 SARS-CoV-2 full viral genomes sampled between the start of the pandemic and 8 March 2020.
 
 The sequences were downloaded from GenBank~\cite{ncbi_virus} on 16 January 2026 via LAPIS~\cite{chen2023lapis}. We retained sequences with a Nextclade QC overall score below 100 to maximize data availability while excluding those flagged as \textit{bad}~\cite{aksamentov2021nextclade}. This score accounts for missing data (fewer than 3,000 nucleotides), mixed sites, private mutation clusters, and premature stop codons. Finally, we masked the first 100 and last 200 nucleotides, as well as additional flagged sites, following the Nextstrain \texttt{ncov} pipeline~\cite{nextstrain_ncov_2026}.
 
@@ -8,7 +8,7 @@ The dataset included 30 genomes randomly selected from China (the origin of the 
 For France, three sequences were included: although 20 sequences were available during the study period, 17 belonged to a single hospital cluster. To avoid bias from over-represented transmission chains, only one representative from this cluster was retained. Of the remaining three sequences, two passed quality filters.
 The remaining European countries were combined into a composite “Other European” deme, from which 30 genomes were randomly selected from all other available European sequences, with country-level sampling probabilities weighted by the number of cases reported by the European Centre for Disease Prevention and Control (ECDC) during the study period.
 
-We used these sequences to jointly infer transmission dynamics and the phylogeny. 
+We used these sequences to jointly infer transmission dynamics and the phylogeny.
 For the evolution of the sequences along the tree, we assumed an HKY model \cite{hasegawa1985dating} with empirical base frequencies.
 Rate heterogeneity among sites was accommodated with four gamma-distributed categories, with the gamma shape parameter assigned an exponential prior (mean 0.5).
 The transition/transversion ratio (\(\kappa\)) was assigned a lognormal prior (mean 1.0, scale 1.25).
@@ -23,7 +23,12 @@ Sampling proportions were assigned uniform priors, bounded between the ratio of 
 We modeled migration rates between countries using the number of daily air passengers as a predictor, normalized by source-country population size. This choice was motivated by repeated evidence that air travel strongly shapes the spatial spread of respiratory viruses, including SARS-CoV-2 \cite{lemey2020accommodating, valenzuela2021comprehensive}.
 We used flight volume data from the Eurostat transport datasets (\texttt{avia\_paexcc} \cite{eurostat_avia_paexcc} and \texttt{avia\_paocc} \cite{eurostat_avia_paocc}) for December 2019 and January–March 2020, together with country population data from the 2020 World Development Indicators \cite{worldbank_population_total}.
 
-The mapping from input predictors to migration rates was parameterized using a generalized linear model (GLM) and a BELLA model consisting of two hidden layers with 16 and 8 neurons, respectively.
+The migration-rate matrix was modeled as piecewise constant through time, with change points on 1 January, 1 February, and 1 March 2020. The mapping from input predictors to migration rates was parameterized using a generalized linear model (GLM) and a BELLA model consisting of two hidden layers with 16 and 8 neurons, respectively.
+\rv{
+    For each time interval $k$ and ordered country pair $(i,j)$ with $i \neq j$, the predictor was the number of daily air passengers from country $i$ to country $j$ per 100,000 inhabitants of the source country, log transformed and then normalized, denoted by $a_{ij,k}$.
+    In this setting, BELLA takes as input the scalar predictor $a_{ij,k}$ and outputs the corresponding migration rate $m_{ij,k}$.
+    Deme-specific reproduction numbers, sampling proportions, the become-uninfectious rate, and the origin time of the birth--death process were not predicted by BELLA and were instead fixed or estimated from their standard priors as described above.
+}
 We used standard normal priors \(\mathcal{N}(0, 1)\) for the neural network weights in BELLA and for the growth factors in the GLM. The GLM intercept was assigned a lognormal prior (mean = 0, scale = 1), and BELLA employed a \texttt{softplus} output activation function.
 For each analysis, we ran three independent MCMC chains with different random seeds, each consisting of 10,000,000 steps. The first 10\% of samples were discarded as burn-in, and convergence was verified by confirming that all chains reached the same posterior distributions and that the posterior effective sample size exceeded 200.
 To summarize phylogenetic uncertainty, we computed an MCC tree using TreeAnnotator from BEAST 2 \cite{bouckaert2019beast}.
