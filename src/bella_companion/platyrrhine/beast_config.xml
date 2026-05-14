@@ -50,7 +50,7 @@
             <distribution id="likelihood" spec="CompoundDistribution">
                 <distribution spec="BirthDeathMigrationDistribution" conditionOnRoot="true" tree="@tree" typeTraitSet="@typeTraitSet">
                     <parameterization id="BDMMParameterization" spec="CanonicalParameterization" processLength="@tree" typeSet="@typeSet">
-                        <birthRate id="birthRateSP" spec="SkylineVectorParameter" changeTimes="@changeTimes" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet">
+                        <birthRate id="birthRateSP" spec="SkylineVectorParameter" changeTimes="@changeTimes" timesAreAges="true" processLength="@tree" typeSet="@typeSet">
                             <skylineValues id="birthRate" spec="bella.BayesMLP" nodes="$(nodes)">
                                 <predictor spec="RealParameter" value="$(timePredictor)"/>
                                 <predictor spec="RealParameter" value="$(log10BMPredictor)"/>
@@ -61,7 +61,7 @@
                                 <outputActivation spec="Sigmoid" upper="$(birthRateUpper)"/>
                             </skylineValues>
                         </birthRate>
-                        <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="@changeTimes" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet">
+                        <deathRate id="deathRateSP" spec="SkylineVectorParameter" changeTimes="@changeTimes" timesAreAges="true" processLength="@tree" typeSet="@typeSet">
                             <skylineValues id="deathRate" spec="bella.BayesMLP" nodes="$(nodes)">
                                 <predictor spec="RealParameter" value="$(timePredictor)"/>
                                 <predictor spec="RealParameter" value="$(log10BMPredictor)"/>
@@ -72,7 +72,7 @@
                                 <outputActivation spec="Sigmoid" upper="$(deathRateUpper)"/>
                             </skylineValues>
                         </deathRate>
-                        <samplingRate id="samplingRateSP" spec="SkylineVectorParameter" skylineValues="@samplingRate" changeTimes="$(samplingChangeTimes)" timesAreAges="true" processLength="$(processLength)" typeSet="@typeSet"/>
+                        <samplingRate id="samplingRateSP" spec="SkylineVectorParameter" skylineValues="@samplingRate" changeTimes="$(samplingChangeTimes)" timesAreAges="true" processLength="@tree" typeSet="@typeSet"/>
                         <migrationRate id="migrationRateSP" spec="SkylineMatrixParameter" skylineValues="@migrationRate" typeSet="@typeSet"/>
                         <removalProb spec="SkylineVectorParameter" skylineValues="0.0" typeSet="@typeSet"/>
                         <rhoSampling spec="TimedParameter" values="0.44" times="0.0" timesAreAges="true" processLength="@tree" typeSet="@typeSet"/>

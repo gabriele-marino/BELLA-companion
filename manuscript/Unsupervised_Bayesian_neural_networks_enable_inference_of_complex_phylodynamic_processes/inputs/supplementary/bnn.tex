@@ -1,0 +1,63 @@
+\subsection{Modeling phylodynamic rates with a neural network}
+
+Phylodynamic inference seeks to quantify the population dynamic and sampling processes that give rise to an observed phylogenetic tree $T$; we refer to the model of this process as the \emph{phylodynamic model}.
+In macroevolutionary applications, the relevant parameters typically include speciation, extinction, and fossilization rates, whereas in epidemiological settings they may include transmission, recovery, and sampling rates.
+A widely used model for population dynamics is the birth--death model, parameterized by a birth rate $\lambda$, a death rate $\mu$, and a sampling rate $\psi$ \cite{stadler2013uncovering}.
+More elaborate birth--death models may additionally incorporate migration processes and type-dependent rates \cite{Vaughan2025BDMM}.
+While this work focuses on phylodynamic inference under the birth--death framework, the concepts developed here are also applicable to the coalescent framework \cite{kingman1982coalescent}.
+
+The posterior distribution over the phylodynamic parameters is given by
+\[
+    P(\theta \mid T)
+    \propto
+    P(T \mid \theta)\,
+    P(\theta),
+\]
+where $\theta = (\lambda, \mu, \ldots)$ denotes the set of parameters of the birth--death model.
+The phylodynamic likelihood $P(T \mid \theta)$ specifies the probability of observing the tree topology and branch lengths under the assumed birth--death process.
+Phylodynamic inference therefore aims to identify the parameter values that most plausibly generated a given phylogenetic tree, while naturally accounting for uncertainty through the posterior distribution.
+In practice, phylogenetic trees are typically not observed directly but are themselves inferred from empirical data, such as aligned molecular sequences or morphological characters.
+Consequently, the phylodynamic process is commonly used as a tree prior within a joint Bayesian framework in which the phylogeny is estimated simultaneously with the phylodynamic parameters.
+
+Most phylodynamic models directly estimate the parameters of a birth--death process, such as speciation and extinction rates in macroevolution, or migration rates and reproduction numbers in epidemiology.
+Alternative approaches instead model these rates as functions of external predictors.
+In GLM–based formulations, phylodynamic parameters are given by a (tipically logarithmic) link function applied to a linear combination of predictors.
+The inferred parameters are the intercept and regression coefficients of this relationship \cite{lemey2014unifying, muller2019inferring, valenzuela2021comprehensive}.
+Here, we model variation in phylodynamic rates as a function of predictors using a feedforward neural network.
+
+A feedforward neural network (FFNN) is a flexible function approximator capable of capturing complex, nonlinear relationships between inputs and outputs \cite{haykin1994neural}.
+An FFNN consists of an input layer, one or more hidden layers, and an output layer.
+Each layer applies a linear transformation followed by a nonlinear activation function.
+Formally, for layer $l$ with input vector $\mathbf{x}^{(l-1)}$, weight matrix $\mathbf{W}^{(l)}$, and bias vector $\mathbf{b}^{(l)}$, the output is given by
+\[
+    \mathbf{x}^{(l)} = f\!\left(\mathbf{W}^{(l)} \mathbf{x}^{(l-1)} + \mathbf{b}^{(l)}\right),
+\]
+where $f(\cdot)$ denotes a nonlinear activation function, such as the rectified linear unit (ReLU) or the sigmoid function.
+By stacking multiple layers, an FFNN can approximate arbitrary continuous functions, enabling it to learn complex mappings from predictor variables to phylodynamic rates.
+
+In standard applications, FFNNs are used in supervised learning settings, where the network is trained to map inputs to observed target values by minimizing a loss function, such as mean squared error for regression or cross-entropy for classification.
+In this context, the network weights and biases are treated as parameters that are optimized during training.
+In contrast, BELLA adopts an unsupervised use of FFNNs to integrate external, non-phylogenetic data into phylodynamic analyses.
+The FFNN maps these input predictors to a subset of the phylodynamic parameters, denoted \( \theta_{\text{FFNN}} \), while priors are placed on the network weights \( \mathbf{W} \) and biases \( \mathbf{b} \).
+The remaining parameters, \( \theta_{\text{base}} \), are not predicted by the FFNN and are instead sampled directly from their standard priors.
+This separation allows the model to exploit external covariates for parameters that can be informed by additional data, while retaining classical Bayesian sampling for the remaining parameters.
+
+To ensure that the FFNN produces parameter values within biologically or mathematically meaningful ranges, the choice of output activation functions can be tailored to the specific parameter being modeled.
+For instance, parameters that are inherently bounded between zero and one, such as probabilities, can be mapped through a sigmoid transformation.
+More generally, logistic functions with user-specified upper and lower bounds allow parameters to be constrained to finite intervals, while exponential or \texttt{softplus} activations can enforce strict positivity.
+By aligning the output activation function with the natural support of each parameter, the model avoids generating implausible values and improves the efficiency of posterior exploration.
+
+As in standard phylodynamic analyses, Markov chain Monte Carlo (MCMC)~\cite{CHIB20013569} is used to jointly sample from the posterior
+\[
+    P(\mathbf{W}, \mathbf{b}, \theta_{\text{base}} \mid T)
+    \propto
+    P(T \mid \theta_{\text{FFNN}}(\mathbf{W}, \mathbf{b}), \theta_{\text{base}}) \,
+    P(\mathbf{W}, \mathbf{b}) \,
+    P(\theta_{\text{base}}),
+\]
+with operators acting on both the network parameters and the standard prior-sampled parameters.
+At each MCMC iteration, new values for $\mathbf{W}$ and $\mathbf{b}$ are proposed and used by BELLA to map the input predictors to the phylodynamic rates $\theta_{\text{FFNN}}$, which are then combined with $\theta_{\text{base}}$ to evaluate the phylodynamic likelihood.
+When phylodynamic rates vary across lineages, the predictor values associated with individual branches are typically unknown.
+For instance, the geographic location or trait state of an ancestral branch is rarely observed.
+In such cases, the FFNN maps predictor values to lineage-specific rates for each possible ancestral state, and the likelihood is computed by integrating over all these possibilities \cite{Vaughan2025BDMM}.
+This procedure naturally propagates uncertainty about ancestral predictor values through the neural network and into the posterior distribution, providing a fully Bayesian integration of external data into phylodynamic inference.

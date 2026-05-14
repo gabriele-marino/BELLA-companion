@@ -76,7 +76,9 @@ def plot_medians_ribbon(
     if times_are_ages:
         medians = [list(reversed(median)) for median in medians]
     rates = list(reversed(target.values)) if times_are_ages else target.values
-    ribbon_plot(y=medians, skyline=True, x=time_axis, ax=ax, color=color)
+    ribbon_plot(
+        y=medians, skyline=True, x=time_axis, ax=ax, color=color, show_samples=False
+    )
     skyline_plot(
         rates,
         x=time_axis,
@@ -103,8 +105,7 @@ def plot_medians_interquantile(
         skyline=True,
         color=ribbon_color,
         show_samples=False,
-        lower_percentile=25,
-        upper_percentile=75,
+        percentiles=(50,),
         median_kwargs={"linewidth": 2},
         ax=ax,
     )

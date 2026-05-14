@@ -1,5 +1,7 @@
+import os
 from argparse import ArgumentParser
 
+from bella_companion.settings import settings
 from bella_companion.simulations.plot.epi_multitype import (
     register_epi_multitype_plot_cli,
 )
@@ -13,18 +15,20 @@ from bella_companion.simulations.plot.scenarios import plot_scenarios
 
 
 def register_plot_cli(sim_plot_parser: ArgumentParser):
+    os.makedirs(settings.figures_dir, exist_ok=True)
+
     sim_plot_subparsers = sim_plot_parser.add_subparsers(
         dest="subcommand", required=True
     )
 
     sim_plot_subparsers.add_parser(
         "scenarios", help="Generate scenario overview plots."
-    ).set_defaults(func=plot_scenarios)
+    ).set_defaults(func=lambda: plot_scenarios(settings.figures_dir / "scenarios.pdf"))
 
     sim_plot_subparsers.add_parser(
         "metrics",
         help="Generate plots summarizing the metrics of the models across all simulation scenarios.",
-    ).set_defaults(func=plot_metrics)
+    ).set_defaults(func=lambda: plot_metrics(settings.figures_dir / "metrics"))
 
     epi_skyline_plot_parser = sim_plot_subparsers.add_parser(
         "epi-skyline", help="Generate plots for the epi-skyline scenarios."

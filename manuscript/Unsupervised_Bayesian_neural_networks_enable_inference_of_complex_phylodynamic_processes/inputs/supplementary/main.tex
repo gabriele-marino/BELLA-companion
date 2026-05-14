@@ -1,0 +1,37 @@
+\clearpage
+\newpage
+
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\setcounter{section}{0}
+\setcounter{page}{1}
+\pagenumbering{arabic}
+
+\section{Supplementary Information}
+
+\etocsettocstyle{\subsection*{Contents}}{}
+\localtableofcontents
+
+\input{inputs/supplementary/bnn}
+\input{inputs/supplementary/interpretation}
+\input{inputs/supplementary/simulations}
+\input{inputs/supplementary/eval}
+\input{inputs/supplementary/platyrrhine}
+\input{inputs/supplementary/eucovid}
+
+\FloatBarrier
+
+\input{inputs/supplementary/figures}
+
+\FloatBarrier
+
+\subsection{Supplementary Tables}
+
+\input{tables/models}
+\input{tables/mape}
+\input{tables/coverage}
+\input{tables/cv}
+\input{tables/mean_ess_per_hour}

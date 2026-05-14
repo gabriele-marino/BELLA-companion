@@ -54,14 +54,7 @@ bella_reference_models:
 model_colors:
   PA: "#0072B2"
   GLM: "#E69F00"
-  BELLA-1: "#D55E00"
-  BELLA-2: "#CC79A7"
   BELLA-3: "#009E73"
-  BELLA-4: "#F0E442"
-  BELLA-5: "#56B4E9"
-  BELLA-6: "#000000"
-  BELLA-7: "#999999"
-  BELLA-8: "#882255"
-  BELLA-9: "#44AA99"
+  BELLA-4: "#009E73"
 
 tables_dir: "./outputs/tables"

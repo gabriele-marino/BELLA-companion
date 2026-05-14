@@ -1,0 +1,26 @@
+\subsection{Diversification analysis of New World monkeys}
+
+We analyzed a sample of 100 dated phylogenetic trees encompassing 121 species of the Platyrrhine clade, of which 87 are extant and 34 are extinct. 
+These trees represent a posterior sample from a previously published analysis of 55 genes for extant species, combined with multiple topological constraints for extinct taxa based on taxonomic assessments \citep{silvestro2019early}. 
+In our analysis, we investigated how speciation and extinction rates vary as functions of time and body mass, both of which have been hypothesized to capture heterogeneity in the diversification dynamics of the clade \citep{aristide2015modeling,silvestro2019early}. 
+Time was incorporated using geological stages as discrete bins, with the Late Pleistocene and Holocene merged into a single bin (0.129--0 Ma) to avoid intervals of disproportionately short duration. 
+The model also included sampling rates through time, which were assumed to follow a piecewise-constant process with independent rates for each geological epoch (Eocene, Miocene, and Pliocene); the Pleistocene and Holocene were similarly merged given the short duration of the latter.
+
+Because the BDMM-Prime package \citep{Vaughan2025BDMM} does not currently support continuous traits, we discretized body-mass values into four ordinal categories, resulting in subsets of species of comparable size: 
+category~0 (tiny), up to 500~g (21 taxa); 
+category~1 (small), 500--1000~g (26 taxa); 
+category~2 (medium), 1000--3000~g (34 taxa); and 
+category~3 (large), above 3000~g (32 taxa). 
+Body-mass values were unavailable for eight taxa and were therefore treated as missing data in the analysis. 
+To reflect the ordinal nature of this trait, we specified a transition matrix that allowed direct transitions only between neighboring categories.
+
+After setting the sampling fraction at the present to 0.44 (as in the original study \citep{silvestro2019early}), we ran 10,000,000 million MCMC iterations to sample the parameters of the model.
+These included the transition rates among adjacent body-mass categories, the sampling rates through time and the weights of the BELLA framework, mapping time and body mass to speciation and extinction rates.
+
+For BELLA, we used a neural network with two hidden layers comprising 16 and 8 neurons, respectively, corresponding to the architecture that performed best on average in our simulation studies. 
+Input predictors were normalized to the interval \([0,1]\), and a standard normal prior \(\mathcal{N}(0,1)\) was assigned to the network weights. 
+We employed ReLU activations in the hidden layers and a logistic activation in the output layer to constrain the predicted rates to the positive range \([0,5]\). 
+Priors on the sampling rate through time and on the transition rates between body-mass groups were specified over the same range. 
+
+For all analyses, the first 10\% of samples were discarded as burn-in, and convergence was assessed by verifying that the posterior effective sample size exceeded 200.
+To aggregate estimates across the 100 phylogenies into a single representative tree, we computed a maximum clade credibility (MCC) tree using the TreeAnnotator software bundled with BEAST 2 \cite{bouckaert2019beast}.

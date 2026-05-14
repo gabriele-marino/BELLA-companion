@@ -5,11 +5,11 @@ from pathlib import Path
 import pandas as pd
 
 from bella_companion.metrics import (
+    MAPE,
     CoefficientOfVariation,
     Coverage,
     MeanESSPerHour,
     Metric,
-    NormalizedMAE,
 )
 from bella_companion.settings import settings
 from bella_companion.simulations.scenarios import SCENARIOS
@@ -52,9 +52,9 @@ def _save_metric_table(
     output_table = output_table.replace("{{METRIC_LABEL}}", metric.id)
     output_table = output_table.replace(
         "{{CAPTION_EXTRA}}",
-        ""
+        "Bold indicates the best, underlined indicates the second-best."
         if format_best_values
-        else "Bold indicates the best, underlined indicates the second-best.",
+        else "",
     )
 
     for scenario_id, scenario in SCENARIOS.items():
@@ -82,7 +82,7 @@ def _save_metric_table(
 
 def build_tables():
     os.makedirs(settings.tables_dir, exist_ok=True)
-    _save_metric_table(metric=NormalizedMAE(), format_best_values=True)
+    _save_metric_table(metric=MAPE(), format_best_values=True)
     _save_metric_table(metric=Coverage())
     _save_metric_table(metric=CoefficientOfVariation())
     _save_metric_table(metric=MeanESSPerHour(), n_decimals=None)

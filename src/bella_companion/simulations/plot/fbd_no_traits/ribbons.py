@@ -1,5 +1,4 @@
-import os
-import string
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -10,14 +9,11 @@ from bella_companion.simulations.plot.common import plot_medians_ribbon
 from bella_companion.simulations.scenarios import FBD_NO_TRAITS_SCENARIOS, FBD_TIME_AXIS
 
 
-def plot_ribbons():
-    base_output_dir = settings.figures_dir / "fbd-no-traits"
-    os.makedirs(base_output_dir, exist_ok=True)
-
+def plot_ribbons(output_file: Path):
     _, axes = plt.subplots(  # pyright: ignore
         6, 3, figsize=(12, 16), sharey="row", sharex="col", layout="constrained"
     )
-    for n_row, label in zip(range(0, 6, 2), string.ascii_lowercase):
+    for n_row, label in zip([0, 2, 4], ["a", "b", "c"]):
         ax = axes[n_row, 0]
         ax.text(
             -0.22, 0.95, label, transform=ax.transAxes, fontsize=18, fontweight="bold"
@@ -42,7 +38,7 @@ def plot_ribbons():
                     times_are_ages=True,
                 )
 
-    for i, ax in enumerate(axes[0, :]):
+    for i, ax in enumerate(axes[:, 0]):
         ax.set_ylabel(r"$\mu$" if i % 2 else r"$\lambda$")
     for ax in axes[-1, :]:
         ax.set_xlabel("Time")
@@ -61,4 +57,4 @@ def plot_ribbons():
             handleheight=1.5,
         )
 
-    plt.savefig(base_output_dir / "ribbons.svg")  # pyright: ignore
+    plt.savefig(output_file)  # pyright: ignore

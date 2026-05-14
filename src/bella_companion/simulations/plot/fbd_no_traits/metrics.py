@@ -1,11 +1,10 @@
-import os
-import string
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.patches import Patch
 
-from bella_companion.metrics import CoefficientOfVariation, Coverage, NormalizedMAE
+from bella_companion.metrics import MAPE, CoefficientOfVariation, Coverage
 from bella_companion.settings import settings
 from bella_companion.simulations.plot.common import (
     plot_per_run_metric_through_time,
@@ -14,13 +13,10 @@ from bella_companion.simulations.plot.common import (
 from bella_companion.simulations.scenarios import FBD_NO_TRAITS_SCENARIOS
 
 
-def plot_metrics_through_time():
-    base_output_dir = settings.figures_dir / "fbd-no-traits"
-    os.makedirs(base_output_dir, exist_ok=True)
-
+def plot_metrics_through_time(output_file: Path):
     _, axes = plt.subplots(6, 3, figsize=(12, 16), sharex="col", layout="constrained")  # pyright: ignore
 
-    for n_row, label in zip(range(0, 6, 2), string.ascii_lowercase):
+    for n_row, label in zip([0, 2, 4], ["a", "b", "c"]):
         ax = axes[n_row, 0]
         ax.text(
             -0.22, 0.95, label, transform=ax.transAxes, fontsize=18, fontweight="bold"
@@ -47,7 +43,7 @@ def plot_metrics_through_time():
         for j, target in enumerate(scenario.targets):
             plot_per_run_metric_through_time(
                 ax=axes[i * 2 + j, 0],
-                metric=NormalizedMAE(),
+                metric=MAPE(),
                 target=target,
                 models_summaries=models_summaries,
                 times_are_ages=True,
@@ -84,4 +80,4 @@ def plot_metrics_through_time():
         handleheight=1.5,
     )
 
-    plt.savefig(base_output_dir / "metrics.svg")  # pyright: ignore
+    plt.savefig(output_file)  # pyright: ignore

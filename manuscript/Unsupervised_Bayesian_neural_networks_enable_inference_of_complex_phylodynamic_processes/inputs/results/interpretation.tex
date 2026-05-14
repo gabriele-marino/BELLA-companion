@@ -1,0 +1,24 @@
+\subsection{Interpretation of the BELLA model using explainable artificial intelligence}
+
+\begin{figure}[htpb]
+    \centering
+    \includegraphics[width=1\textwidth]{figures/fbd-2traits/summary.pdf}
+    \caption{
+        \rv{
+            Results for a simulation scenario with time-varying speciation ($\lambda$, top row) and extinction rates ($\mu$, bottom row) across four species groups, defined by combinations of two binary traits evolving along the tree (\texttt{FBD-4}). The analysis considers four predictors: time, a binary time-series, and two binary traits. The binary time-series is an external indicator variable that switches between states 0 and 1 through time, with state 1 corresponding to periods during which the extinction rate experiences a spike. Predictors are colored according to their true relevance in determining the target phylodynamic rate, with red indicating informative predictors and gray indicating irrelevant ones. Across 100 simulated phylogenies, the panels present: (a) the 50\% (darker polygon) and 95\% (lighter polygon) quantile ranges of median partial dependence plots (PDPs) for time and the distribution of median PDPs for the two binary traits and the time-series predictor, with left and right boxplots corresponding to predictor states 0 and 1, respectively; (b) the distributions of SHAP feature importance for each predictor; and (c) the median estimated trajectories (solid colored lines), with colored ribbons indicating the corresponding 50\% interquantile ranges. Colors correspond to the four binary trait combinations: 00 (blue), 01 (green), 10 (pink), and 11 (orange). Dashed lines denote the true simulated rates, shown in black when the first trait is in state 1 and in gray when it is in state 0. The BELLA estimates are based on an architecture with two hidden layers of 32 and 16 nodes, ReLU activation functions, and standard normal priors on the weights (\texttt{BELLA-4} in Tab.~\ref{tab:models}).
+        }
+    }%
+    \label{fig:fbd-2traits:summary}
+\end{figure}
+
+\rv{
+    We evaluated our interpretation framework on a macroevolutionary scenario in which speciation (\(\lambda\)) and extinction (\(\mu\)) rates varied across four species groups defined by combinations of two binary traits evolving along the phylogeny (Fig.~\ref{fig:scenarios}h). In addition to the two traits, the analysis included time and a binary time-series predictor that switched between states 0 and 1 through time. The first binary trait directly affected both speciation and extinction rates, whereas the second trait was irrelevant. The binary time-series predictor was designed to induce temporal spikes in extinction rates but had no effect on speciation.
+}
+    
+\rv{
+    For speciation rates, SHAP feature importance correctly identified time and the first binary trait as the dominant predictors, while assigning minimal importance to the irrelevant trait and the binary time-series predictor (Fig.~\ref{fig:fbd-2traits:summary}b). However, these effects were less apparent in the partial dependence plots (PDPs), where the PDP for the first trait appeared relatively flat and the PDP for time showed an overall decreasing trend (Fig.~\ref{fig:fbd-2traits:summary}a). This apparent discrepancy arises because PDPs average predictions across all predictor combinations: since speciation rates decrease on average through time across the simulated species groups, the marginal PDP primarily reflects this global trend rather than the trait-specific differences. Nevertheless, the predicted trajectories accurately recovered the distinct speciation dynamics of the four species groups (Fig.~\ref{fig:fbd-2traits:summary}c).
+}
+
+\rv{
+    In contrast, the interpretation results for extinction rates more directly reflected the simulated generating process. Both the SHAP analysis and the PDPs identified the first binary trait and the binary time-series predictor as the primary drivers of extinction-rate variation, while assigning little importance to time and the irrelevant second trait (Fig.~\ref{fig:fbd-2traits:summary}a,b). Consistent with the simulation design, the PDP for time remained largely flat, indicating that temporal variation in extinction was primarily explained by the switching time-series predictor rather than by continuous time itself. The reconstructed extinction trajectories closely matched the true simulated dynamics across all four species groups (Fig.~\ref{fig:fbd-2traits:summary}c).
+}

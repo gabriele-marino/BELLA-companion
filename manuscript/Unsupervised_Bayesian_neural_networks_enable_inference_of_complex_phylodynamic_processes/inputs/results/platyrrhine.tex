@@ -1,0 +1,27 @@
+\subsubsection{Speciation and extinction dynamics in New World monkeys}
+
+\begin{figure}[htpb]
+    \includegraphics[width=1\textwidth]{figures/platyrrhine/summary.pdf}
+    \caption{Diversification analysis of 100 New World monkeys (platyrrhines) phylogenies using the BELLA framework. The analysis estimates time-varying speciation rates (\( \lambda \), top row), extinction rates (\( \mu \), middle row), and net diversification rates (\( d = \lambda - \mu \), bottom row) as functions of time and a discretized body-mass trait evolving along the phylogeny. (a) The estimated evolution of the discretized body-mass trait across the maximum clade credibility tree. (b) The median posterior estimates across time and body-mass categories for each macroevolutionary rate (full distributions are presented in Fig. \ref{fig:platyrrhine:ribbons}). (c) SHAP feature importance distributions for each predictor and macroevolutionary rate.}%
+    \label{fig:platyrrhine}
+\end{figure}
+
+We applied our BELLA framework to explore macroevolutionary dynamics in the New World monkeys, to estimate their speciation and extinction rates from a set of 100 phylogenetic trees of 87 extant and 34 extinct species from a previous Bayesian analysis~\citep{silvestro2019early}.
+We used time (binned into geological stages) and body mass (discretized into four categories) as predictors of rate variation (Fig.~\ref{fig:platyrrhine}a).
+
+Overall, the model captures contrasting effects of time and body mass on the evolutionary dynamics (Fig.~\ref{fig:platyrrhine}b).
+The speciation rate ($\lambda$) remains largely constant throughout the entire process and across all body-mass categories, showing little evidence for substantial temporal or trait-dependent variation.
+Minor fluctuations are present, but no pronounced shifts comparable to those observed in extinction or diversification rates emerge among the different body-size groups.
+
+Extinction rates ($\mu$) exhibit stronger temporal variation and clearer interactions with body mass.
+All body-mass categories experienced an increase in extinction rates around 10 Ma, although the magnitude of this increase differed among groups.
+Smaller-bodied species (body-mass category 0) show an increase of approximately 80\%, whereas larger-bodied species (body-mass categories 1, 2 and 3) display a stronger rise of roughly 150\%.
+However, posterior median estimates indicate substantial uncertainty around these extinction peaks, making the intensity of the event less clearly supported (Fig.~\ref{fig:platyrrhine:ribbons}).
+Following this interval, extinction rates decline across all body-mass categories from the late Miocene through the Recent.
+
+The diversification rates ($d = \lambda - \mu$) reflect these temporal dynamics and their interaction with body mass.
+All body-mass groups exhibit a decline in diversification around 10 Ma followed by a subsequent recovery toward the present, producing an overall inverse pattern relative to extinction rates.
+In contrast to the extinction estimates, uncertainty around diversification trajectories is considerably more constrained, providing stronger support for a transient decrease followed by a progressive increase in diversification rates through time (Fig.~\ref{fig:platyrrhine:ribbons}).
+This decline is particularly pronounced in larger-bodied species, whereas smaller-bodied taxa maintain comparatively more stable diversification dynamics.
+
+The SHAP analysis of feature importance revealed that time consistently had greater importance than body mass across all rates, with the strongest dominance observed for extinction and diversification dynamics (Fig.~\ref{fig:platyrrhine}c). Nevertheless, body mass still contributes to explaining differences among lineages, particularly by separating the stronger extinction and diversification shifts observed in larger-bodied species from the comparatively weaker responses detected in the smallest taxa.

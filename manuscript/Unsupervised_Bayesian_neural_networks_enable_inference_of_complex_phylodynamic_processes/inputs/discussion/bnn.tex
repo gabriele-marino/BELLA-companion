@@ -1,0 +1,70 @@
+\subsection{Modeling population dynamics with unsupervised Bayesian neural networks}
+
+The increasing amount of sequencing data enables phylodynamic inference to be a cornerstone for the quantification of population and diversification dynamic parameters. 
+In macroevolutionary studies, these parameters are typically expressed as speciation and extinction rates \citep{stadler2013can, morlon2014phylogenetic, morlon2024phylogenetic}, whereas in epidemiological settings they describe quantities such as migration and transmission rates and effective reproduction numbers \citep{stadler2014insights, vasylyeva2019tracing, giovanetti2020genomic, seemann2020tracking, guinat2023bayesian}. 
+
+Although evolutionary dynamics are likely influenced by multiple factors, most existing models are limited to the effects of single (or few) predictors, such as time-varying rates \citep{stadler2011mammalian, vaughan2024estimates, condamine2013macroevolutionary}, trait-dependent diversification \citep{maddison2007estimating}, or the combination of the two \cite{Vaughan2025BDMM}.
+Predictor values are typically binned into a small number of discrete classes; for example, time may determine birth and death rates in a piecewise-constant fashion, independently across time bins.
+In such models, increasing the number of classes provides additional flexibility but simultaneously inflates the number of parameters and their associated uncertainty, ultimately leading to uninformative parameter estimates.
+Some models allow for multiple predictors or maintain a continuous state space \citep{beaulieu2016detecting, helmstetter2016viviparity, lemey2014unifying, muller2019inferring, valenzuela2021comprehensive}.
+However, they typically rely on simplifying assumptions, such as constraining rate variation to be monotonic and additive, and often neglect interactions between covariates.
+
+% General comments on the model and its performance
+Our \textit{Bayesian evolutionary layered learning architecture} (BELLA) framework relaxes many of these assumptions through an unsupervised neural network.
+The approach allows us to jointly infer the effects of multiple predictors in modeling rates dynamics through time and across lineages.
+Our simulations demonstrate that BELLA performs robustly across a broad spectrum of epidemiological and macroevolutionary scenarios, including those featuring nonmonotonic effects and interacting covariates. 
+Our approach reliably recovered a wide range of predictor–parameter relationships with high accuracy and precision, while providing well-calibrated uncertainty estimates, consistently matching or outperforming competing phylodynamic methods, including predictor-agnostic inference and generalized linear models.
+Performance gains were particularly pronounced in scenarios with nonlinear predictor effects and in those involving interacting predictors.
+Importantly, even in scenarios with simple constant or linear relationships, BELLA matched the performance of the existing GLM framework in both accuracy and uncertainty estimation.
+
+% BELLA to test hypotheses and explore patterns in the data
+BELLA integrates two complementary sources of information: hypothesis-driven, biologically-motivated predictors---such as traits that may influence speciation or travel patterns that inform migration---and forms of rate variation that make no assumptions about underlying mechanisms, including generic temporal changes. 
+This combination is critical; indeed, many birth–death models adopt a constant-rate process as the null expectation, an assumption that is known to bias inference and generate spurious signals of trait or environmental dependence \citep{maddison2007estimating, lehtonen2017environmentally, beaulieu2016detecting, rabosky2015model, o2021potential}.
+Although BELLA’s complex parameterization structure makes traditional hypothesis-testing tools (e.g., Bayes factors for individual predictors) impractical, we demonstrate that methods from explainable AI can be effectively used to highlight which predictors exert the strongest influence on inferred phylodynamics. 
+This aligns with recent studies showing that SHAP-based approaches can recover drivers of survival during mass extinction events \citep{foster2023predictable} and identify both trait-dependent diversification and human-induced extinctions in proboscideans \citep{hauffe2024trait}. 
+While such techniques cannot formally reject predictors, they do provide reliable estimates of their relative contributions. 
+In our simulations---including those with interacting traits---BELLA consistently recovered accurate measures of predictor influence. 
+However, as with any high-dimensional regression framework, strong correlations among predictors or time series can limit interpretability. 
+Careful selection of ecologically, biologically, or environmentally relevant variables therefore remains essential when designing BELLA analyses \citep{o2021potential}.
+
+% Unsupervsied learning vs supervised learning
+Recent work has shown that neural networks can recover speciation, extinction, transmission, and recovery rates from fossil records or phylogenies, but these studies typically operate within a supervised learning paradigm \cite{thompson2024deep, lambert2023deep, silvestro2020450, voznica2022deep, xie2024integrating, kocakova2025global, pena2025utility}.
+In those approaches, researchers produce large collections of simulated datasets generated under known macroevolutionary or epidemiological processes, extract features from those simulations, and then train neural networks to map those features back to the underlying rate parameters.
+Once trained, the models are applied to real data to estimate rate dynamics.
+While this strategy has proven effective for relatively simple scenarios, such as models with limited trait or time dependence,  \rv{it can be in principle applied to infer parameters even under models for which an explicit likelihood function cannot be derived or is intractable. Yet, the application of supervised models} becomes increasingly impractical when moving toward more intricate settings like those addressed by BELLA, where rates may vary in complex, high-dimensional ways.
+Constructing a sufficiently broad training library to cover such possibilities would require an enormous and possibly unfeasible simulation effort.
+In contrast, our framework avoids the entire supervised-learning pipeline.
+Rather than relying on pre-labeled simulated data, BELLA learns directly from the empirical dataset by evaluating its likelihood under a birth–death process.
+This unsupervised approach makes it possible to infer, \rv{albeit within the limits of models with an explicit and tractable likelihood function}, how predictors shape diversification or transmission dynamics without specifying a priori \rv{what function describes rate variation} or how predictors might interact.
+
+% Parameterization and overfitting
+Neural networks offer considerable freedom in how predictor variables can influence diversification or transmission rates, but that flexibility comes with the risk of introducing far more parameters than the data can actually inform.
+In standard frequentist applications---especially in supervised learning where networks are trained on large labeled datasets---this excess capacity must be tightly controlled through explicit regularization strategies such as dropout, weight penalties, or early stopping based on validation performance \cite{lecun2015deep}.
+Without such safeguards, many of the network’s weights simply absorb noise rather than signal.
+Bayesian neural networks, however, naturally guard against this problem because the prior distributions imposed on the weights act as intrinsic regularizers \cite{silvestro2020prior, hauffe2024trait}.
+This property is key to the performance of our approach, which accurately recovered also constant-rate processes. 
+
+% Model architecture
+A related consideration concerns the size of the neural network itself.
+In supervised settings, it is common to use large architectures---sometimes extremely wide or deep---because abundant simulated or empirical training data can support such complexity, and the goal is to maximize predictive power.
+In our framework, the network plays a different role: it serves as a flexible but generic mapping from predictors to rate parameters, not as a prediction engine trained on labeled examples. 
+Because of this, we employed comparatively compact architectures. 
+Although we found that smaller architectures performed better in constant scenarios and larger ones in nonlinear settings or when many predictors were used, these differences were not decisive.
+Overall, BELLA delivered consistent inference quality, indicating low sensitivity to the specifics of the architecture.
+This stability is important, as it shows that BELLA does not require extensive or scenario-specific hyperparameter tuning to produce reliable results, enhancing its practicality and general applicability for phylodynamic analyses.
+
+% Uncertainty estimation
+A further advantage of adopting a Bayesian neural network is that uncertainty is naturally quantified.
+Because the weights are treated as random variables and jointly explored through their posterior distribution, the framework yields full posterior distributions for population dynamic rates.
+Importantly, although the BELLA model contains many parameters, all of them are informed by the entire dataset.
+For example, increasing the number of time bins when inferring time-dependent rates does not introduce additional independent parameters, and uncertainty does not become extreme in periods with sparse data.
+In contrast, piecewise-constant models---such as the predictor-agnostic model used here---which treat rates in each time bin as independent parameters, can exhibit large uncertainty in data-sparse regions such as early time bins.
+In this respect, BELLA is particularly advantageous in time bins with little or no data, as information can be shared across the full dataset through common network weights.
+
+\rv{
+The reliability and robustness of birth--death models applied to phylogenetic trees has been under intense scrutiny with studies showing limitations to infer the true magnitude of extinction \citep{rabosky2010extinction, beaulieu2015extinction, rabosky2016challenges}, while others demonstrated the non-identifiability of rates varying in continuous time \citep{louca2020extant, louca2021fundamental}. 
+As the BELLA model relies on the same phylodynamic likelihood functions used in standard birth-death models \citep{Vaughan2025BDMM}, it is not immune to these concerns. 
+Yet, parameter identifiability is achieved through the use of piece-wise constant rates and regularizing priors \citep{morlon2020prior, legried2022class}, both of which are implemented in our framework. 
+Additionally, the inclusion of fossil lineages and traits in our experiments contribute to the robustness of rate estimates \citep{tarasov2024hidden, truman2025fossilized}. 
+Ultimately, the reliability of BELLA estimates is contingent on the ability and limitations of likelihood-based inference to infer the phylodynamic processes underlying phylogenetic trees.
+}

@@ -1,0 +1,43 @@
+\section{Introduction}
+
+% Time trees and phylodynamics
+Time-calibrated phylogenetic trees are central to understanding the dynamic processes of evolution and populations on macroevolutionary and epidemiological time scales. 
+Such trees are typically inferred from alignments of DNA sequences and morphological traits, with temporal calibration achieved through molecular clock models informed by node-age constraints or time-stamped data, for example fossils of extinct taxa or viral sequences collected through time~\cite{stadler2024decoding}. 
+The distribution of branching times and lineage durations in these trees provides key information about the underlying population dynamics, which are commonly modeled using birth--death processes~\cite{nee1994reconstructed, ricklefs2007estimating, gernhardConditionedReconstructedProcess2008}. 
+Decades of work in this area have produced a rich class of probabilistic frameworks---collectively known as phylodynamic models \citep{stadler2024decoding} ---that describe how lineages diversify, spread, and change over time within a phylogenetic context~\cite{Stadler_2013review, morlon2014phylogenetic, featherstone2022epidemiological}.
+
+% Applications of phylodynamics
+Phylodynamic modeling has been extensively applied across both epidemiology and macroevolution research. 
+In epidemiology, phylodynamic models are used to infer key parameters that characterize the spatial and temporal development of pathogen outbreaks, such as transmission, migration, recovery, and sampling rates, or the basic reproduction number, \( R_0 \), which quantifies the average number of secondary infections caused by an infected individual in a fully susceptible population. 
+These parameters have become instrumental in anticipating the spread of pathogens including SARS-CoV-2, Ebola, Zika, and HIV~\cite{stadler2014insights, vasylyeva2019tracing, giovanetti2020genomic, seemann2020tracking, guinat2023bayesian} with application in public health policies~\cite{rife2017phylodynamic}. 
+In macroevolution, phylodynamic approaches are one of the pillars for our understanding of how speciation and extinction processes shaped the evolution of biodiversity~\cite{stadler2013can, morlon2014phylogenetic, morlon2024phylogenetic}. 
+Applications of these models have for instance revealed an inverse latitudinal gradient in marine fish speciation rates~\cite{rabosky2018inverse} and consistent diversification dynamics driving the rise and fall of multiple plant and animal clades~\cite{quintero2025loss}. 
+
+% Modeling rate variation through time and among branches
+Methodological advances in phylodynamics led to models and algorithms that allow us to infer rate variation through time \cite{stadler2013birth}, for instance modeling changes of a pathogen effective reproduction number~\cite{judge2024epifusion} or shifts in speciation and extinction rates~\cite{stadler2011mammalian, may2016bayesian}. 
+Other models allow for the estimation of rate variations among branches of a phylogenetic tree~\cite{alfaro2009nine, rabosky2014automatic}.
+
+% Hypothesis driven methods
+Building upon these methods, several models have been developed to explicitly test hypotheses about the impact of biological and environmental factors on population dynamics.
+Diversity-dependent models, for example, allow researchers to test whether species richness is constrained by ecological limits imposed by finite resources or competition~\cite{rosindell2015unifying, xu2018detecting}. 
+Trait-dependent diversification models allow us to measure the effect of phenotypic traits on speciation and extinction rates, helping to identify evolutionary key-innovations and providing a mechanistic link between organismal traits and lineage dynamics~\cite{maddison2007estimating, fitzjohn2010quantitative, beaulieu2016detecting}. 
+Similarly, in epidemiology, multi-type birth--death models enable the estimation of distinct parameters for different subpopulations within a system and quantify the effect of migration among geographic areas on the epidemiological dynamics~\cite{stadler2013uncovering, kuhnert2016phylodynamics, kovalenko2023phylodynamics}. 
+Finally, several models have been developed to modulate rate variation as a (generally linear or exponential) function of continuous variables. 
+This approach has been used in macroevolution to evaluate how environmental variables, such as global climate change, influence species diversification~\cite{condamine2013macroevolutionary, condamine2020rise}.
+In epidemiology, generalized linear models (GLMs) have been employed to model the effect of covariates such as host mobility or population density on migration rates between subpopulations~\cite{lemey2014unifying, muller2019inferring, valenzuela2021comprehensive}.
+
+Although these models have greatly improved our ability to quantify population dynamics, existing approaches still face several important limitations.
+First, they generally rely on overly simple functions--- such as piecewise-constant, linear, or exponential forms---to describe rate variation, choices driven more by mathematical convenience than by biological plausibility.
+Second, most frameworks are either exploratory tools aimed at detecting patterns of rate change, or they are tailored to a single type of predictor, such as an environmental time series or a discrete or continuous trait.
+Third, while generalized linear models (GLMs) can incorporate multiple predictors, their fixed functional structure restricts them from capturing complex, nonlinear relationships or interactions among variables.
+
+To address these issues, we introduce a novel Bayesian neural network–based framework, extending recent advances in the application of such frameworks to evolutionary studies of fossil data~\cite{hauffe2024trait}.
+Neural networks, a class of graphical models, have gained increasing attention due to their capacity as universal approximators, capable of modeling arbitrarily complex functions when provided with sufficient parameters~\cite{haykin1994neural}. 
+Typically, they are employed in supervised learning, where mappings between inputs and outputs are inferred from training data. 
+However, in phylodynamic contexts, generating comprehensive training datasets is impractical due to the vast diversity of possible population dynamic scenarios and to limitations in our ability to simulate realistic synthetic  datasets~\cite{trost2024simulations}. 
+Instead, we propose an unsupervised Bayesian neural network framework for phylodynamic analysis that allows key phylodynamic quantities---such as speciation, extinction, and migration rates, and effective reproduction numbers---to vary both over time and across lineages in response to temporal trends and diverse predictor variables, including traits and environmental time series.
+Within this framework, phylodynamic parameters are estimated as functions of the predictors, where these functions are defined by neural network weights that are sampled using Markov chain Monte Carlo. This approach eliminates the need for external training datasets and avoids any \textit{a priori} specification of how predictors relate to rate variation.
+
+We demonstrate our framework through extensive simulations spanning a wide range of population dynamic scenarios, from simple constant-rate models to complex nonlinear patterns of rate variation through time and across lineages.
+We also adapt tools from explainable artificial intelligence (AI) to identify which predictors meaningfully influence epidemiological or macroevolutionary dynamics, providing both accurate inference and interpretability.
+Finally, we apply our approach to two empirical datasets: estimating migration rates underlying the early spread of COVID-19 in Europe using viral sequence alignments and mobility data, and inferring speciation and extinction dynamics across living and extinct platyrrhines, the New World monkeys.

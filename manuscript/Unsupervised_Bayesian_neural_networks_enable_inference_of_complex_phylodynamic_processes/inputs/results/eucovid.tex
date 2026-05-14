@@ -1,0 +1,19 @@
+\subsubsection{Phylogeographic reconstruction of early SARS-CoV-2 spread in Europe}
+
+\begin{figure}[htpb]
+\centerline{\includegraphics[width=1\linewidth]{figures/eucovid/summary.pdf}}
+    \caption{Application of the BELLA model to estimate migration rates across China and European countries at the onset of the COVID-19 pandemic. (a) The inferred transmission maximum clade credibility tree. (b) Median estimated migration fluxes between countries (full distributions are presented in Figs. \ref{fig:eucovid:migrations:time_bin_0}--\ref{fig:eucovid:migrations:time_bin_2}). (c) Posterior distributions of inferred introduction dates from China to Europe under BELLA and a GLM. (d) Effect of the normalized number of daily air passengers on predicted migration rates under BELLA and a GLM.}%
+    \label{fig:eucovid:summary}
+\end{figure}
+
+In all previously presented applications of the BELLA model, the phylogenetic tree topology was fixed. However, our approach can be seamlessly incorporated into a full phylogenetic inference pipeline in which the tree is jointly estimated from multiple sequence alignment data. To illustrate this in a real-world setting, we applied BELLA to estimate SARS-CoV-2 migration rates across countries during the early spread of SARS-CoV-2 in China and Europe, using 123 viral genomes sampled between the onset of the outbreak and 8 March 2020.
+
+We modeled migration rates as a function of the number of daily air passengers between countries, normalized by the population size of the source country, following previous analyses \cite{valenzuela2021comprehensive}, and compared the BELLA results with those obtained using a GLM. 
+The phylogenetic trees inferred by the two approaches were generally consistent (normalized Robinson–Foulds distance = 0.7 \cite{robinson1981comparison}; Fig.~\ref{fig:eucovid:cophylo}), sharing the same overall structure and showing broadly concordant inferred migration patterns along the trees, with only minor topological differences (compare Fig.~\ref{fig:eucovid:summary}a with Fig.~\ref{fig:eucovid:GLM-tree}).
+
+We examined how BELLA and the GLM link migration rates to the input predictor (Fig.~\ref{fig:eucovid:summary}d). Both models recover a broadly similar positive relationship; however, BELLA exhibits a clear saturation effect, with migration rates plateauing for high predictor values, whereas the GLM, constrained by its functional form, is unable to capture this saturation and instead implies a continuously increasing relationship across the predictor range.
+
+Finally, we applied a phylogenetic particle filtering algorithm \cite{vaughan2019estimating} to sample trajectories from the posterior distribution of the population history given the genetic data.
+This approach allowed us to estimate migration fluxes between countries over the study period.
+The estimated fluxes were consistent between BELLA and the GLM, with Italy inferred as the principal exporter of viral lineages and Germany as the main importer during this phase of the epidemic (Fig.~\ref{fig:eucovid:summary}b; Figs.~\ref{fig:eucovid:migrations:time_bin_0}--~\ref{fig:eucovid:migrations:time_bin_2}).
+Similarly, both models yielded consistent estimates of the introduction date from China to Europe, with posterior distributions peaking around early January 2020 (Fig.~\ref{fig:eucovid:summary}d).

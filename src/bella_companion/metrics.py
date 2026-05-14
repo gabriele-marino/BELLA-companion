@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 
 import numpy as np
 import pandas as pd
 from jaxtyping import Float
 from matplotlib.axes import Axes
 
-from bella_companion.typings import Array, Target
+from bella_companion.typings import Array, ModelID, Target
 
 
 class Metric(ABC):
@@ -18,7 +18,10 @@ class Metric(ABC):
     ) -> float: ...
     @abstractmethod
     def plot(
-        self, ax: Axes, y: int, summaries: pd.DataFrame, targets: Iterable[Target]
+        self,
+        ax: Axes,
+        models_summaries: Mapping[ModelID, pd.DataFrame],
+        targets: Iterable[Target],
     ): ...
     @property
     @abstractmethod
@@ -43,11 +46,19 @@ class PerStudyMetric(Metric):
         )
 
     def plot(
-        self, ax: Axes, y: int, summaries: pd.DataFrame, targets: Iterable[Target]
+        self,
+        ax: Axes,
+        models_summaries: Mapping[ModelID, pd.DataFrame],
+        targets: Iterable[Target],
     ):
-        data = self.aggregate(summaries, targets)
-        ax.hlines(y=y, xmin=0, xmax=data, color="black", linewidth=1)  # pyright: ignore
-        ax.plot(data, y, "o", color="black", markersize=5)  # pyright: ignore
+        ys = list(range(len(models_summaries)))
+        for y, summaries in zip(ys, models_summaries.values()):
+            data = self.aggregate(summaries, targets)
+            ax.hlines(y=y, xmin=0, xmax=data, color="black", linewidth=1)  # pyright: ignore
+            ax.plot(data, y, "o", color="black", markersize=5)  # pyright: ignore
+
+        ax.set_yticks(ys)  # pyright: ignore
+        ax.set_yticklabels(list(models_summaries))  # pyright: ignore
 
 
 class PerRunMetric(Metric):
@@ -67,15 +78,22 @@ class PerRunMetric(Metric):
         return self.aggregate_targets(summaries, targets).mean()
 
     def plot(
-        self, ax: Axes, y: int, summaries: pd.DataFrame, targets: Iterable[Target]
+        self,
+        ax: Axes,
+        models_summaries: Mapping[ModelID, pd.DataFrame],
+        targets: Iterable[Target],
     ):
-        values = self.aggregate_targets(summaries, targets)
-        q25, q50, q75 = np.percentile(values, [25, 50, 75])  # pyright: ignore
-        ax.hlines(y=y, xmin=q25, xmax=q75, color="black", linewidth=2)  # pyright: ignore
-        ax.plot(q50, y, "o", color="black", markersize=4)  # pyright: ignore
+        ys = list(range(len(models_summaries)))
+        for y, summaries in zip(ys, models_summaries.values()):
+            values = self.aggregate_targets(summaries, targets)
+            q25, q50, q75 = np.percentile(values, [25, 50, 75])  # pyright: ignore
+            ax.hlines(y=y, xmin=q25, xmax=q75, color="black", linewidth=2)  # pyright: ignore
+            ax.plot(q50, y, "o", color="black", markersize=4)  # pyright: ignore
+        ax.set_yticks(ys)  # pyright: ignore
+        ax.set_yticklabels(list(models_summaries))  # pyright: ignore
 
 
-class NormalizedMAE(PerRunMetric):
+class MAPE(PerRunMetric):
     def __call__(
         self, summaries: pd.DataFrame, target: Target
     ) -> Float[Array, "n_runs n_target_keys"]:  # noqa: F722
@@ -89,11 +107,11 @@ class NormalizedMAE(PerRunMetric):
 
     @property
     def name(self) -> str:
-        return "Normalized MAE"
+        return "MAPE"
 
     @property
     def id(self) -> str:
-        return "norm_mae"
+        return "mape"
 
     @property
     def lower_is_better(self) -> bool:
@@ -112,6 +130,22 @@ class Coverage(PerStudyMetric):
                 ).mean()
                 for key, value in target.value_map.items()
             ]
+        )
+
+    def plot(
+        self,
+        ax: Axes,
+        models_summaries: Mapping[ModelID, pd.DataFrame],
+        targets: Iterable[Target],
+    ):
+        super().plot(ax, models_summaries, targets)
+        ax.vlines(  # pyright: ignore
+            x=0.95,
+            ymin=0,
+            ymax=len(models_summaries) - 1,
+            color="red",
+            linestyle="--",
+            linewidth=2,
         )
 
     @property
@@ -164,7 +198,7 @@ class MeanESSPerHour(PerRunMetric):
 
     @property
     def id(self) -> str:
-        return "ess_per_hour"
+        return "mean_ess_per_hour"
 
     @property
     def lower_is_better(self) -> bool:

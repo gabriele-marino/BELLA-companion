@@ -1,14 +1,19 @@
 from pathlib import Path
 
 import numpy as np
-from jaxtyping import Float
 
 from bella_companion.backend.activation_functions import (
     ActivationFunctionLike,
     as_activation_function,
 )
 from bella_companion.backend.beast import read_weights
-from bella_companion.typings import Array, PosteriorWeights, Weights
+from bella_companion.typings import (
+    BayesPredictionOutput,
+    PosteriorWeights,
+    PredictionInput,
+    PredictionOutput,
+    Weights,
+)
 
 
 class MLP:
@@ -43,10 +48,7 @@ class MLP:
         n_layers = len(weights)
         self._activations = [hidden_activation] * (n_layers - 1) + [output_activation]
 
-    def __call__(
-        self,
-        x: Float[Array, "batch_size n_features"],  # noqa: F722
-    ) -> Float[Array, "batch_size"]:  # noqa: F821
+    def __call__(self, x: PredictionInput) -> PredictionOutput:
         """Perform a forward pass through the MLP."""
         batch_size, _ = x.shape
         for layer_weights, activation in zip(self._weights, self._activations):
@@ -82,10 +84,7 @@ class BayesMLP:
             for weights in posterior_weights
         ]
 
-    def __call__(
-        self,
-        inputs: Float[Array, "batch_size n_features"],  # noqa: F722
-    ) -> Float[Array, "n_samples batch_size"]:  # noqa: F722
+    def __call__(self, inputs: PredictionInput) -> BayesPredictionOutput:
         """Perform a forward pass through each sampled MLP and return the outputs."""
         return np.array([mlp(inputs) for mlp in self._mlps])
 

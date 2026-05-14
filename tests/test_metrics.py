@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 
 from bella_companion.metrics import (
+    MAPE,
     CoefficientOfVariation,
     Coverage,
     MeanESSPerHour,
-    NormalizedMAE,
 )
 from bella_companion.targets import SkylineTarget
 
@@ -18,7 +18,7 @@ def test_norm_mae_on_skyline_target():
         }
     )
     target = SkylineTarget(id="targetSP", skyline=np.array([2.0, 3.0]))
-    metric = NormalizedMAE()
+    metric = MAPE()
     result = metric(summaries, target)
     expected = np.array(
         [
@@ -137,7 +137,7 @@ def test_aggregate_per_target_norm_mae():
     )
     target1 = SkylineTarget(id="target1SP", skyline=np.array([2.0, 3.0]))
     target2 = SkylineTarget(id="target2SP", skyline=np.array([3.5, 4.5]))
-    metric = NormalizedMAE()
+    metric = MAPE()
     result = metric.aggregate_targets(summaries, targets=[target1, target2])
     expected = np.array(
         [
@@ -160,7 +160,7 @@ def test_aggregate_per_sample_norm_mae():
     )
     target1 = SkylineTarget(id="target1SP", skyline=np.array([2.0, 3.0]))
     target2 = SkylineTarget(id="target2SP", skyline=np.array([3.5, 4.5]))
-    metric = NormalizedMAE()
+    metric = MAPE()
     result = metric.aggregate(summaries, [target1, target2])
     expected = np.array(
         [

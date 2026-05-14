@@ -38,6 +38,7 @@
     <map name="TraitSetFromTaxonSet">feast.fileio.TraitSetFromTaxonSet</map>
     <map name="TypeSet">bdmmprime.parameterization.TypeSet</map>
     <map name="TypeMappedTree">bdmmprime.mapping.TypeMappedTree</map>
+    <map name="TimeParameter">feast.parameter.TimeParameter</map>
 
     <Normal id="Normal" mean="0" sigma="1"/>
     <Laplace id="Laplace" mu="0" scale="1"/>
@@ -49,7 +50,10 @@
     <TraitSetFromTaxonSet id="dateTrait" traitname="date" dateFormat="yyyy-MM-dd" delimiter="|" takeGroup="2" taxa="@taxonSet"/>
     <TypeMappedTree id="typeMappedTree" bdmmDistrib="@BDMMPrime" startTypePriorProbs="@startTypePriorProbs" mapOnInit="false" remapOnLog="true" typeLabel="type" typeTraitSet="@typeTraitSet" untypedTree="@tree"/>
 
-    <run spec="MCMC" chainLength="$(chainLength)">
+    <TimeParameter id="migrationChangeTimes" time="2020-03-01 2020-02-01 2020-01-01" mostRecentSampleTime="2020-03-08" timeFormat="yyyy-MM-dd"/>
+    <TimeParameter id="HubeiLockdown" time="2020-01-23" mostRecentSampleTime="2020-03-08" timeFormat="yyyy-MM-dd"/>
+
+    <run spec="MCMC" chainLength="10000000">
         <state id="state" spec="State">
             <stateNode id="tree" spec="RandomTree" taxa="@alignment" trait="@dateTrait">
                 <populationModel spec="ConstantPopulation" popSize="0.1"/>
@@ -79,21 +83,18 @@
             <distribution id="prior" spec="CompoundDistribution">
                 <distribution id="BDMMPrime" spec="BirthDeathMigrationDistribution" tree="@tree" conditionOnSurvival="true" typeTraitSet="@typeTraitSet">
                     <parameterization id="EpiBDMMPrimeParameterization" spec="EpiParameterization" processLength="@processLength" typeSet="@typeSet">
-                        <Re id="ReSP" spec="SkylineVectorParameter" skylineValues="@Re" timesAreAges="true" processLength="@processLength" typeSet="@typeSet">
-                            <changeTimes spec="TimeParameter" time="2019-12-23" mostRecentSampleTime="$(mostRecentSampleTime)" timeFormat="yyyy-MM-dd"/>
-                        </Re>
+                        <Re id="ReSP" spec="SkylineVectorParameter" skylineValues="@Re" changeTimes="@HubeiLockdown" timesAreAges="true" processLength="@processLength" typeSet="@typeSet"/>
                         <samplingProportion id="samplingProportionSP" spec="SkylineVectorParameter" skylineValues="@samplingProportion" timesAreAges="true" processLength="@processLength" typeSet="@typeSet">
-                            <changeTimes spec="TimeParameter" time="$(firstSampleDate)" mostRecentSampleTime="$(mostRecentSampleTime)" timeFormat="yyyy-MM-dd"/>
+                            <changeTimes spec="TimeParameter" time="2020-01-01" mostRecentSampleTime="2020-03-08" timeFormat="yyyy-MM-dd"/>
                         </samplingProportion>
                         <becomeUninfectiousRate spec="SkylineVectorParameter" skylineValues="36.5" typeSet="@typeSet"/>
-                        <migrationRate id="migrationRateSP" spec="SkylineMatrixParameter" changeTimes="@migrationRateChangeTimes" timesAreAges="true" processLength="@processLength" typeSet="@typeSet">
+                        <migrationRate id="migrationRateSP" spec="SkylineMatrixParameter" changeTimes="@migrationChangeTimes" timesAreAges="true" processLength="@processLength" typeSet="@typeSet">
                             <skylineValues id="migrationRate" spec="bella.BayesMLP" nodes="$(nodes)">
-                                <plate var="predictor" range="$(predictors)">
-                                    <predictor spec="RealParameter" value="$(predictor)"/>
-                                </plate>
+                                <predictor spec="RealParameter" value="$(predictor)"/>
                                 <plate var="n" range="$(layersRange)">
                                     <weights idref="migrationRateW$(n)"/>
                                 </plate>
+                                <hiddenActivation spec="$(hiddenActivation)"/>
                                 <outputActivation spec="Softplus"/>
                             </skylineValues>
                         </migrationRate> 

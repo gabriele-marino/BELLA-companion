@@ -1,6 +1,6 @@
 import argparse
 
-# from bella_companion.eucovid import register_eucovid_cli
+from bella_companion.eucovid import register_eucovid_cli
 from bella_companion.platyrrhine import register_platyrrhine_cli
 from bella_companion.simulations import register_sim_cli
 
@@ -21,10 +21,10 @@ def main():
     )
     register_platyrrhine_cli(platyrrhine_parser)
 
-    # eucovid_parser = subparsers.add_parser(
-    #    "eucovid", help="Empirical eucovid workflows."
-    # )
-    # register_eucovid_cli(eucovid_parser)
+    eucovid_parser = subparsers.add_parser(
+        "eucovid", help="Empirical eucovid workflows."
+    )
+    register_eucovid_cli(eucovid_parser)
 
     args = parser.parse_args()
     args.func()

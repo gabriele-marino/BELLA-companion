@@ -1,6 +1,6 @@
 [project]
 name = "bella-companion"
-version = "0.1.38"
+version = "0.1.51"
 description = "Companion tool with experiments and evaluation for Bayesian Evolutionary Layered Learning Architectures (BELLA) BEAST2 package."
 readme = "README.md"
 authors = [

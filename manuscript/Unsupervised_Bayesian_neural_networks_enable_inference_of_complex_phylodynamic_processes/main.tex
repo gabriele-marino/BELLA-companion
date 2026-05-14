@@ -1,0 +1,84 @@
+\documentclass{article}
+
+\usepackage[english]{babel}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[inkscapelatex=false]{svg}
+
+\usepackage{adjustbox}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{etoc}
+\usepackage{graphicx}
+\usepackage{lineno}
+\usepackage{multirow}
+\usepackage{natbib}
+\usepackage{pdflscape}
+\usepackage{placeins}
+\usepackage{setspace}
+\usepackage{soul}
+\usepackage{tcolorbox}
+\usepackage{xcolor}
+
+\definecolor{softyellow}{RGB}{255, 255, 180}
+
+\newcommand{\ds}[1]{{\textcolor{red}{[DS: #1]}}}
+\newcommand{\todo}[1]{{\textcolor{red}{[#1]}}}
+\newcommand{\cmt}[1]{{\textcolor{red}{[#1]}}}
+\newcommand{\rv}[1]{{\textcolor{blue}{#1}}}
+
+\title{Unsupervised Bayesian neural networks enable inference of complex phylodynamic processes}
+
+\author{
+    Gabriele Marino$^{+,1,2}$ \\
+    Ugnė Stolz$^{1,2}$ \\
+    Cecilia Valenzuela Agüí$^{1,2}$ \\
+    Tanja Stadler$^{*,+,1,2}$ \\
+    Daniele Silvestro$^{*,+,1,2}$
+    }
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+$^+$ Corresponding author \\
+$^*$ Shared senior author \\
+$^1$ Department of Biosystems Science and Engineering, ETH Zürich, Zürich, Switzerland \\
+$^2$ SIB Swiss Institute of Bioinformatics, Lausanne, Switzerland
+\end{center}
+
+\linenumbers
+\setstretch{1.2}
+
+\input{inputs/abstract}
+\input{inputs/significance}
+\input{inputs/introduction}
+
+\section{Results}
+\input{inputs/results/introduction}
+\input{inputs/results/performance}
+\input{inputs/results/interpretation}
+\subsection{Results on empirical data}
+\input{inputs/results/platyrrhine}
+\input{inputs/results/eucovid}
+
+\section{Discussion}
+\input{inputs/discussion/bnn}
+\input{inputs/discussion/platyrrhine}
+\input{inputs/discussion/eucovid}
+\input{inputs/discussion/conclusions}
+
+\input{inputs/methods}
+
+\input{inputs/acknowledgments}
+
+\bibliographystyle{unsrt}
+\bibliography{sample}
+
+\input{inputs/supplementary/main}
+
+\end{document}

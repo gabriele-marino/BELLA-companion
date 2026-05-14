@@ -1,22 +1,22 @@
+import json
 import os
 import subprocess
 from itertools import chain
 
 from bella_companion.eucovid.settings import N_SEEDS
 from bella_companion.settings import settings
+from bella_companion.typings import ModelJobBatch
 
 
-def summarize_eucovid():
-    logs_dir = settings.bella_beast_output_dir / "eucovid"
-    base_summaries_dir = settings.bella_summaries_dir / "eucovid"
+def summarize():
+    logs_dir = settings.beast_output_dir / "eucovid"
+    base_summaries_dir = settings.summaries_dir / "eucovid"
+    with open(settings.job_registry_dir / "eucovid.json", "r") as f:
+        job_ids: ModelJobBatch = json.load(f)
 
-    for model, experiment in [
-        ("BELLA", "flights_and_populations"),
-        ("BELLA", "flights_over_populations"),
-        ("GLM", "flights_over_populations"),
-    ]:
-        log_dir = logs_dir / experiment / model
-        summaries_dir = base_summaries_dir / experiment / model
+    for model in job_ids:
+        log_dir = logs_dir / model
+        summaries_dir = base_summaries_dir / model
         os.makedirs(summaries_dir, exist_ok=True)
 
         options = [

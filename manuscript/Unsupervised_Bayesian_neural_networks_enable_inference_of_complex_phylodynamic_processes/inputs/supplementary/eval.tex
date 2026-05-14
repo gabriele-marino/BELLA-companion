@@ -1,0 +1,61 @@
+\subsection{Evaluation metrics}
+
+\rv{
+    To compare the performance of the different inference approaches (predictor-agnostic, GLM, and BELLA), we computed the posterior median of each target parameter from every MCMC run, along with the corresponding 95\% credible intervals (CIs).
+    Model performance within each scenario was evaluated based on three complementary metrics: the mean absolute percentage error (MAPE) between the posterior median estimates and the true parameter values across the 100 simulated trees, the posterior coefficient of variation (CV), and the empirical coverage of the 95\% CIs.
+}
+    
+\rv{
+Formally, let \( \boldsymbol{\theta}_p = (\theta_{p_1}, \ldots, \theta_{p_K}) \) denote the vector of true values for parameter \( p \), where \( K \) is the number of elements in the vector (e.g., time bins for piecewise-constant time-varying parameters or population pairs for migration rates), and let \( \hat{\boldsymbol{\theta}}_{p}^i = (\hat{\theta}_{p_1}^i, \ldots, \hat{\theta}_{p_K}^i) \) be the corresponding posterior median estimates obtained from tree \( i \), with \( i = 1, \ldots, N \) and \( N = 100 \) simulated trees per scenario.
+For each target parameter \(p\), we normalized absolute errors by the mean true value of that target,
+\[
+    \bar{\theta}_p = \frac{1}{K} \sum_{k=1}^{K} \theta_{p_k}.
+\]
+The MAPE for parameter \(p\) and tree \(i\) was then computed as
+\[
+    \mathrm{MAPE}_p^i = \frac{1}{K} \sum_{k=1}^{K}
+    \frac{\left| \hat{\theta}_{p_k}^i - \theta_{p_k} \right|}{\bar{\theta}_p},
+\]
+and the overall MAPE for a given parameter in a given scenario was obtained by averaging across all trees:
+\[
+    \mathrm{MAPE}_p = \frac{1}{N} \sum_{i=1}^{N} \mathrm{MAPE}_p^i.
+\]
+Thus, the normalization is performed separately for each target parameter vector using its own mean true value, rather than using a global scale shared across targets or scenarios.
+This target-specific scaling avoids using an element-wise denominator \( \theta_{p_k} \), which would over-weight errors in bins where the true value is small and could therefore bias comparisons across time-varying targets whose ranges change over time.
+}
+
+\rv{
+To quantify posterior precision independently of the absolute scale of the parameter, we computed the coefficient of variation of the posterior distribution.
+Let \( m_{p_k}^i \) and \( s_{p_k}^i \) denote the posterior mean and posterior standard deviation, respectively, for element \( k \) of parameter \( p \) in tree \( i \).
+The CV for parameter \(p\) and tree \(i\) was computed as
+\[
+    \mathrm{CV}_p^i = \frac{1}{K} \sum_{k=1}^{K}
+    \frac{s_{p_k}^i}{m_{p_k}^i}.
+\]
+The overall CV for parameter \(p\) in a given scenario was then obtained by averaging across all trees:
+\[
+    \mathrm{CV}_p = \frac{1}{N} \sum_{i=1}^{N} \mathrm{CV}_p^i.
+\]
+}
+
+Coverage was defined as the proportion of true parameter values contained within their respective 95\% credible intervals.
+For each element \( k \) of parameter \( p \) in tree \( i \), let
+\[
+    C_{p_k}^i = \mathbb{I}\!\left( \hat{\theta}_{p_k}^{i,2.5\%} \leq \theta_{p_k} \leq \hat{\theta}_{p_k}^{i,97.5\%} \right),
+\]
+where \( \mathbb{I}(\cdot) \) denotes the indicator function.
+The overall coverage for parameter \( p \) was then obtained by averaging over all elements and all trees:
+\[
+    C_p = \frac{1}{N} \sum_{i=1}^{N} \left( \frac{1}{K} \sum_{k=1}^{K} C_{p_k}^i \right).
+\]
+
+\rv{
+MAPE quantifies estimation accuracy on a target-specific scale, the CV reflects the relative posterior dispersion of the estimates, and coverage measures the calibration of the credible intervals.
+Together, these three criteria provide a comprehensive assessment of both point estimates and uncertainty quantification across models and scenarios.
+}
+
+To assess the computational efficiency and sampling performance of each inference framework, we computed the mean effective sample size per hour.
+For each model and scenario, we first estimated the effective sample size (ESS) \cite{gelman1995bayesian} of all inference targets obtained from the posterior samples.
+The ESS quantifies the number of effectively independent draws from the posterior, accounting for autocorrelation in the MCMC chain.
+The mean ESS across all parameters was then divided by the total wall-clock time (in hours) required for the corresponding inference run.
+This procedure was repeated across all replicate phylogenetic trees, yielding the mean ESS/hour averaged over all replicates for each scenario, allowing for direct comparison of computation efficiency between models.

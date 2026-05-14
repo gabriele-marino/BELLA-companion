@@ -1,0 +1,34 @@
+\begin{landscape}
+    \begin{table*}[h!]
+        \centering
+        \begin{tabular}{cccccccccccc}
+            \toprule
+
+            \multicolumn{12}{c}{\textbf{MAPE}}                                                                                                                                                                                                                                                                                                      \\
+            \midrule
+
+            \textbf{Scenario} & PA                     & GLM                     & BELLA-1                     & BELLA-2                     & BELLA-3                     & BELLA-4                     & BELLA-5                     & BELLA-6                     & BELLA-7                     & BELLA-8                     & BELLA-9                     \\
+            \midrule
+
+            \texttt{Epi-1}    & 0.173   & 0.07   & 0.088   & \textbf{0.034}   & 0.068   & 0.099   & \underline{0.04}   & 0.098   & 0.105   & 0.068   & 0.078   \\[6pt]
+
+            \texttt{Epi-2}    & 0.143   & \textbf{0.046}   & 0.068   & 0.061   & 0.063   & 0.084   & 0.065   & 0.085   & 0.081   & \underline{0.051}   & 0.082   \\[6pt]
+
+            \texttt{Epi-3}    & 0.166   & 0.114   & 0.096   & \underline{0.083}   & 0.085   & 0.113   & \textbf{0.083}   & 0.104   & 0.094   & 0.092   & 0.103   \\[6pt]
+
+            \texttt{Epi-4}    & 2.252   & 0.397   & 0.368   & \textbf{0.297}   & 0.362   & 0.868   & \underline{0.328}   & 0.512   & 0.655   & 0.359   & 1.638   \\[6pt]
+
+            \texttt{FBD-1}    & 0.866 & 0.216 & 0.249 & \textbf{0.123} & 0.244 & 0.316 & 0.18 & 0.253 & 0.282 & \underline{0.147} & 0.322 \\[6pt]
+
+            \texttt{FBD-2}    & 0.471 & \underline{0.15} & 0.158 & 0.164 & 0.162 & 0.188 & 0.166 & 0.181 & 0.172 & \textbf{0.129} & 0.198 \\[6pt]
+
+            \texttt{FBD-3}    & 0.955 & 0.895 & 0.438 & 0.305 & 0.311 & 0.343 & \textbf{0.282} & \underline{0.29} & 0.434 & 0.586 & 0.334 \\[6pt]
+
+            \texttt{FBD-4}    & 0.928     & 0.27     & \textbf{0.218}     & 0.243     & 0.234     & 0.266     & 0.249     & 0.234     & 0.243     & \underline{0.233}     & 0.267     \\[6pt]
+
+            \bottomrule
+        \end{tabular}
+        \caption{MAPE averaged over 100 simulated trees per scenario and across targets, for all scenarios and inference frameworks (PA denotes the predictor-agnostic model). Bold indicates the best, underlined indicates the second-best.}%
+        \label{tab:mape}
+    \end{table*}
+\end{landscape}

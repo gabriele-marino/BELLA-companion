@@ -1,0 +1,13 @@
+\section{Methods}
+
+\subsection{Computational runtime}
+
+The increased parameter space associated with neural networks compared to predictor-agnostic or GLM-based formulations make them computationally slower (Tab.~\ref{tab:ess_per_hour}); overall the runtime difference varied by roughly a factor of 10.
+As expected, smaller neural networks tend to converge faster in simple settings, whereas larger architectures may be preferable when handling a greater number of predictors.
+We ran both empirical analyses for 24 hours, by which point all chains had reached a substantial number of effective samples ($\text{ESS} >> 200$) for each estimated parameter.
+
+\subsection{Implementation and data availability}
+Our approach is implemented in the BEAST 2 framework \cite{bouckaert2019beast} as a new package, \textit{Bayesian Evolutionary Layered Learning Architectures} (BELLA), which is publicly available at \url{https://github.com/gabriele-marino/BELLA/}.
+BELLA can be seamlessly combined with a wide range of birth--death population models, sequence evolution models, and the various operators provided in BEAST 2, enabling phylodynamic inference to be performed either jointly with phylogenetic tree estimation---accounting for tree uncertainty---or based on a fixed, known tree. 
+
+All code required to reproduce the analyses presented here is available at \url{https://github.com/gabriele-marino/BELLA-companion}, including code used to simulate the benchmarking data; the empirical New World monkey phylogenies; the aligned SARS-CoV-2 sequences with GenBank identifiers; the BEAST configuration files used to run inference on both simulated and empirical data; and the post-processing and interpretation pipelines based on partial dependence plots and Shapley feature importance.

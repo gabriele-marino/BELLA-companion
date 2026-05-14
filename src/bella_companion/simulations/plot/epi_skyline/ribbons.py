@@ -1,5 +1,5 @@
-import os
 import string
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -10,10 +10,7 @@ from bella_companion.simulations.plot.common import plot_medians_ribbon
 from bella_companion.simulations.scenarios import EPI_SKYLINE_SCENARIOS, EPI_TIME_AXIS
 
 
-def plot_ribbons():
-    base_output_dir = settings.figures_dir / "epi-skyline"
-    os.makedirs(base_output_dir, exist_ok=True)
-
+def plot_ribbons(output_file: Path):
     _, axes = plt.subplots(  # pyright: ignore
         3, 3, figsize=(8, 8), sharey="row", sharex="col", layout="constrained"
     )
@@ -42,7 +39,7 @@ def plot_ribbons():
                 color=settings.model_colors[model],
             )
 
-    for ax in axes[0, :]:
+    for ax in axes[:, 0]:
         ax.set_ylabel("$R_t$")
     for ax in axes[-1, :]:
         ax.set_xlabel("Time")
@@ -60,4 +57,4 @@ def plot_ribbons():
             handleheight=1.5,
         )
 
-    plt.savefig(base_output_dir / "ribbons.svg")  # pyright: ignore
+    plt.savefig(output_file)  # pyright: ignore

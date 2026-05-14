@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import Any, TypeAlias
 
 import matplotlib.pyplot as plt
@@ -53,8 +54,7 @@ def ribbon_plot(
     label: str | None = None,
     ax: Axes | None = None,
     skyline: bool = False,
-    lower_percentile: float = 2.5,
-    upper_percentile: float = 97.5,
+    percentiles: Iterable[float] = (50, 95),
     show_fill: bool = True,
     fill_kwargs: dict[str, Any] | None = None,
     show_samples: bool = True,
@@ -75,8 +75,7 @@ def ribbon_plot(
         label: The label for the median line.
         ax: The matplotlib Axes to plot on. If None, uses the current Axes.
         skyline: Whether to use a skyline (step) plot.
-        lower_percentile: The lower percentile for the percentile interval.
-        upper_percentile: The upper percentile for the percentile interval.
+        percentiles: The percentiles for the percentile interval fill.
         show_fill: Whether to show the percentile interval fill.
         fill_kwargs: Additional keyword arguments for the fill_between call.
         show_samples: Whether to show individual sample lines.
@@ -98,19 +97,19 @@ def ribbon_plot(
         x = list(range(n_points))
 
     if show_fill:
-        lower = np.percentile(y, lower_percentile, axis=0)
-        high = np.percentile(y, upper_percentile, axis=0)
-        if fill_kwargs is None:
-            fill_kwargs = {}
-        if "alpha" not in fill_kwargs:
-            fill_kwargs["alpha"] = 0.25
-        if "color" not in fill_kwargs:
-            fill_kwargs["color"] = color
-        if skyline:
-            fill_kwargs["step"] = "pre"
-            lower = [lower[0], *lower]
-            high = [high[0], *high]
-        ax.fill_between(x, lower, high, **fill_kwargs)  # pyright: ignore
+        for percentile in percentiles:
+            lower = np.percentile(y, 50 - percentile / 2, axis=0)
+            high = np.percentile(y, 50 + percentile / 2, axis=0)
+            if fill_kwargs is None:
+                fill_kwargs = {}
+            fill_kwargs["alpha"] = 0.20 + (95 - percentile) * (0.30 / 95)
+            if "color" not in fill_kwargs:
+                fill_kwargs["color"] = color
+            if skyline:
+                fill_kwargs["step"] = "pre"
+                lower = [lower[0], *lower]
+                high = [high[0], *high]
+            ax.fill_between(x, lower, high, **fill_kwargs)  # pyright: ignore
 
     if show_samples:
         if samples_kwargs is None:

@@ -1,0 +1,20 @@
+\begin{table}[h]
+\centering
+\begin{tabular}{c c c c c}
+\toprule
+ & Weights Prior & Hidden Activation & Hidden Nodes & \# Parameters \\
+\midrule
+BELLA-1 & Normal   & ReLU     & [16]        & $16p + 33$ \\
+BELLA-2 & Normal   & ReLU     & [3, 2]      & $3p + 14$ \\
+BELLA-3 & Normal   & ReLU     & [16, 8]     & $16p + 161$ \\
+BELLA-4 & Normal   & ReLU     & [32, 16]    & $32p + 577$ \\
+BELLA-5 & Normal   & ReLU     & [16, 8, 4]  & $16p + 193$ \\
+BELLA-6 & Normal   & Tanh     & [32, 16]    & $32p + 577$ \\
+BELLA-7 & Normal   & Softplus & [32, 16]    & $32p + 577$ \\
+BELLA-8 & Normal   & Sigmoid  & [32, 16]    & $32p + 577$ \\
+BELLA-9 & Laplace  & ReLU     & [32, 16]    & $32p + 577$ \\
+\bottomrule
+\end{tabular}
+\caption{Overview of BELLA configurations. Let $p$ denote the number of input predictors, $n_{\text{in}}$ the number of input units to a layer, and $n_{\text{out}}$ the number of output units from that layer. The total number of parameters is obtained by summing $(n_{\text{in}}+1)\cdot n_{\text{out}}$ over all layers, where the $+1$ accounts for bias terms, and the final output layer has one unit. For instance, \texttt{BELLA-4} yields $(p+1)\cdot32 + (32+1)\cdot16 + (16+1)\cdot1 = 32p + 577$. All models use either a Normal $\mathcal{N}(0,1)$ or Laplace $\mathrm{Laplace}(0,1)$ weight prior.}
+\label{tab:models}
+\end{table}

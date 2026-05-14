@@ -54,7 +54,7 @@ wheels = [
 
 [[package]]
 name = "bella-companion"
-version = "0.1.38"
+version = "0.1.50"
 source = { editable = "." }
 dependencies = [
     { name = "arviz" },
